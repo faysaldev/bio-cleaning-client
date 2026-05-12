@@ -32,7 +32,8 @@ export default function WhyChooseUs() {
   return (
     <section className="py-24">
       <div className="container-page">
-        <div className="text-center mb-14">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-end mb-14">
+          <div>
           <span className="pill" data-reveal>
             — Why Us —
           </span>
@@ -42,19 +43,34 @@ export default function WhyChooseUs() {
           >
             Why choose us as your cleaning partner?
           </h2>
+          </div>
+          <p className="text-muted-foreground lg:text-lg" data-reveal>
+            We pair a hospitality-level client experience with trained cleaners,
+            clear systems, and products that are tough on mess without being
+            harsh on your home.
+          </p>
         </div>
 
         <div
           className="grid lg:grid-cols-5 gap-6 items-stretch"
           data-reveal-group
         >
-          <div className="lg:col-span-2 rounded-3xl overflow-hidden">
+          <div className="lg:col-span-2 rounded-3xl overflow-hidden relative min-h-[420px]">
             <Image
               src={whyChoose}
               alt="Bright clean living room"
               sizes="(min-width: 1024px) 40vw, 100vw"
-              className="w-full h-full object-cover min-h-[380px]"
+              className="absolute inset-0 w-full h-full object-cover"
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/80 to-transparent" />
+            <div className="absolute bottom-6 left-6 right-6 rounded-2xl bg-white/12 border border-white/10 p-5 text-white backdrop-blur-md">
+              <div className="text-brand-lime text-sm font-semibold">
+                BIO Promise
+              </div>
+              <div className="font-display text-2xl mt-1">
+                Clean, calm, and completely handled.
+              </div>
+            </div>
           </div>
           <div className="lg:col-span-3 grid sm:grid-cols-2 gap-4">
             {items.map(({ icon: Icon, title, desc, lime }) => (
@@ -72,6 +88,26 @@ export default function WhyChooseUs() {
               </div>
             ))}
           </div>
+        </div>
+        <div
+          className="mt-6 grid md:grid-cols-3 gap-4"
+          data-reveal-group
+        >
+          {[
+            ["01", "Transparent pricing before arrival"],
+            ["02", "Eco-first products and equipment"],
+            ["03", "Re-clean support within 24 hours"],
+          ].map(([n, label]) => (
+            <div
+              key={label}
+              className="rounded-2xl bg-brand-dark text-white p-5 flex items-center gap-4"
+            >
+              <span className="font-display text-3xl text-brand-lime">
+                {n}
+              </span>
+              <span className="text-sm text-white/80">{label}</span>
+            </div>
+          ))}
         </div>
       </div>
     </section>

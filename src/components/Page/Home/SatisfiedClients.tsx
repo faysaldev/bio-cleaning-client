@@ -27,6 +27,9 @@ export default function SatisfiedClients() {
     <section className="py-24">
       <div className="container-page">
         <div className="rounded-[2.5rem] bg-brand-lime p-10 md:p-16 text-center text-brand-dark relative overflow-hidden">
+          <div className="absolute inset-0 leaf-bg opacity-20" />
+          <div className="absolute -left-20 -top-20 w-64 h-64 rounded-full bg-white/25 blur-3xl" />
+          <div className="relative">
           <span className="pill bg-brand-dark text-brand-lime" data-reveal>
             ★ Our Satisfied Clients
           </span>
@@ -75,6 +78,24 @@ export default function SatisfiedClients() {
             {[...Array(5)].map((_, i) => (
               <Star key={i} className="w-4 h-4 fill-current" />
             ))}
+          </div>
+          <div
+            className="mt-10 grid sm:grid-cols-3 gap-3 max-w-2xl mx-auto"
+            data-reveal-group
+          >
+            {[
+              ["98%", "Would rebook"],
+              ["24h", "Re-clean window"],
+              ["5.1K+", "Happy clients"],
+            ].map(([n, label]) => (
+              <div key={label} className="rounded-2xl bg-brand-dark p-4 text-brand-lime">
+                <div className="font-display text-3xl">{n}</div>
+                <div className="text-[10px] uppercase tracking-wider">
+                  {label}
+                </div>
+              </div>
+            ))}
+          </div>
           </div>
         </div>
       </div>

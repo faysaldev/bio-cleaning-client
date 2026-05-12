@@ -1,8 +1,6 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
-
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, MessageCircle, Minus, Plus } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -36,57 +34,78 @@ export default function FAQ() {
   const [open, setOpen] = useState(0);
   return (
     <section className="py-24">
-      <div className="container-page max-w-3xl">
-        <div className="text-center mb-12">
-          <span className="pill" data-reveal>
-            — FAQ —
-          </span>
-          <h2
-            className="mt-3 text-4xl md:text-5xl text-brand-dark font-display"
-            data-reveal
-          >
-            Helpful questions about our services
-          </h2>
-        </div>
-        <div className="space-y-3" data-reveal-group>
-          {faqs.map((f, i) => {
-            const isOpen = open === i;
-            return (
-              <div
-                key={f.q}
-                className={`rounded-2xl border transition ${isOpen ? "border-brand-green bg-brand-cream" : "border-border bg-white"}`}
-              >
-                <button
-                  onClick={() => setOpen(isOpen ? -1 : i)}
-                  className="w-full flex items-center justify-between gap-4 p-5 text-left"
-                >
-                  <span className="font-semibold text-brand-dark">{f.q}</span>
-                  <span
-                    className={`shrink-0 w-8 h-8 rounded-full grid place-items-center transition ${isOpen ? "bg-brand-lime text-brand-dark" : "bg-brand-cream text-brand-green"}`}
+      <div className="container-page">
+        <div className="grid lg:grid-cols-[0.75fr_1.25fr] gap-10 items-start">
+          <div className="lg:sticky lg:top-28">
+            <span className="pill" data-reveal>
+              — FAQ —
+            </span>
+            <h2
+              className="mt-3 text-4xl md:text-5xl text-brand-dark font-display"
+              data-reveal
+            >
+              Helpful questions about our services
+            </h2>
+            <p className="text-muted-foreground mt-4" data-reveal>
+              Clear answers before you book, with human support whenever you
+              need it.
+            </p>
+            <div
+              className="mt-8 rounded-3xl bg-brand-dark text-white p-6"
+              data-reveal
+            >
+              <MessageCircle className="w-9 h-9 text-brand-lime" />
+              <h3 className="font-display text-2xl mt-4">Still deciding?</h3>
+              <p className="text-white/65 text-sm mt-2">
+                Send your ZIP code and room count. We&apos;ll recommend the best
+                package.
+              </p>
+            </div>
+          </div>
+          <div>
+            <div className="space-y-3" data-reveal-group>
+              {faqs.map((f, i) => {
+                const isOpen = open === i;
+                return (
+                  <div
+                    key={f.q}
+                    className={`rounded-2xl border transition ${isOpen ? "border-brand-green bg-brand-cream" : "border-border bg-white"}`}
                   >
-                    {isOpen ? (
-                      <Minus className="w-4 h-4" />
-                    ) : (
-                      <Plus className="w-4 h-4" />
+                    <button
+                      onClick={() => setOpen(isOpen ? -1 : i)}
+                      className="w-full flex items-center justify-between gap-4 p-5 text-left"
+                    >
+                      <span className="font-semibold text-brand-dark">
+                        {f.q}
+                      </span>
+                      <span
+                        className={`shrink-0 w-8 h-8 rounded-full grid place-items-center transition ${isOpen ? "bg-brand-lime text-brand-dark" : "bg-brand-cream text-brand-green"}`}
+                      >
+                        {isOpen ? (
+                          <Minus className="w-4 h-4" />
+                        ) : (
+                          <Plus className="w-4 h-4" />
+                        )}
+                      </span>
+                    </button>
+                    {isOpen && (
+                      <div className="px-5 pb-5 text-sm text-muted-foreground leading-relaxed">
+                        {f.a}
+                      </div>
                     )}
-                  </span>
-                </button>
-                {isOpen && (
-                  <div className="px-5 pb-5 text-sm text-muted-foreground leading-relaxed">
-                    {f.a}
                   </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-        <div className="text-center mt-10">
-          <Link
-            href="/contact"
-            className="bg-brand-lime text-brand-dark font-bold px-7 py-3.5 rounded-full inline-flex items-center gap-2 hover:scale-[1.02] transition"
-          >
-            Ask a Question <ArrowRight className="w-4 h-4" />
-          </Link>
+                );
+              })}
+            </div>
+            <div className="text-center mt-10">
+              <Link
+                href="/contact"
+                className="bg-brand-lime text-brand-dark font-bold px-7 py-3.5 rounded-full inline-flex items-center gap-2 hover:scale-[1.02] transition"
+              >
+                Ask a Question <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </section>

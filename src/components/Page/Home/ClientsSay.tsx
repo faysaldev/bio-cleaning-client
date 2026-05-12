@@ -25,21 +25,22 @@ export default function ClientsSay() {
     setIdx((i) => (i + dir + TESTIMONIALS.length) % TESTIMONIALS.length);
 
   return (
-    <section className="py-24 bg-[oklch(0.96_0.02_220)]">
+    <section className="py-24 bg-brand-dark text-white overflow-hidden">
       <div className="container-page text-center">
-        <span className="pill" data-reveal>
+        <span className="pill bg-brand-lime text-brand-dark" data-reveal>
           — Testimonials —
         </span>
-        <h2
-          className="mt-3 text-4xl md:text-5xl text-brand-dark font-display"
-          data-reveal
-        >
-          What our clients say about us
+        <h2 className="mt-3 text-4xl md:text-5xl font-display" data-reveal>
+          Real reactions after the final walkthrough
         </h2>
+        <p className="mt-3 text-white/65 max-w-xl mx-auto" data-reveal>
+          Video stories from clients who needed their homes, offices, and moving
+          days brought back in order.
+        </p>
 
         <div className="relative mt-14 max-w-3xl mx-auto" data-reveal>
-          <div className="absolute -inset-4 bg-white rounded-3xl shadow-xl rotate-2" />
-          <div className="absolute -inset-4 bg-white rounded-3xl shadow-xl -rotate-1" />
+          <div className="absolute -inset-4 bg-brand-lime/25 rounded-3xl shadow-xl rotate-2" />
+          <div className="absolute -inset-4 bg-white/10 rounded-3xl shadow-xl -rotate-1" />
           <div
             key={idx}
             className="relative bg-white rounded-3xl shadow-2xl overflow-hidden animate-[fade-in_.6s_ease-out]"
@@ -102,6 +103,22 @@ export default function ClientsSay() {
               />
             ))}
           </div>
+        </div>
+
+        <div
+          className="mt-14 grid sm:grid-cols-3 gap-3 max-w-3xl mx-auto"
+          data-reveal-group
+        >
+          {["Trusted by families", "Loved by office teams", "Ready for move-outs"].map(
+            (label) => (
+              <div
+                key={label}
+                className="rounded-2xl border border-white/10 bg-white/8 px-5 py-4 text-sm font-semibold"
+              >
+                {label}
+              </div>
+            ),
+          )}
         </div>
       </div>
 

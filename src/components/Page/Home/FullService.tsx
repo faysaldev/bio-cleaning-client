@@ -1,6 +1,6 @@
 import fullService2 from "@/src/assets/full-services-2.jpeg";
 import fullService from "@/src/assets/full-services.jpeg";
-import { ArrowRight, Check, Sparkles } from "lucide-react";
+import { ArrowRight, Check, ClipboardCheck, ShieldCheck, Sparkles } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -14,19 +14,39 @@ export default function FullService() {
   return (
     <section className="py-24">
       <div className="container-page grid lg:grid-cols-2 gap-12 items-center">
-        <div className="grid grid-cols-2 gap-4" data-reveal-group>
-          <Image
-            src={fullService}
-            alt="Cleaning team at work"
-            sizes="(min-width: 1024px) 25vw, 50vw"
-            className="rounded-3xl object-cover w-full h-72 md:h-96"
-          />
-          <Image
-            src={fullService2}
-            alt="Professional cleaner"
-            sizes="(min-width: 1024px) 25vw, 50vw"
-            className="rounded-3xl object-cover w-full h-72 md:h-96 mt-10"
-          />
+        <div className="relative" data-reveal-group>
+          <div className="grid grid-cols-2 gap-4">
+            <Image
+              src={fullService}
+              alt="Cleaning team at work"
+              sizes="(min-width: 1024px) 25vw, 50vw"
+              className="rounded-3xl object-cover w-full h-72 md:h-96 shadow-xl"
+            />
+            <Image
+              src={fullService2}
+              alt="Professional cleaner"
+              sizes="(min-width: 1024px) 25vw, 50vw"
+              className="rounded-3xl object-cover w-full h-72 md:h-96 mt-10 shadow-2xl"
+            />
+          </div>
+          <div className="absolute left-6 right-6 bottom-6 rounded-3xl bg-brand-dark/90 text-white p-5 backdrop-blur-md shadow-2xl">
+            <div className="grid grid-cols-3 gap-3 text-center">
+              {[
+                ["50+", "Team"],
+                ["24h", "Support"],
+                ["100%", "Eco"],
+              ].map(([n, l]) => (
+                <div key={l}>
+                  <div className="font-display text-2xl text-brand-lime">
+                    {n}
+                  </div>
+                  <div className="text-[10px] uppercase tracking-wider text-white/60">
+                    {l}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
         <div data-reveal>
           <span className="pill">
@@ -50,6 +70,29 @@ export default function FullService() {
               </li>
             ))}
           </ul>
+          <div className="mt-8 grid sm:grid-cols-2 gap-3" data-reveal-group>
+            {[
+              {
+                icon: ClipboardCheck,
+                title: "50-point checklist",
+                copy: "Every job follows a room-by-room quality path.",
+              },
+              {
+                icon: ShieldCheck,
+                title: "Trusted arrival",
+                copy: "Vetted teams, clear timing, and careful handoff.",
+              },
+            ].map(({ icon: Icon, title, copy }) => (
+              <div
+                key={title}
+                className="rounded-2xl border border-border bg-brand-cream p-4"
+              >
+                <Icon className="w-6 h-6 text-brand-green mb-2" />
+                <div className="font-semibold text-brand-dark">{title}</div>
+                <p className="text-sm text-muted-foreground mt-1">{copy}</p>
+              </div>
+            ))}
+          </div>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/book"
