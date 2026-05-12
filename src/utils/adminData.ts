@@ -122,7 +122,9 @@ export const recentBookings: Booking[] = [
 
 export type AdminService = {
   name: string;
-  category: string;
+  description: string;
+  features: string[];
+  tags: string[];
   price: string;
   duration: string;
   active: boolean;
@@ -131,21 +133,30 @@ export type AdminService = {
 export const adminServices: AdminService[] = [
   {
     name: "Residential Cleaning",
-    category: "Home",
+    description:
+      "A polished recurring or one-time reset for homes, condos, and apartments.",
+    features: ["Kitchen wipe-down", "Bathroom sanitizing", "Dusting", "Floors"],
+    tags: ["home", "apartment"],
     price: "$149",
     duration: "2-3 hrs",
     active: true,
   },
   {
     name: "Commercial Cleaning",
-    category: "Office",
+    description:
+      "Reliable workspace cleaning for offices, studios, retail, and clinics.",
+    features: ["Desk sanitizing", "Restroom care", "Trash removal", "Floors"],
+    tags: ["office", "commercial"],
     price: "$229",
     duration: "3-5 hrs",
     active: true,
   },
   {
     name: "Deep Cleaning",
-    category: "Premium",
+    description:
+      "Detail-heavy cleaning for buildup, seasonal resets, and first-time jobs.",
+    features: ["Baseboards", "Inside appliances", "Grout detail", "Vents"],
+    tags: ["home", "premium"],
     price: "$249",
     duration: "4-6 hrs",
     active: true,
