@@ -9,6 +9,8 @@ import {
   Clock,
   Sparkles,
   ArrowRight,
+  Check,
+  BadgeCheck,
 } from "lucide-react";
 import residential from "@/src/assets/service-residential.jpeg";
 import commercial from "@/src/assets/service-commercial.jpeg";
@@ -16,6 +18,9 @@ import { useGsapReveal } from "../hooks/useGsapReveal";
 import { SiteLayout } from "../Layouts/SiteLayout";
 import Link from "next/link";
 import Image from "next/image";
+
+const TEAM_IMAGE =
+  "https://res.cloudinary.com/dk3v0m35u/image/upload/q_auto/f_auto/v1778614866/profile_mthun7.png";
 
 export default function AboutPage() {
   const ref = useGsapReveal<HTMLDivElement>();
@@ -164,6 +169,47 @@ export default function AboutPage() {
           </div>
         </section>
 
+        <section className="py-20 bg-brand-dark text-white overflow-hidden">
+          <div className="container-page">
+            <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-10 items-center">
+              <div data-reveal>
+                <span className="pill bg-brand-lime text-brand-dark">
+                  <BadgeCheck className="w-3.5 h-3.5" /> BIO Standard
+                </span>
+                <h2 className="mt-4 text-4xl md:text-5xl">
+                  A sharper system behind every spotless room
+                </h2>
+                <p className="mt-5 text-white/70 max-w-xl">
+                  Great cleaning should feel invisible: the team arrives ready,
+                  the checklist is clear, and every surface gets finished with
+                  calm precision.
+                </p>
+              </div>
+              <div
+                className="grid sm:grid-cols-2 gap-4"
+                data-reveal-group
+              >
+                {[
+                  "Room-by-room quality checks",
+                  "Eco-safe supplies for every visit",
+                  "Clear arrival windows",
+                  "Follow-up support after service",
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="rounded-2xl border border-white/10 bg-white/8 p-5 backdrop-blur-sm"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-brand-lime text-brand-dark grid place-items-center mb-4">
+                      <Check className="w-5 h-5" strokeWidth={3} />
+                    </div>
+                    <div className="font-semibold text-white">{item}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="py-20 bg-brand-cream">
           <div className="container-page">
             <div className="text-center mb-12">
@@ -175,33 +221,65 @@ export default function AboutPage() {
               </h2>
             </div>
             <div
-              className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
-              data-reveal-group
+              className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-stretch"
+              data-reveal
             >
-              {[
-                { name: "Maya Rivera", role: "Co-Founder & CEO", c: 1 },
-                { name: "Daniel Cho", role: "Co-Founder & COO", c: 2 },
-                { name: "Aisha Bennett", role: "Operations Lead", c: 3 },
-                { name: "Marcus Lee", role: "Quality Manager", c: 4 },
-              ].map((m) => (
-                <div
-                  key={m.name}
-                  className="bg-white rounded-2xl overflow-hidden shadow-card group"
-                >
-                  <div
-                    className="aspect-square"
-                    style={{
-                      background: `linear-gradient(135deg, oklch(0.7 0.1 ${100 + m.c * 30}), oklch(0.5 0.13 ${140 + m.c * 30}))`,
-                    }}
-                  />
-                  <div className="p-5 text-center">
-                    <div className="font-bold text-brand-dark">{m.name}</div>
-                    <div className="text-xs text-muted-foreground uppercase tracking-wider mt-1">
-                      {m.role}
-                    </div>
+              <div className="relative rounded-3xl overflow-hidden bg-brand-dark min-h-[460px] shadow-2xl">
+                <div className="absolute inset-0 leaf-bg opacity-35" />
+                <Image
+                  src={TEAM_IMAGE}
+                  alt="Faysal Mridha"
+                  width={900}
+                  height={1100}
+                  sizes="(min-width: 1024px) 40vw, 100vw"
+                  className="relative z-10 w-full h-full object-cover object-top"
+                  priority={false}
+                />
+                <div className="absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-brand-dark via-brand-dark/70 to-transparent p-7 text-white">
+                  <div className="text-xs uppercase tracking-[0.25em] text-brand-lime">
+                    Founder Profile
+                  </div>
+                  <div className="mt-1 text-3xl font-display font-bold">
+                    Faysal Mridha
                   </div>
                 </div>
-              ))}
+              </div>
+
+              <div className="bg-white rounded-3xl p-8 md:p-10 shadow-card flex flex-col justify-center">
+                <span className="pill w-fit">
+                  <Sparkles className="w-3.5 h-3.5" /> Lead With Care
+                </span>
+                <h3 className="mt-5 text-3xl md:text-4xl text-brand-dark">
+                  Built around trust, consistency, and a premium finish
+                </h3>
+                <p className="mt-4 text-muted-foreground">
+                  Faysal Mridha leads BIO Cleaning with a simple operating
+                  principle: every client should feel confident before the team
+                  arrives and delighted after the final walkthrough.
+                </p>
+                <div
+                  className="mt-8 grid sm:grid-cols-3 gap-3"
+                  data-reveal-group
+                >
+                  {[
+                    ["01", "Clear standards"],
+                    ["02", "Trained teams"],
+                    ["03", "Client-first service"],
+                  ].map(([n, label]) => (
+                    <div
+                      key={label}
+                      className="rounded-2xl bg-brand-cream p-4 border border-border/70"
+                    >
+                      <div className="text-brand-green font-display text-2xl font-bold">
+                        {n}
+                      </div>
+                      <div className="mt-1 text-sm font-semibold text-brand-dark">
+                        {label}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </section>
