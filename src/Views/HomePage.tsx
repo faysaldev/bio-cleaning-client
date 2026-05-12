@@ -1,3 +1,5 @@
+"use client";
+
 import Hero from "../components/Page/Home/Hero";
 import FullService from "../components/Page/Home/FullService";
 import ClientsSay from "../components/Page/Home/ClientsSay";

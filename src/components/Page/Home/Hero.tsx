@@ -1,14 +1,17 @@
 import heroInterior from "@/src/assets/home-interior.jpeg";
 import QuoteBar from "@/src/components/Page/Home/QuoteBar";
 import { BadgeCheck } from "lucide-react";
+import Image from "next/image";
 
 export default function Hero() {
   return (
     <section className="relative px-3 pt-4">
       <div className="relative rounded-[2rem] overflow-hidden min-h-[640px] flex items-center justify-center">
-        <img
+        <Image
           src={heroInterior}
           alt="Luxury home interior"
+          priority
+          sizes="100vw"
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-brand-dark/80 via-brand-dark/55 to-brand-dark/85" />

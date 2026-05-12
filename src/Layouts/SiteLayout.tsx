@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Navbar } from "@/src/components/Navbar";
-import { Footer } from "./Footer";
+import { Footer } from "@/src/components/Footer";
 
 export function SiteLayout({
   children,

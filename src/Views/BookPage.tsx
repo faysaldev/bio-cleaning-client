@@ -1,3 +1,5 @@
+"use client";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import {
@@ -16,6 +18,10 @@ import { useGsapReveal } from "../hooks/useGsapReveal";
 
 const STEPS = ["Service", "Date & Time", "Your Details", "Confirm"];
 
+function createBookingReference() {
+  return `BIO-${Math.floor(Math.random() * 90000 + 10000)}`;
+}
+
 export default function BookPage() {
   const [step, setStep] = useState(0);
   const [data, setData] = useState<any>({
@@ -25,6 +31,7 @@ export default function BookPage() {
     frequency: "One-time",
   });
   const [done, setDone] = useState(false);
+  const [reference, setReference] = useState("");
   const ref = useGsapReveal<HTMLDivElement>();
 
   if (done) {
@@ -41,9 +48,9 @@ export default function BookPage() {
             <p className="text-muted-foreground mt-3">
               Reference{" "}
               <span className="font-mono font-bold text-brand-dark">
-                BIO-{Math.floor(Math.random() * 90000 + 10000)}
+                {reference}
               </span>
-              . We've sent a confirmation to your email.
+              . We&apos;ve sent a confirmation to your email.
             </p>
             <Link href="/" className="btn-primary mt-8 inline-flex">
               Back to Home
@@ -289,7 +296,13 @@ export default function BookPage() {
                     Continue <ArrowRight className="w-4 h-4" />
                   </button>
                 ) : (
-                  <button onClick={() => setDone(true)} className="btn-primary">
+                  <button
+                    onClick={() => {
+                      setReference(createBookingReference());
+                      setDone(true);
+                    }}
+                    className="btn-primary"
+                  >
                     Confirm Booking <Check className="w-4 h-4" />
                   </button>
                 )}
@@ -381,7 +394,9 @@ export default function BookPage() {
                       <Star key={i} className="w-4 h-4 fill-current" />
                     ))}
                   </div>
-                  <p className="text-sm italic text-foreground/80">"{t.q}"</p>
+                  <p className="text-sm italic text-foreground/80">
+                    &ldquo;{t.q}&rdquo;
+                  </p>
                   <div className="mt-3 text-xs font-semibold text-brand-dark">
                     — {t.n}
                   </div>

@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Leaf,
   ShieldCheck,
@@ -13,6 +15,7 @@ import commercial from "@/src/assets/service-commercial.jpeg";
 import { useGsapReveal } from "../hooks/useGsapReveal";
 import { SiteLayout } from "../Layouts/SiteLayout";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function AboutPage() {
   const ref = useGsapReveal<HTMLDivElement>();
@@ -43,12 +46,10 @@ export default function AboutPage() {
 
         <section className="py-20">
           <div className="container-page grid md:grid-cols-2 gap-12 items-center">
-            <img
+            <Image
               src={residential}
               alt="Our team at work"
-              loading="lazy"
-              width={800}
-              height={600}
+              sizes="(min-width: 768px) 50vw, 100vw"
               className="rounded-2xl shadow-xl"
               data-reveal
             />
@@ -62,8 +63,8 @@ export default function AboutPage() {
               <p className="mt-5 text-muted-foreground" data-reveal>
                 Founded in 2017, BIO Cleaning started with two friends, a
                 beat-up van, and a vow to never use a toxic cleaner again. Eight
-                years later, we're a 50-person team serving thousands of homes
-                and businesses — and the promise hasn't changed.
+                years later, we&apos;re a 50-person team serving thousands of
+                homes and businesses — and the promise hasn&apos;t changed.
               </p>
               <p className="mt-3 text-muted-foreground" data-reveal>
                 Every chemical we use is plant-based, every team member is
@@ -236,11 +237,11 @@ export default function AboutPage() {
                   ))}
                 </div>
               </div>
-              <img
+              <Image
                 src={commercial}
                 alt="BIO team"
                 className="w-full h-full object-cover min-h-[400px]"
-                loading="lazy"
+                sizes="(min-width: 768px) 50vw, 100vw"
               />
             </div>
           </div>
@@ -259,8 +260,8 @@ export default function AboutPage() {
               className="text-muted-foreground mt-3 max-w-xl mx-auto"
               data-reveal
             >
-              We're always growing. Whether you want to work with us or hire us,
-              we'd love to hear from you.
+              We&apos;re always growing. Whether you want to work with us or hire
+              us, we&apos;d love to hear from you.
             </p>
             <div className="flex justify-center gap-3 mt-7" data-reveal>
               <Link href="/book" className="btn-primary">

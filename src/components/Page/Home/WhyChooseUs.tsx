@@ -1,5 +1,6 @@
 import { BadgeCheck, Clock, Leaf, ShieldCheck } from "lucide-react";
 import whyChoose from "@/src/assets/why-choose.jpeg";
+import Image from "next/image";
 
 export default function WhyChooseUs() {
   const items = [
@@ -48,10 +49,10 @@ export default function WhyChooseUs() {
           data-reveal-group
         >
           <div className="lg:col-span-2 rounded-3xl overflow-hidden">
-            <img
+            <Image
               src={whyChoose}
               alt="Bright clean living room"
-              loading="lazy"
+              sizes="(min-width: 1024px) 40vw, 100vw"
               className="w-full h-full object-cover min-h-[380px]"
             />
           </div>

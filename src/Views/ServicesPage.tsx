@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Home,
   Building2,
@@ -11,11 +13,12 @@ import {
   Star,
 } from "lucide-react";
 import { useGsapReveal } from "@/src/hooks/useGsapReveal";
-import residential from "@/assets/service-residential.jpg";
-import commercial from "@/assets/service-commercial.jpg";
-import deepImg from "@/assets/service-deep.jpg";
+import residential from "@/src/assets/service-residential.jpeg";
+import commercial from "@/src/assets/service-commercial.jpeg";
+import deepImg from "@/src/assets/service-deep.jpeg";
 import { SiteLayout } from "../Layouts/SiteLayout";
 import Link from "next/link";
+import Image from "next/image";
 
 const services = [
   {
@@ -101,10 +104,10 @@ export default function ServicesPage() {
               ({ icon: Icon, name, desc, price, includes, img }) => (
                 <div key={name} className="card-feature overflow-hidden p-0">
                   <div className="aspect-[16/8] overflow-hidden relative">
-                    <img
+                    <Image
                       src={img}
                       alt={name}
-                      loading="lazy"
+                      sizes="(min-width: 768px) 50vw, 100vw"
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute top-3 right-3 pill bg-brand-yellow/95">
@@ -234,7 +237,7 @@ export default function ServicesPage() {
                 — Why BIO —
               </span>
               <h2 className="mt-3 text-4xl text-brand-dark" data-reveal>
-                What's Included With Every Service
+                What&apos;s Included With Every Service
               </h2>
             </div>
             <div
@@ -283,8 +286,8 @@ export default function ServicesPage() {
                 Not sure which service is right for you?
               </h2>
               <p className="text-brand-dark/70 mt-3 max-w-lg mx-auto">
-                Talk to a BIO specialist — we'll recommend the perfect package
-                for your space.
+                Talk to a BIO specialist — we&apos;ll recommend the perfect
+                package for your space.
               </p>
               <div className="flex flex-wrap justify-center gap-3 mt-7">
                 <Link

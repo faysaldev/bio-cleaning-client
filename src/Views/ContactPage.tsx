@@ -1,3 +1,5 @@
+"use client";
+
 import { SiteLayout } from "@/src/Layouts/SiteLayout";
 import { Phone, Mail, Clock, MapPin, MessageCircle, Send } from "lucide-react";
 import { useGsapReveal } from "@/src/hooks/useGsapReveal";
@@ -23,7 +25,7 @@ export default function ContactPage() {
               Get In Touch
             </h1>
             <p className="mt-3 text-white/80" data-reveal>
-              We'd love to hear from you
+              We&apos;d love to hear from you
             </p>
           </div>
         </section>

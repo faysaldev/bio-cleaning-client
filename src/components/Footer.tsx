@@ -1,12 +1,13 @@
 import {
-  Facebook,
-  Instagram,
-  Twitter,
   Mail,
   Phone,
   MapPin,
+  Camera,
+  MessagesSquare,
+  Share2,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 const LOGO_URL =
   "https://res.cloudinary.com/dr6linfry/image/upload/q_auto/f_auto/v1778514293/logo_fekjaa.jpg";
@@ -17,7 +18,7 @@ export function Footer() {
       <div className="container-page py-16 grid gap-10 md:grid-cols-4 relative z-10">
         <div>
           <div className="flex items-center gap-3 mb-4">
-            <img
+            <Image
               src={LOGO_URL}
               alt="BIO Cleaning logo"
               width={44}
@@ -42,19 +43,19 @@ export function Footer() {
               className="w-9 h-9 rounded-full bg-white/10 grid place-items-center hover:bg-brand-lime hover:text-brand-dark transition"
               href="#"
             >
-              <Facebook className="w-4 h-4" />
+              <MessagesSquare className="w-4 h-4" />
             </a>
             <a
               className="w-9 h-9 rounded-full bg-white/10 grid place-items-center hover:bg-brand-lime hover:text-brand-dark transition"
               href="#"
             >
-              <Instagram className="w-4 h-4" />
+              <Camera className="w-4 h-4" />
             </a>
             <a
               className="w-9 h-9 rounded-full bg-white/10 grid place-items-center hover:bg-brand-lime hover:text-brand-dark transition"
               href="#"
             >
-              <Twitter className="w-4 h-4" />
+              <Share2 className="w-4 h-4" />
             </a>
           </div>
         </div>

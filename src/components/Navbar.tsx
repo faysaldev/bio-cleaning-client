@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Menu, X, Phone, Sparkles } from "lucide-react";
 
 const LOGO_URL =
@@ -18,6 +20,7 @@ const links = [
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -42,7 +45,7 @@ export function Navbar() {
         <Link href="/" className="flex items-center gap-2.5 group">
           <div className="relative">
             <span className="absolute inset-0 rounded-full bg-brand-lime/30 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <img
+            <Image
               src={LOGO_URL}
               alt="BIO Cleaning LLC logo"
               width={42}
@@ -65,12 +68,11 @@ export function Navbar() {
             <Link
               key={l.to}
               href={l.to}
-              className="relative text-sm font-medium text-white/75 hover:text-white px-4 py-1.5 rounded-full transition-all duration-300 hover:bg-white/10"
-              activeProps={{
-                className:
-                  "!text-brand-dark !bg-brand-lime hover:!bg-brand-lime hover:!text-brand-dark font-bold shadow-lg shadow-brand-lime/30 scale-105",
-              }}
-              activeOptions={{ exact: l.to === "/" }}
+              className={`relative text-sm font-medium px-4 py-1.5 rounded-full transition-all duration-300 ${
+                pathname === l.to
+                  ? "text-brand-dark bg-brand-lime hover:bg-brand-lime hover:text-brand-dark font-bold shadow-lg shadow-brand-lime/30 scale-105"
+                  : "text-white/75 hover:text-white hover:bg-white/10"
+              }`}
             >
               {l.label}
             </Link>
@@ -104,11 +106,11 @@ export function Navbar() {
               key={l.to}
               href={l.to}
               onClick={() => setOpen(false)}
-              className="py-2 px-4 text-base font-medium text-white/90 rounded-full hover:bg-white/10"
-              activeProps={{
-                className: "!text-brand-dark !bg-brand-lime font-bold",
-              }}
-              activeOptions={{ exact: l.to === "/" }}
+              className={`py-2 px-4 text-base font-medium rounded-full ${
+                pathname === l.to
+                  ? "text-brand-dark bg-brand-lime font-bold"
+                  : "text-white/90 hover:bg-white/10"
+              }`}
             >
               {l.label}
             </Link>

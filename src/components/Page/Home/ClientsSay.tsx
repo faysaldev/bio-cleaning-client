@@ -5,6 +5,7 @@ import fullService2 from "@/src/assets/full-services-2.jpeg";
 
 import { TESTIMONIALS } from "@/src/utils/data";
 import { ChevronLeft, ChevronRight, Play, Star, X } from "lucide-react";
+import Image from "next/image";
 
 export default function ClientsSay() {
   const [idx, setIdx] = useState(0);
@@ -44,9 +45,10 @@ export default function ClientsSay() {
             className="relative bg-white rounded-3xl shadow-2xl overflow-hidden animate-[fade-in_.6s_ease-out]"
           >
             <div className="relative aspect-video bg-gradient-to-br from-brand-dark to-brand-green grid place-items-center">
-              <img
+              <Image
                 src={fullService2}
                 alt="Client testimonial"
+                sizes="(min-width: 768px) 768px, 100vw"
                 className="absolute inset-0 w-full h-full object-cover opacity-60"
               />
               <button
@@ -59,7 +61,9 @@ export default function ClientsSay() {
               </button>
             </div>
             <div className="p-8">
-              <p className="text-lg text-foreground/80 italic">"{t.quote}"</p>
+              <p className="text-lg text-foreground/80 italic">
+                &ldquo;{t.quote}&rdquo;
+              </p>
               <div className="mt-5 flex items-center justify-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-mint to-brand-green" />
                 <div className="text-left">

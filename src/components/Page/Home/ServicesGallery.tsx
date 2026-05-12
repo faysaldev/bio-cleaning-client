@@ -3,6 +3,7 @@ import commercial from "@/src/assets/service-commercial.jpeg";
 import deepClean from "@/src/assets/service-deep.jpeg";
 import { Building2, HomeIcon, Sparkles, Truck, Wrench } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function ServicesGallery() {
   const services = [
@@ -68,10 +69,10 @@ export default function ServicesGallery() {
               key={s.title}
               className="group relative rounded-3xl overflow-hidden aspect-[3/4] block"
             >
-              <img
+              <Image
                 src={s.img}
                 alt={s.title}
-                loading="lazy"
+                sizes="(min-width: 1024px) 20vw, (min-width: 768px) 33vw, 50vw"
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/30 to-transparent" />

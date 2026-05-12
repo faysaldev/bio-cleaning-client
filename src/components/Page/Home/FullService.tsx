@@ -2,6 +2,7 @@ import fullService2 from "@/src/assets/full-services-2.jpeg";
 import fullService from "@/src/assets/full-services.jpeg";
 import { ArrowRight, Check, Sparkles } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function FullService() {
   const points = [
@@ -14,16 +15,16 @@ export default function FullService() {
     <section className="py-24">
       <div className="container-page grid lg:grid-cols-2 gap-12 items-center">
         <div className="grid grid-cols-2 gap-4" data-reveal-group>
-          <img
+          <Image
             src={fullService}
             alt="Cleaning team at work"
-            loading="lazy"
+            sizes="(min-width: 1024px) 25vw, 50vw"
             className="rounded-3xl object-cover w-full h-72 md:h-96"
           />
-          <img
+          <Image
             src={fullService2}
             alt="Professional cleaner"
-            loading="lazy"
+            sizes="(min-width: 1024px) 25vw, 50vw"
             className="rounded-3xl object-cover w-full h-72 md:h-96 mt-10"
           />
         </div>

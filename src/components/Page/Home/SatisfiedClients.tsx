@@ -41,7 +41,7 @@ export default function SatisfiedClients() {
             className="mt-6 text-brand-dark/80 max-w-2xl mx-auto text-lg"
             data-reveal
           >
-            "{r.quote}"
+            &ldquo;{r.quote}&rdquo;
           </p>
           <div className="mt-8 flex items-center justify-center gap-3">
             <button
