@@ -10,16 +10,17 @@ import Image from "next/image";
 export default function ClientsSay() {
   const [idx, setIdx] = useState(0);
   const [modal, setModal] = useState(false);
+  const [paused, setPaused] = useState(false);
   const t = TESTIMONIALS[idx];
 
   useEffect(() => {
-    if (modal) return;
+    if (modal || paused) return;
     const id = setInterval(
       () => setIdx((i) => (i + 1) % TESTIMONIALS.length),
       6000,
     );
     return () => clearInterval(id);
-  }, [modal]);
+  }, [modal, paused]);
 
   const go = (dir: number) =>
     setIdx((i) => (i + dir + TESTIMONIALS.length) % TESTIMONIALS.length);
@@ -38,12 +39,23 @@ export default function ClientsSay() {
           days brought back in order.
         </p>
 
-        <div className="relative mt-14 max-w-3xl mx-auto" data-reveal>
+        <div
+          className="relative mt-14 max-w-3xl mx-auto"
+          data-reveal
+          role="region"
+          aria-roledescription="carousel"
+          aria-label="Client video testimonials"
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+          onFocus={() => setPaused(true)}
+          onBlur={() => setPaused(false)}
+        >
           <div className="absolute -inset-4 bg-brand-lime/25 rounded-3xl shadow-xl rotate-2" />
           <div className="absolute -inset-4 bg-white/10 rounded-3xl shadow-xl -rotate-1" />
           <div
             key={idx}
             className="relative bg-white rounded-3xl shadow-2xl overflow-hidden animate-[fade-in_.6s_ease-out]"
+            aria-live="polite"
           >
             <div className="relative aspect-video bg-gradient-to-br from-brand-dark to-brand-green grid place-items-center">
               <Image
@@ -82,12 +94,14 @@ export default function ClientsSay() {
 
           <button
             onClick={() => go(-1)}
+            aria-label="Previous testimonial"
             className="absolute -left-4 md:-left-12 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white shadow-lg grid place-items-center hover:bg-brand-lime transition z-20"
           >
             <ChevronLeft className="w-5 h-5 text-brand-dark" />
           </button>
           <button
             onClick={() => go(1)}
+            aria-label="Next testimonial"
             className="absolute -right-4 md:-right-12 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white shadow-lg grid place-items-center hover:bg-brand-lime transition z-20"
           >
             <ChevronRight className="w-5 h-5 text-brand-dark" />
@@ -98,10 +112,16 @@ export default function ClientsSay() {
               <button
                 key={i}
                 onClick={() => setIdx(i)}
-                aria-label={`Testimonial ${i + 1}`}
-                className={`h-2 rounded-full transition-all ${i === idx ? "w-8 bg-brand-green" : "w-2 bg-brand-dark/20"}`}
+                aria-label={`Show testimonial ${i + 1}`}
+                aria-current={i === idx}
+                className={`h-2 rounded-full transition-all ${
+                  i === idx ? "w-8 bg-brand-lime" : "w-2 bg-white/30"
+                }`}
               />
             ))}
+          </div>
+          <div className="mt-3 text-xs text-white/45">
+            {paused ? "Paused" : "Auto-playing every 6 seconds"}
           </div>
         </div>
 
