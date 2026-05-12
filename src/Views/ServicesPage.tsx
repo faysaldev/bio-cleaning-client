@@ -11,6 +11,10 @@ import {
   Wrench,
   ShieldCheck,
   Star,
+  Timer,
+  BadgeCheck,
+  SprayCan,
+  ClipboardCheck,
 } from "lucide-react";
 import { useGsapReveal } from "@/src/hooks/useGsapReveal";
 import residential from "@/src/assets/service-residential.jpeg";
@@ -75,6 +79,13 @@ const services = [
   },
 ];
 
+const serviceStats = [
+  ["24h", "Fast booking window"],
+  ["4.9", "Average client rating"],
+  ["100%", "Plant-based supplies"],
+  ["5.1K+", "Spaces restored"],
+];
+
 const addons = [
   { name: "Window Cleaning", price: "+$25" },
   { name: "Carpet Shampooing", price: "+$45" },
@@ -96,29 +107,53 @@ export default function ServicesPage() {
         />
 
         <section className="py-20">
+          <div className="container-page mb-10">
+            <div
+              className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3"
+              data-reveal-group
+            >
+              {serviceStats.map(([value, label]) => (
+                <div
+                  key={label}
+                  className="rounded-2xl border border-border bg-white px-5 py-4 shadow-card"
+                >
+                  <div className="font-display text-3xl font-bold text-brand-dark">
+                    {value}
+                  </div>
+                  <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                    {label}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
           <div
             className="container-page grid md:grid-cols-2 gap-6"
             data-reveal-group
           >
             {services.map(
               ({ icon: Icon, name, desc, price, includes, img }) => (
-                <div key={name} className="card-feature overflow-hidden p-0">
+                <div
+                  key={name}
+                  className="group card-feature overflow-hidden p-0 border-l-0 hover:border-l-0"
+                >
                   <div className="aspect-[16/8] overflow-hidden relative">
                     <Image
                       src={img}
                       alt={name}
                       sizes="(min-width: 768px) 50vw, 100vw"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transition duration-700 group-hover:scale-105"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/65 via-transparent to-transparent opacity-80" />
                     <div className="absolute top-3 right-3 pill bg-brand-yellow/95">
                       from {price}
+                    </div>
+                    <div className="absolute bottom-4 left-4 w-12 h-12 rounded-2xl bg-white/90 grid place-items-center">
+                      <Icon className="w-6 h-6 text-brand-dark" />
                     </div>
                   </div>
                   <div className="p-6">
                     <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-xl bg-brand-mint/30 grid place-items-center shrink-0">
-                        <Icon className="w-6 h-6 text-brand-dark" />
-                      </div>
                       <h3 className="text-2xl text-brand-dark">{name}</h3>
                     </div>
                     <p className="mt-3 text-muted-foreground">{desc}</p>
@@ -143,6 +178,70 @@ export default function ServicesPage() {
                 </div>
               ),
             )}
+          </div>
+        </section>
+
+        <section className="py-20 bg-brand-dark text-white overflow-hidden">
+          <div className="container-page">
+            <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-10 items-center">
+              <div data-reveal>
+                <span className="pill bg-brand-lime text-brand-dark">
+                  <Sparkles className="w-3.5 h-3.5" /> Cleaner Operating System
+                </span>
+                <h2 className="mt-4 text-4xl md:text-5xl">
+                  Every service runs on a tighter, calmer checklist
+                </h2>
+                <p className="mt-5 text-white/70 max-w-xl">
+                  We combine trained crews, eco supplies, arrival windows, and a
+                  final room-by-room quality pass so your clean feels premium
+                  without feeling complicated.
+                </p>
+                <Link
+                  href="/book"
+                  className="mt-8 bg-brand-lime text-brand-dark font-bold px-7 py-3.5 rounded-full inline-flex items-center gap-2 hover:scale-[1.02] transition"
+                >
+                  Build My Clean <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+              <div
+                className="grid sm:grid-cols-2 gap-4"
+                data-reveal-group
+              >
+                {[
+                  {
+                    icon: ClipboardCheck,
+                    title: "Pre-clean brief",
+                    copy: "Crew notes, access details, priorities, and supplies are confirmed before arrival.",
+                  },
+                  {
+                    icon: SprayCan,
+                    title: "Eco product match",
+                    copy: "Surfaces get the right plant-based product for a polished finish without harsh residue.",
+                  },
+                  {
+                    icon: Timer,
+                    title: "Timed zones",
+                    copy: "Kitchen, bath, living, and detail zones are sequenced for efficient coverage.",
+                  },
+                  {
+                    icon: BadgeCheck,
+                    title: "Final quality pass",
+                    copy: "A closing checklist catches edges, fixtures, floors, and high-touch areas.",
+                  },
+                ].map(({ icon: Icon, title, copy }) => (
+                  <div
+                    key={title}
+                    className="rounded-3xl border border-white/10 bg-white/8 p-6 backdrop-blur-sm"
+                  >
+                    <div className="w-12 h-12 rounded-2xl bg-brand-lime text-brand-dark grid place-items-center mb-5">
+                      <Icon className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-xl">{title}</h3>
+                    <p className="text-sm text-white/65 mt-2">{copy}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
@@ -195,6 +294,66 @@ export default function ServicesPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-20">
+          <div className="container-page">
+            <div className="grid lg:grid-cols-[0.8fr_1.2fr] gap-8 items-start">
+              <div data-reveal>
+                <span className="pill">— Signature Packages —</span>
+                <h2 className="text-4xl text-brand-dark mt-3">
+                  Cleaner bundles for real-life mess levels
+                </h2>
+                <p className="text-muted-foreground mt-4">
+                  Choose a starting point, then add any extras. Each package can
+                  be customized before checkout.
+                </p>
+              </div>
+              <div className="grid md:grid-cols-3 gap-4" data-reveal-group>
+                {[
+                  ["Fresh Start", "$89", "Light reset for tidy homes"],
+                  ["Deep Reset", "$149", "Detail-heavy clean for busy weeks"],
+                  ["Move Ready", "$199", "Deposit-focused top-to-bottom clean"],
+                ].map(([name, price, copy], i) => (
+                  <div
+                    key={name}
+                    className={`rounded-3xl p-6 border ${
+                      i === 1
+                        ? "bg-brand-dark text-white border-brand-dark shadow-2xl"
+                        : "bg-white border-border shadow-card"
+                    }`}
+                  >
+                    <div
+                      className={`text-xs uppercase tracking-wider ${
+                        i === 1 ? "text-brand-lime" : "text-brand-green"
+                      }`}
+                    >
+                      Package {i + 1}
+                    </div>
+                    <h3 className="text-2xl mt-2">{name}</h3>
+                    <div className="font-display text-4xl font-bold mt-5">
+                      {price}
+                    </div>
+                    <p
+                      className={`text-sm mt-3 ${
+                        i === 1 ? "text-white/70" : "text-muted-foreground"
+                      }`}
+                    >
+                      {copy}
+                    </p>
+                    <Link
+                      href="/book"
+                      className={`mt-6 inline-flex items-center gap-2 font-bold ${
+                        i === 1 ? "text-brand-lime" : "text-brand-green"
+                      }`}
+                    >
+                      Select <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
@@ -318,23 +477,42 @@ function PageHero({
   subtitle?: string;
 }) {
   return (
-    <section
-      className="relative overflow-hidden"
-      style={{ background: "var(--gradient-hero)" }}
-    >
+    <section className="relative overflow-hidden bg-brand-dark">
+      <Image
+        src={deepImg}
+        alt="Premium deep cleaning service"
+        priority
+        sizes="100vw"
+        className="absolute inset-0 w-full h-full object-cover opacity-35"
+      />
+      <div className="absolute inset-0 bg-gradient-to-br from-brand-dark via-brand-dark/80 to-brand-green/70" />
       <div className="absolute inset-0 leaf-bg opacity-50" />
-      <div className="container-page relative py-20 text-white text-center">
-        <div className="text-sm text-brand-mint mb-3" data-reveal>
+      <div className="container-page relative py-24 md:py-28 text-white text-center">
+        <div className="text-sm text-brand-mint mb-4" data-reveal>
           {crumb}
         </div>
-        <h1 className="text-5xl md:text-6xl font-display" data-reveal>
+        <h1
+          className="text-5xl md:text-7xl font-display max-w-4xl mx-auto"
+          data-reveal
+        >
           {title}
         </h1>
         {subtitle && (
-          <p className="mt-4 text-white/80 max-w-xl mx-auto" data-reveal>
+          <p className="mt-5 text-white/80 max-w-2xl mx-auto" data-reveal>
             {subtitle}
           </p>
         )}
+        <div
+          className="mt-8 flex flex-wrap justify-center gap-3"
+          data-reveal
+        >
+          <Link href="/book" className="btn-primary">
+            Book a Clean <ArrowRight className="w-4 h-4" />
+          </Link>
+          <Link href="/contact" className="btn-ghost-light">
+            Ask a Specialist
+          </Link>
+        </div>
       </div>
     </section>
   );

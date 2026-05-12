@@ -11,15 +11,52 @@ import {
   Clock,
   Leaf,
   Star,
+  CalendarDays,
+  MapPin,
+  HomeIcon,
+  CreditCard,
+  BadgeCheck,
 } from "lucide-react";
 import Link from "next/link";
 import { SiteLayout } from "../Layouts/SiteLayout";
 import { useGsapReveal } from "../hooks/useGsapReveal";
 
 const STEPS = ["Service", "Date & Time", "Your Details", "Confirm"];
+const serviceOptions = [
+  { name: "Residential", from: 149, detail: "Homes, condos, apartments" },
+  { name: "Commercial", from: 229, detail: "Offices, studios, retail" },
+  { name: "Deep Clean", from: 249, detail: "Detailed reset and buildup removal" },
+  { name: "Move-In/Out", from: 299, detail: "Deposit-ready empty home clean" },
+];
+
+const sizeAdjustments: Record<string, number> = {
+  Studio: -30,
+  "1BR": 0,
+  "2BR": 40,
+  "3BR": 85,
+  "4BR+": 140,
+  Office: 120,
+};
 
 function createBookingReference() {
   return `BIO-${Math.floor(Math.random() * 90000 + 10000)}`;
+}
+
+function estimateTotal(data: any) {
+  const service = serviceOptions.find((item) => item.name === data.service);
+  const frequencyDiscount =
+    data.frequency === "Weekly"
+      ? 0.85
+      : data.frequency === "Bi-weekly"
+        ? 0.9
+        : data.frequency === "Monthly"
+          ? 0.95
+          : 1;
+
+  return Math.max(
+    89,
+    Math.round(((service?.from ?? 149) + (sizeAdjustments[data.size] ?? 0)) * frequencyDiscount),
+  );
 }
 
 export default function BookPage() {
@@ -33,6 +70,7 @@ export default function BookPage() {
   const [done, setDone] = useState(false);
   const [reference, setReference] = useState("");
   const ref = useGsapReveal<HTMLDivElement>();
+  const estimatedTotal = estimateTotal(data);
 
   if (done) {
     return (
@@ -64,22 +102,60 @@ export default function BookPage() {
   return (
     <SiteLayout>
       <div ref={ref}>
-        <section className="py-12 bg-brand-cream">
-          <div className="container-page max-w-3xl">
-            <h1 className="text-4xl text-brand-dark text-center" data-reveal>
-              Book Your Cleaning
-            </h1>
-            <p className="text-center text-muted-foreground mt-2" data-reveal>
-              Get a sparkling clean home in 60 seconds — no commitments.
-            </p>
-            <div className="mt-8 flex items-center justify-between">
+        <section className="relative overflow-hidden bg-brand-dark text-white">
+          <div className="absolute inset-0 leaf-bg opacity-40" />
+          <div className="container-page relative py-16 md:py-20">
+            <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-10 items-center">
+              <div>
+                <span className="pill bg-brand-lime text-brand-dark" data-reveal>
+                  <Sparkles className="w-3.5 h-3.5" /> 60-second booking
+                </span>
+                <h1
+                  className="text-5xl md:text-6xl font-display mt-5"
+                  data-reveal
+                >
+                  Book a polished clean without the back-and-forth
+                </h1>
+                <p className="text-white/75 mt-5 max-w-xl" data-reveal>
+                  Pick your service, choose a time, add your details, and get a
+                  clear estimate before confirmation.
+                </p>
+              </div>
+              <div
+                className="rounded-3xl bg-white/10 border border-white/10 p-6 backdrop-blur-md"
+                data-reveal-group
+              >
+                {[
+                  { icon: ShieldCheck, text: "Insured teams" },
+                  { icon: Leaf, text: "Eco-safe products" },
+                  { icon: Clock, text: "Arrival windows" },
+                  { icon: BadgeCheck, text: "Re-clean guarantee" },
+                ].map(({ icon: Icon, text }) => (
+                  <div
+                    key={text}
+                    className="flex items-center gap-3 py-3 border-b border-white/10 last:border-0"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-brand-lime text-brand-dark grid place-items-center">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <span className="font-semibold">{text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-10 bg-brand-cream">
+          <div className="container-page max-w-5xl">
+            <div className="flex items-center justify-between">
               {STEPS.map((s, i) => (
                 <div key={s} className="flex-1 flex items-center">
                   <div
                     className={`flex items-center gap-2 ${i <= step ? "text-brand-green" : "text-muted-foreground"}`}
                   >
                     <div
-                      className={`w-8 h-8 rounded-full grid place-items-center text-sm font-bold ${i <= step ? "bg-brand-green text-white" : "bg-white border border-border"}`}
+                      className={`w-9 h-9 rounded-full grid place-items-center text-sm font-bold transition ${i <= step ? "bg-brand-green text-white shadow-lg shadow-brand-green/20" : "bg-white border border-border"}`}
                     >
                       {i < step ? <Check className="w-4 h-4" /> : i + 1}
                     </div>
@@ -88,9 +164,11 @@ export default function BookPage() {
                     </span>
                   </div>
                   {i < STEPS.length - 1 && (
-                    <div
-                      className={`h-0.5 flex-1 mx-3 ${i < step ? "bg-brand-green" : "bg-border"}`}
-                    />
+                    <div className="h-0.5 flex-1 mx-3 bg-border overflow-hidden">
+                      <div
+                        className={`h-full bg-brand-green transition-all ${i < step ? "w-full" : "w-0"}`}
+                      />
+                    </div>
                   )}
                 </div>
               ))}
@@ -98,27 +176,34 @@ export default function BookPage() {
           </div>
         </section>
 
-        <section className="py-12">
-          <div className="container-page max-w-3xl">
-            <div className="card-feature">
+        <section className="py-14">
+          <div className="container-page grid lg:grid-cols-[1fr_360px] gap-8 items-start">
+            <div className="rounded-3xl bg-white border border-border shadow-card p-6 md:p-8">
               {step === 0 && (
                 <div>
                   <h2 className="text-2xl text-brand-dark mb-6">
                     Select your service
                   </h2>
                   <div className="grid sm:grid-cols-2 gap-3">
-                    {[
-                      "Residential",
-                      "Commercial",
-                      "Deep Clean",
-                      "Move-In/Out",
-                    ].map((s) => (
+                    {serviceOptions.map((s) => (
                       <button
-                        key={s}
-                        onClick={() => setData({ ...data, service: s })}
-                        className={`p-4 rounded-xl border-2 text-left transition ${data.service === s ? "border-brand-green bg-brand-green/5" : "border-border hover:border-brand-green/50"}`}
+                        key={s.name}
+                        onClick={() => setData({ ...data, service: s.name })}
+                        className={`p-4 rounded-2xl border-2 text-left transition ${data.service === s.name ? "border-brand-green bg-brand-green/5 shadow-card" : "border-border hover:border-brand-green/50"}`}
                       >
-                        <div className="font-semibold text-brand-dark">{s}</div>
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <div className="font-semibold text-brand-dark">
+                              {s.name}
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {s.detail}
+                            </div>
+                          </div>
+                          <span className="text-sm font-bold text-brand-green">
+                            ${s.from}
+                          </span>
+                        </div>
                       </button>
                     ))}
                   </div>
@@ -127,7 +212,7 @@ export default function BookPage() {
                       Property Size
                     </span>
                     <select
-                      className="mt-2 w-full p-3 rounded-lg border border-border"
+                      className="mt-2 w-full p-3 rounded-xl border border-border bg-white"
                       value={data.size}
                       onChange={(e) =>
                         setData({ ...data, size: e.target.value })
@@ -153,7 +238,8 @@ export default function BookPage() {
                     </span>
                     <input
                       type="date"
-                      className="mt-2 w-full p-3 rounded-lg border border-border"
+                      value={data.date || ""}
+                      className="mt-2 w-full p-3 rounded-xl border border-border bg-white"
                       onChange={(e) =>
                         setData({ ...data, date: e.target.value })
                       }
@@ -169,7 +255,7 @@ export default function BookPage() {
                           <button
                             key={t}
                             onClick={() => setData({ ...data, time: t })}
-                            className={`p-3 rounded-lg border-2 text-sm ${data.time === t ? "border-brand-green bg-brand-green/5" : "border-border"}`}
+                            className={`p-3 rounded-xl border-2 text-sm ${data.time === t ? "border-brand-green bg-brand-green/5" : "border-border"}`}
                           >
                             {t}
                           </button>
@@ -187,7 +273,7 @@ export default function BookPage() {
                           <button
                             key={f}
                             onClick={() => setData({ ...data, frequency: f })}
-                            className={`p-3 rounded-lg border-2 text-sm ${data.frequency === f ? "border-brand-green bg-brand-green/5" : "border-border"}`}
+                            className={`p-3 rounded-xl border-2 text-sm ${data.frequency === f ? "border-brand-green bg-brand-green/5" : "border-border"}`}
                           >
                             {f}
                           </button>
@@ -217,7 +303,7 @@ export default function BookPage() {
                       </span>
                       <input
                         type={t}
-                        className="mt-1.5 w-full p-3 rounded-lg border border-border"
+                        className="mt-1.5 w-full p-3 rounded-xl border border-border"
                         value={data[k] || ""}
                         onChange={(e) =>
                           setData({ ...data, [k]: e.target.value })
@@ -231,7 +317,11 @@ export default function BookPage() {
                     </span>
                     <textarea
                       rows={3}
-                      className="mt-1.5 w-full p-3 rounded-lg border border-border resize-none"
+                      value={data.notes || ""}
+                      onChange={(e) =>
+                        setData({ ...data, notes: e.target.value })
+                      }
+                      className="mt-1.5 w-full p-3 rounded-xl border border-border resize-none"
                     />
                   </label>
                 </div>
@@ -241,7 +331,7 @@ export default function BookPage() {
                   <h2 className="text-2xl text-brand-dark mb-6">
                     Confirm your booking
                   </h2>
-                  <div className="rounded-xl bg-brand-cream p-6 space-y-3">
+                  <div className="rounded-2xl bg-brand-cream p-6 space-y-3">
                     {[
                       ["Service", data.service],
                       ["Property", data.size],
@@ -269,11 +359,11 @@ export default function BookPage() {
                         Estimated total
                       </span>
                       <span className="text-3xl font-display font-bold text-brand-green">
-                        $149
+                        ${estimatedTotal}
                       </span>
                     </div>
                   </div>
-                  <div className="mt-4 p-3 rounded-lg bg-brand-yellow/20 text-sm flex items-center gap-2">
+                  <div className="mt-4 p-3 rounded-xl bg-brand-yellow/20 text-sm flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-brand-dark" /> 20% off
                     your first cleaning has been applied!
                   </div>
@@ -308,6 +398,45 @@ export default function BookPage() {
                 )}
               </div>
             </div>
+            <aside className="lg:sticky lg:top-28 space-y-4" data-reveal>
+              <div className="rounded-3xl bg-brand-dark text-white p-6 shadow-2xl">
+                <div className="text-xs uppercase tracking-[0.25em] text-brand-lime">
+                  Live Estimate
+                </div>
+                <div className="font-display text-5xl font-bold mt-3">
+                  ${estimatedTotal}
+                </div>
+                <p className="text-white/60 text-sm mt-2">
+                  Final price may adjust after walkthrough for unusual scope.
+                </p>
+                <div className="mt-6 space-y-3 text-sm">
+                  {[
+                    { icon: HomeIcon, label: data.service },
+                    { icon: CalendarDays, label: data.date || "Pick a date" },
+                    { icon: Clock, label: data.time },
+                    { icon: MapPin, label: data.city || "Service location" },
+                  ].map(({ icon: Icon, label }) => (
+                    <div
+                      key={label}
+                      className="flex items-center gap-3 rounded-2xl bg-white/8 p-3"
+                    >
+                      <Icon className="w-4 h-4 text-brand-lime" />
+                      <span>{label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="rounded-3xl bg-brand-lime text-brand-dark p-6">
+                <CreditCard className="w-8 h-8" />
+                <h3 className="font-display text-2xl mt-3">
+                  No payment due today
+                </h3>
+                <p className="text-sm text-brand-dark/70 mt-2">
+                  Your card is only collected after the booking is confirmed by
+                  our team.
+                </p>
+              </div>
+            </aside>
           </div>
         </section>
 
