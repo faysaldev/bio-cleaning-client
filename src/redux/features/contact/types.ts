@@ -11,4 +11,10 @@ export interface ContactMessage {
 
 export interface ContactResponse {
   data: ContactMessage[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPage: number;
+  };
 }

@@ -14,10 +14,11 @@ const contactApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Contact"],
     }),
-    getAllContactMessages: builder.query<ContactResponse, void>({
-      query: () => ({
+    getAllContactMessages: builder.query<ContactResponse, Record<string, any>>({
+      query: (params) => ({
         url: "/contact",
         method: "GET",
+        params,
       }),
       providesTags: ["Contact"],
     }),
