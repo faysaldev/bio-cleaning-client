@@ -23,6 +23,6 @@ export interface ForgotPasswordResponse {
   message: string;
 }
 
-export interface ResetPasswordResponse {
+export type ChangePasswordResponse = {
   message: string;
-}
+};
