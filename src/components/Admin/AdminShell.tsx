@@ -1,5 +1,6 @@
 "use client";
 
+import { logout, selectCurrentUser } from "@/src/redux/features/auth/authSlice";
 import {
   CalendarCheck,
   LayoutDashboard,
@@ -8,10 +9,12 @@ import {
   Settings,
   Sparkles,
   X,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ReactNode, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { ReactNode, useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "@/src/redux/hooks";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -21,8 +24,39 @@ const navItems = [
 ];
 
 export function AdminShell({ children }: { children: ReactNode }) {
+  const user = useAppSelector(selectCurrentUser);
+  const dispatch = useAppDispatch();
+  const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
+
+  useEffect(() => {
+    // Professional auth check
+    if (!user || user.role !== "admin") {
+      router.replace("/admin/login");
+    } else {
+      setIsChecking(false);
+    }
+  }, [user, router]);
+
+  const handleSignOut = () => {
+    dispatch(logout());
+    router.replace("/admin/login");
+  };
+
+  if (isChecking) {
+    return (
+      <div className="min-h-screen bg-brand-cream grid place-items-center">
+        <div className="text-center">
+          <Loader2 className="w-10 h-10 text-brand-green animate-spin mx-auto" />
+          <p className="mt-4 text-sm text-muted-foreground font-medium">
+            Verifying administrative access...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-brand-cream text-foreground">
@@ -79,14 +113,33 @@ export function AdminShell({ children }: { children: ReactNode }) {
           </nav>
 
           <div className="mt-auto rounded-3xl border border-white/10 bg-white/8 p-4">
-            <div className="text-sm font-semibold">Faysal Mridha</div>
-            <div className="text-xs text-white/55">Administrator</div>
-            <Link
-              href="/admin/login"
-              className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-brand-lime"
+            <div className="flex items-center gap-3">
+              {user?.image ? (
+                <img
+                  src={user.image}
+                  alt={user.name}
+                  className="w-10 h-10 rounded-xl object-cover"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-xl bg-brand-lime text-brand-dark grid place-items-center font-bold">
+                  {user?.name?.charAt(0) || "A"}
+                </div>
+              )}
+              <div>
+                <div className="text-sm font-semibold truncate max-w-[140px]">
+                  {user?.name || "Admin"}
+                </div>
+                <div className="text-[10px] uppercase tracking-wider text-white/40">
+                  {user?.role || "Staff"}
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={handleSignOut}
+              className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-white/5 py-2.5 text-xs font-bold text-brand-lime hover:bg-white/10 transition"
             >
               <LogOut className="w-3.5 h-3.5" /> Sign out
-            </Link>
+            </button>
           </div>
         </div>
       </aside>

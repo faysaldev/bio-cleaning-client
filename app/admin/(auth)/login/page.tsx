@@ -1,12 +1,48 @@
+"use client";
+
 import commercial from "@/src/assets/service-commercial.jpeg";
-import { ArrowRight, LockKeyhole } from "lucide-react";
+import { ArrowRight, LockKeyhole, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useLoginMutation } from "@/src/redux/features/auth/authApi";
+import { useAppDispatch } from "@/src/redux/hooks";
+import { setUser } from "@/src/redux/features/auth/authSlice";
 
 const LOGO_URL =
   "https://res.cloudinary.com/dr6linfry/image/upload/q_auto/f_auto/v1778514293/logo_fekjaa.jpg";
 
 export default function AdminLoginPage() {
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState("");
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const [login, { isLoading }] = useLoginMutation();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    const email = emailRef.current?.value;
+    const password = passwordRef.current?.value;
+
+    if (!email || !password) {
+      setError("Please fill in all fields.");
+      return;
+    }
+
+    try {
+      const res = await login({ email, password }).unwrap();
+      const { token, ...user } = res.data;
+      dispatch(setUser({ user, token }));
+      router.push("/admin");
+    } catch (err: any) {
+      setError(err?.data?.message || "Invalid credentials. Please try again.");
+    }
+  };
+
   return (
     <main className="min-h-screen bg-brand-dark text-white grid lg:grid-cols-2">
       <section className="relative hidden overflow-hidden lg:block">
@@ -63,14 +99,22 @@ export default function AdminLoginPage() {
           <p className="mt-2 text-sm text-muted-foreground">
             Sign in to continue to the BIO control center.
           </p>
-          <form className="mt-7 space-y-4">
+
+          <form className="mt-7 space-y-4" onSubmit={handleLogin}>
+            {error && (
+              <div className="p-3 rounded-xl bg-destructive/10 text-destructive text-sm font-medium border border-destructive/20 animate-in fade-in zoom-in duration-300">
+                {error}
+              </div>
+            )}
             <label className="block">
               <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Email
               </span>
               <input
+                required
                 type="email"
-                className="mt-2 w-full rounded-2xl border border-border px-4 py-3 outline-none focus:border-brand-green"
+                ref={emailRef}
+                className="mt-2 w-full rounded-2xl border border-border px-4 py-3 outline-none focus:border-brand-green transition"
                 placeholder="admin@biocleaningllc.com"
               />
             </label>
@@ -79,25 +123,43 @@ export default function AdminLoginPage() {
                 Password
               </span>
               <input
+                required
                 type="password"
-                className="mt-2 w-full rounded-2xl border border-border px-4 py-3 outline-none focus:border-brand-green"
+                ref={passwordRef}
+                className="mt-2 w-full rounded-2xl border border-border px-4 py-3 outline-none focus:border-brand-green transition"
                 placeholder="••••••••"
               />
             </label>
             <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 text-muted-foreground">
-                <input type="checkbox" /> Remember me
+              <label className="flex items-center gap-2 text-muted-foreground cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="rounded border-border text-brand-green focus:ring-brand-green"
+                />{" "}
+                Remember me
               </label>
               <Link
                 href="/admin/forgot-password"
-                className="font-bold text-brand-green"
+                className="font-bold text-brand-green hover:underline"
               >
                 Forgot?
               </Link>
             </div>
-            <Link href="/admin" className="btn-primary w-full">
-              Sign in <ArrowRight className="w-4 h-4" />
-            </Link>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="btn-primary w-full disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <>
+                  Signing in... <Loader2 className="w-4 h-4 animate-spin" />
+                </>
+              ) : (
+                <>
+                  Sign in <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
           </form>
         </div>
       </section>
