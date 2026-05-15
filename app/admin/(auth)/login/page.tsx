@@ -9,9 +9,7 @@ import { useRouter } from "next/navigation";
 import { useLoginMutation } from "@/src/redux/features/auth/authApi";
 import { useAppDispatch } from "@/src/redux/hooks";
 import { setUser } from "@/src/redux/features/auth/authSlice";
-
-const LOGO_URL =
-  "https://res.cloudinary.com/dr6linfry/image/upload/q_auto/f_auto/v1778514293/logo_fekjaa.jpg";
+import { LOGO_URL } from "@/src/components/Footer";
 
 export default function AdminLoginPage() {
   const emailRef = useRef<HTMLInputElement>(null);

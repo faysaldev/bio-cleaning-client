@@ -5,9 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, X, Phone, Sparkles } from "lucide-react";
-
-const LOGO_URL =
-  "https://res.cloudinary.com/dr6linfry/image/upload/q_auto/f_auto/v1778514293/logo_fekjaa.jpg";
+import { LOGO_URL } from "./Footer";
 
 const links = [
   { to: "/", label: "Home" },

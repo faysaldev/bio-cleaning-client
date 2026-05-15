@@ -15,6 +15,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/src/redux/hooks";
+import { LOGO_URL } from "../Footer";
+import Image from "next/image";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -67,17 +69,16 @@ export function AdminShell({ children }: { children: ReactNode }) {
       >
         <div className="flex h-full flex-col p-5">
           <div className="flex items-center justify-between">
-            <Link href="/admin" className="flex items-center gap-3">
-              <span className="w-11 h-11 rounded-2xl bg-brand-lime text-brand-dark grid place-items-center">
-                <Sparkles className="w-5 h-5" />
-              </span>
-              <span>
-                <span className="block font-display text-xl font-bold">
-                  BIO Admin
-                </span>
-                <span className="block text-[10px] uppercase tracking-[0.25em] text-brand-lime">
-                  Control center
-                </span>
+            <Link href="/" className="inline-flex items-center gap-3">
+              <Image
+                src={LOGO_URL}
+                alt="BIO Cleaning LLC logo"
+                width={52}
+                height={52}
+                className="h-13 w-13 rounded-2xl object-cover ring-2 ring-brand-lime/50"
+              />
+              <span className="font-display text-base lg:text-2xl font-bold">
+                BIO Cleaning
               </span>
             </Link>
             <button

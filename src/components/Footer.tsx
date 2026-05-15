@@ -9,7 +9,7 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 
-const LOGO_URL =
+export const LOGO_URL =
   "https://res.cloudinary.com/dr6linfry/image/upload/q_auto/f_auto/v1778514293/logo_fekjaa.jpg";
 
 export function Footer() {
