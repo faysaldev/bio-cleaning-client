@@ -1,7 +1,7 @@
 "use client";
 
 import commercial from "@/src/assets/service-commercial.jpeg";
-import { ArrowRight, LockKeyhole, Loader2 } from "lucide-react";
+import { ArrowRight, LockKeyhole, Loader2, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState } from "react";
@@ -15,6 +15,7 @@ export default function AdminLoginPage() {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [login, { isLoading }] = useLoginMutation();
@@ -120,13 +121,26 @@ export default function AdminLoginPage() {
               <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Password
               </span>
-              <input
-                required
-                type="password"
-                ref={passwordRef}
-                className="mt-2 w-full rounded-2xl border border-border px-4 py-3 outline-none focus:border-brand-green transition"
-                placeholder="••••••••"
-              />
+              <div className="relative mt-2">
+                <input
+                  required
+                  type={showPassword ? "text" : "password"}
+                  ref={passwordRef}
+                  className="w-full rounded-2xl border border-border px-4 py-3 pr-12 outline-none focus:border-brand-green transition"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-brand-green transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
             </label>
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center gap-2 text-muted-foreground cursor-pointer">
