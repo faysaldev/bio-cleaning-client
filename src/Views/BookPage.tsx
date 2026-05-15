@@ -22,6 +22,7 @@ import Link from "next/link";
 import { SiteLayout } from "../Layouts/SiteLayout";
 import { useGsapReveal } from "../hooks/useGsapReveal";
 import { useGetShortServicesQuery } from "../redux/features/services/servicesApi";
+import { useGetBookedSlotsQuery } from "../redux/features/bookings/bookingsApi";
 
 const STEPS = ["Service", "Date & Time", "Your Details", "Confirm"];
 
@@ -39,16 +40,30 @@ function createBookingReference() {
 }
 
 export default function BookPage() {
-  const { data: servicesResponse, isLoading, error } = useGetShortServicesQuery();
-  const services = servicesResponse?.data || [];
-  
-  const [step, setStep] = useState(0);
   const [data, setData] = useState<any>({
     service: "", // Initially empty, will be set from services
     size: "1BR",
     time: "Morning 8-12",
     frequency: "One-time",
+    date: "", // Default empty date
   });
+
+  const {
+    data: servicesResponse,
+    isLoading,
+    error,
+  } = useGetShortServicesQuery();
+
+  const { data: slotsResponse } = useGetBookedSlotsQuery(data.date || "", {
+    skip: !data.date,
+  });
+
+  console.log(slotsResponse);
+
+  const services = servicesResponse?.data || [];
+  const bookedSlots = slotsResponse?.data || [];
+  console.log("Booked slots for", data.date, ":", bookedSlots);
+  const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [reference, setReference] = useState("");
   const ref = useGsapReveal<HTMLDivElement>();
@@ -74,7 +89,8 @@ export default function BookPage() {
     return Math.max(
       89,
       Math.round(
-        ((service?.basePrice ?? 149) + (sizeAdjustments[currentData.size] ?? 0)) *
+        ((service?.basePrice ?? 149) +
+          (sizeAdjustments[currentData.size] ?? 0)) *
           frequencyDiscount,
       ),
     );
@@ -274,15 +290,32 @@ export default function BookPage() {
                     </span>
                     <div className="grid sm:grid-cols-3 gap-2 mt-2">
                       {["Morning 8-12", "Afternoon 12-5", "Evening 5-8"].map(
-                        (t) => (
-                          <button
-                            key={t}
-                            onClick={() => setData({ ...data, time: t })}
-                            className={`p-3 rounded-xl border-2 text-sm ${data.time === t ? "border-brand-green bg-brand-green/5" : "border-border"}`}
-                          >
-                            {t}
-                          </button>
-                        ),
+                        (t) => {
+                          const isBooked = bookedSlots.some(
+                            (s: any) => s.timeSlot === t,
+                          );
+                          return (
+                            <button
+                              key={t}
+                              disabled={isBooked}
+                              onClick={() => setData({ ...data, time: t })}
+                              className={`p-3 rounded-xl border-2 text-sm transition-all ${
+                                data.time === t
+                                  ? "border-brand-green bg-brand-green/5"
+                                  : isBooked
+                                    ? "bg-gray-50 border-gray-100 text-gray-300 cursor-not-allowed"
+                                    : "border-border hover:border-brand-green/50"
+                              }`}
+                            >
+                              {t}
+                              {isBooked && (
+                                <span className="block text-[10px] uppercase font-bold text-gray-400 mt-0.5">
+                                  Booked
+                                </span>
+                              )}
+                            </button>
+                          );
+                        },
                       )}
                     </div>
                   </div>

@@ -11,7 +11,7 @@ const bookingsApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Booking", "Dashboard"],
     }),
-    getBookedSlots: builder.query<BookedSlot[], string>({
+    getBookedSlots: builder.query<{ data: BookedSlot[] }, string>({
       query: (date) => ({
         url: `/bookings/booked-slots?date=${date}`,
         method: "GET",

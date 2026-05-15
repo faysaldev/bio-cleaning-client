@@ -1,7 +1,7 @@
 export interface Booking {
   id: string;
   reference: string;
-  serviceType: "RESIDENTIAL" | "COMMERCIAL" | "DEEP_CLEAN" | "MOVE_IN_OUT";
+  serviceType: string;
   propertySize: string;
   date: string;
   timeSlot: string;
