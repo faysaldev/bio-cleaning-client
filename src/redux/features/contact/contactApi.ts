@@ -3,7 +3,10 @@ import { ContactMessage, ContactResponse } from "./types";
 
 const contactApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    submitContactForm: builder.mutation<ContactMessage, Partial<ContactMessage>>({
+    submitContactForm: builder.mutation<
+      ContactMessage,
+      Partial<ContactMessage>
+    >({
       query: (data) => ({
         url: "/contact",
         method: "POST",
