@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Google_Sans, Sora, Urbanist } from "next/font/google";
 import "./globals.css";
+import ReduxProvider from "@/src/Provider/ReduxProvider";
 
 export const metadata: Metadata = {
   title: "BIO Cleaning LLC",
@@ -33,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased">
       <body className={`min-h-full flex flex-col  ${sora.className}`}>
-        {children}
+        <ReduxProvider>{children}</ReduxProvider>
       </body>
     </html>
   );
