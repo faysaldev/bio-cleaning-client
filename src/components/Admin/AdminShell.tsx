@@ -10,6 +10,7 @@ import {
   Sparkles,
   X,
   Loader2,
+  Mail,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -22,6 +23,7 @@ const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/bookings", label: "Bookings", icon: CalendarCheck },
   { href: "/admin/services", label: "Services", icon: Sparkles },
+  { href: "/admin/contacts", label: "Contacts", icon: Mail },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
