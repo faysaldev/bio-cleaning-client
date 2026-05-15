@@ -20,12 +20,17 @@ import {
 import Link from "next/link";
 import { SiteLayout } from "../Layouts/SiteLayout";
 import { useGsapReveal } from "../hooks/useGsapReveal";
+import { useGetShortServicesQuery } from "../redux/features/services/servicesApi";
 
 const STEPS = ["Service", "Date & Time", "Your Details", "Confirm"];
 const serviceOptions = [
   { name: "Residential", from: 149, detail: "Homes, condos, apartments" },
   { name: "Commercial", from: 229, detail: "Offices, studios, retail" },
-  { name: "Deep Clean", from: 249, detail: "Detailed reset and buildup removal" },
+  {
+    name: "Deep Clean",
+    from: 249,
+    detail: "Detailed reset and buildup removal",
+  },
   { name: "Move-In/Out", from: 299, detail: "Deposit-ready empty home clean" },
 ];
 
@@ -55,7 +60,10 @@ function estimateTotal(data: any) {
 
   return Math.max(
     89,
-    Math.round(((service?.from ?? 149) + (sizeAdjustments[data.size] ?? 0)) * frequencyDiscount),
+    Math.round(
+      ((service?.from ?? 149) + (sizeAdjustments[data.size] ?? 0)) *
+        frequencyDiscount,
+    ),
   );
 }
 
@@ -71,6 +79,7 @@ export default function BookPage() {
   const [reference, setReference] = useState("");
   const ref = useGsapReveal<HTMLDivElement>();
   const estimatedTotal = estimateTotal(data);
+  const { data: services, isLoading, error } = useGetShortServicesQuery();
 
   if (done) {
     return (
@@ -107,7 +116,10 @@ export default function BookPage() {
           <div className="container-page relative py-16 md:py-20">
             <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-10 items-center">
               <div>
-                <span className="pill bg-brand-lime text-brand-dark" data-reveal>
+                <span
+                  className="pill bg-brand-lime text-brand-dark"
+                  data-reveal
+                >
                   <Sparkles className="w-3.5 h-3.5" /> 60-second booking
                 </span>
                 <h1

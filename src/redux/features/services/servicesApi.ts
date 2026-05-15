@@ -1,5 +1,9 @@
 import { baseApi } from "@/src/redux/baseApi/baseApi";
-import { CleaningService, ServicesResponse } from "./types";
+import {
+  CleaningService,
+  CleaningServiceShortDetails,
+  ServicesResponse,
+} from "./types";
 
 const servicesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -11,6 +15,15 @@ const servicesApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Service"],
     }),
+
+    getShortServices: builder.query<CleaningServiceShortDetails[], void>({
+      query: () => ({
+        url: "/services/short-details",
+        method: "GET",
+      }),
+      providesTags: ["Service"],
+    }),
+
     getSingleService: builder.query<CleaningService, string>({
       query: (id) => ({
         url: `/services/${id}`,
@@ -50,4 +63,5 @@ export const {
   useCreateServiceMutation,
   useUpdateServiceMutation,
   useDeleteServiceMutation,
+  useGetShortServicesQuery,
 } = servicesApi;

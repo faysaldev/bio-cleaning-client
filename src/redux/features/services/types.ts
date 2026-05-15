@@ -14,3 +14,13 @@ export interface CleaningService {
 export interface ServicesResponse {
   data: CleaningService[];
 }
+
+export interface CleaningServiceShortDetails {
+  _id: string;
+  name: string;
+  basePrice: number;
+  duration?: string;
+  tags: string[];
+  publish: boolean;
+  createdAt?: string;
+}
