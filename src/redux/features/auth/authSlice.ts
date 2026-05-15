@@ -1,12 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "@/src/redux/store/store"; // Make sure this is correct
 
-interface User {
-  name: string;
-  email: string;
-  id: string;
-  role: "admin" | "user";
-}
+import { User } from "./types";
 
 type TAuthState = {
   user: User | null;

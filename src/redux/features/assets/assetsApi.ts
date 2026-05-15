@@ -1,14 +1,13 @@
 import { baseApi } from "@/src/redux/baseApi/baseApi";
+import { UploadResponse } from "./types";
 
 const assetsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    uploadFile: builder.mutation({
+    uploadFile: builder.mutation<UploadResponse, FormData>({
       query: (data) => ({
         url: "/assets/upload",
         method: "POST",
         body: data,
-        // Since it's multipart/form-data, we don't set Content-Type header manually,
-        // fetchBaseQuery handles it when body is FormData.
       }),
       invalidatesTags: ["Asset"],
     }),

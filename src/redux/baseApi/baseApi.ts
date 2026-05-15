@@ -18,6 +18,6 @@ export const baseApi = createApi({
   }),
   // Keep fetched data cached for 5 minutes to avoid redundant API calls
   keepUnusedDataFor: 300,
-  tagTypes: ["User", "Asset"],
+  tagTypes: ["User", "Asset", "Booking", "Contact", "Service", "Dashboard"],
   endpoints: () => ({}),
 });
