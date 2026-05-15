@@ -18,6 +18,7 @@ export interface ServicesResponse {
 export interface CleaningServiceShortDetails {
   _id: string;
   name: string;
+  description: string;
   basePrice: number;
   duration?: string;
   tags: string[];

@@ -16,7 +16,7 @@ const servicesApi = baseApi.injectEndpoints({
       providesTags: ["Service"],
     }),
 
-    getShortServices: builder.query<CleaningServiceShortDetails[], void>({
+    getShortServices: builder.query<{ data: CleaningServiceShortDetails[] }, void>({
       query: () => ({
         url: "/services/short-details",
         method: "GET",

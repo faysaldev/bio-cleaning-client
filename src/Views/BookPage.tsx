@@ -1,7 +1,7 @@
 "use client";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Check,
   ArrowRight,
@@ -16,6 +16,7 @@ import {
   HomeIcon,
   CreditCard,
   BadgeCheck,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 import { SiteLayout } from "../Layouts/SiteLayout";
@@ -23,16 +24,6 @@ import { useGsapReveal } from "../hooks/useGsapReveal";
 import { useGetShortServicesQuery } from "../redux/features/services/servicesApi";
 
 const STEPS = ["Service", "Date & Time", "Your Details", "Confirm"];
-const serviceOptions = [
-  { name: "Residential", from: 149, detail: "Homes, condos, apartments" },
-  { name: "Commercial", from: 229, detail: "Offices, studios, retail" },
-  {
-    name: "Deep Clean",
-    from: 249,
-    detail: "Detailed reset and buildup removal",
-  },
-  { name: "Move-In/Out", from: 299, detail: "Deposit-ready empty home clean" },
-];
 
 const sizeAdjustments: Record<string, number> = {
   Studio: -30,
@@ -47,30 +38,13 @@ function createBookingReference() {
   return `BIO-${Math.floor(Math.random() * 90000 + 10000)}`;
 }
 
-function estimateTotal(data: any) {
-  const service = serviceOptions.find((item) => item.name === data.service);
-  const frequencyDiscount =
-    data.frequency === "Weekly"
-      ? 0.85
-      : data.frequency === "Bi-weekly"
-        ? 0.9
-        : data.frequency === "Monthly"
-          ? 0.95
-          : 1;
-
-  return Math.max(
-    89,
-    Math.round(
-      ((service?.from ?? 149) + (sizeAdjustments[data.size] ?? 0)) *
-        frequencyDiscount,
-    ),
-  );
-}
-
 export default function BookPage() {
+  const { data: servicesResponse, isLoading, error } = useGetShortServicesQuery();
+  const services = servicesResponse?.data || [];
+  
   const [step, setStep] = useState(0);
   const [data, setData] = useState<any>({
-    service: "Residential",
+    service: "", // Initially empty, will be set from services
     size: "1BR",
     time: "Morning 8-12",
     frequency: "One-time",
@@ -78,8 +52,35 @@ export default function BookPage() {
   const [done, setDone] = useState(false);
   const [reference, setReference] = useState("");
   const ref = useGsapReveal<HTMLDivElement>();
+
+  // Use useEffect to set default service once services are loaded
+  useEffect(() => {
+    if (services.length > 0 && !data.service) {
+      setData((prev: any) => ({ ...prev, service: services[0].name }));
+    }
+  }, [services, data.service]);
+
+  function estimateTotal(currentData: any) {
+    const service = services.find((item) => item.name === currentData.service);
+    const frequencyDiscount =
+      currentData.frequency === "Weekly"
+        ? 0.85
+        : currentData.frequency === "Bi-weekly"
+          ? 0.9
+          : currentData.frequency === "Monthly"
+            ? 0.95
+            : 1;
+
+    return Math.max(
+      89,
+      Math.round(
+        ((service?.basePrice ?? 149) + (sizeAdjustments[currentData.size] ?? 0)) *
+          frequencyDiscount,
+      ),
+    );
+  }
+
   const estimatedTotal = estimateTotal(data);
-  const { data: services, isLoading, error } = useGetShortServicesQuery();
 
   if (done) {
     return (
@@ -196,29 +197,39 @@ export default function BookPage() {
                   <h2 className="text-2xl text-brand-dark mb-6">
                     Select your service
                   </h2>
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    {serviceOptions.map((s) => (
-                      <button
-                        key={s.name}
-                        onClick={() => setData({ ...data, service: s.name })}
-                        className={`p-4 rounded-2xl border-2 text-left transition ${data.service === s.name ? "border-brand-green bg-brand-green/5 shadow-card" : "border-border hover:border-brand-green/50"}`}
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <div className="font-semibold text-brand-dark">
-                              {s.name}
+                  {isLoading ? (
+                    <div className="flex h-40 items-center justify-center">
+                      <Loader2 className="h-8 w-8 animate-spin text-brand-green" />
+                    </div>
+                  ) : error ? (
+                    <div className="rounded-2xl bg-red-50 p-6 text-center text-red-600">
+                      Failed to load services. Please refresh.
+                    </div>
+                  ) : (
+                    <div className="grid sm:grid-cols-2 gap-3">
+                      {services.map((s) => (
+                        <button
+                          key={s._id}
+                          onClick={() => setData({ ...data, service: s.name })}
+                          className={`p-4 rounded-2xl border-2 text-left transition ${data.service === s.name ? "border-brand-green bg-brand-green/5 shadow-card" : "border-border hover:border-brand-green/50"}`}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <div className="font-semibold text-brand-dark">
+                                {s.name}
+                              </div>
+                              <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                {s.description}
+                              </div>
                             </div>
-                            <div className="text-xs text-muted-foreground mt-1">
-                              {s.detail}
-                            </div>
+                            <span className="text-sm font-bold text-brand-green">
+                              ${s.basePrice}
+                            </span>
                           </div>
-                          <span className="text-sm font-bold text-brand-green">
-                            ${s.from}
-                          </span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                   <label className="block mt-6">
                     <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
                       Property Size
