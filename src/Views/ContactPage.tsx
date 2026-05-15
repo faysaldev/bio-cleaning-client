@@ -1,11 +1,67 @@
 "use client";
 
 import { SiteLayout } from "@/src/Layouts/SiteLayout";
-import { Phone, Mail, Clock, MapPin, MessageCircle, Send } from "lucide-react";
+import {
+  Phone,
+  Mail,
+  Clock,
+  MapPin,
+  MessageCircle,
+  Send,
+  Loader2,
+  CheckCircle2,
+} from "lucide-react";
 import { useGsapReveal } from "@/src/hooks/useGsapReveal";
+import { useRef, useState } from "react";
+import { useSubmitContactFormMutation } from "@/src/redux/features/contact/contactApi";
 
 export default function ContactPage() {
   const ref = useGsapReveal<HTMLDivElement>();
+
+  // Refs for uncontrolled form collection
+  const formRef = useRef<HTMLFormElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const serviceRef = useRef<HTMLSelectElement>(null);
+  const messageRef = useRef<HTMLTextAreaElement>(null);
+
+  const [submitContact, { isLoading }] = useSubmitContactFormMutation();
+  const [status, setStatus] = useState<{
+    type: "success" | "error";
+    msg: string;
+  } | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus(null);
+
+    const formData = {
+      fullName: nameRef.current?.value,
+      email: emailRef.current?.value,
+      phone: phoneRef.current?.value,
+      service: serviceRef.current?.value,
+      message: messageRef.current?.value,
+    };
+
+    try {
+      const res = await submitContact(formData).unwrap();
+      setStatus({
+        type: "success",
+        msg: res.message || "Thanks! Your message has been sent successfully.",
+      });
+      // Reliable form reset
+      formRef.current?.reset();
+    } catch (err: any) {
+      setStatus({
+        type: "error",
+        msg:
+          err?.data?.message ||
+          "Failed to send message. Please try again later.",
+      });
+    }
+  };
+
   return (
     <SiteLayout>
       <div ref={ref}>
@@ -33,19 +89,41 @@ export default function ContactPage() {
         <section className="py-20">
           <div className="container-page grid md:grid-cols-2 gap-10">
             <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                alert("Thanks! We'll be in touch shortly.");
-              }}
+              ref={formRef}
+              onSubmit={handleSubmit}
               className="card-feature space-y-4"
               data-reveal
             >
               <h2 className="text-2xl text-brand-dark">Send a message</h2>
+
+              {status && (
+                <div
+                  className={`p-4 rounded-xl text-sm font-medium border animate-in fade-in slide-in-from-top-2 ${
+                    status.type === "success"
+                      ? "bg-brand-lime/20 text-brand-green border-brand-lime/30"
+                      : "bg-destructive/10 text-destructive border-destructive/20"
+                  }`}
+                >
+                  <div className="flex gap-2">
+                    {status.type === "success" && (
+                      <CheckCircle2 className="w-4 h-4 shrink-0" />
+                    )}
+                    {status.msg}
+                  </div>
+                </div>
+              )}
+
               <Field label="Full Name">
-                <input required className="input" placeholder="Jane Doe" />
+                <input
+                  ref={nameRef}
+                  required
+                  className="input"
+                  placeholder="Jane Doe"
+                />
               </Field>
               <Field label="Email">
                 <input
+                  ref={emailRef}
                   required
                   type="email"
                   className="input"
@@ -53,10 +131,14 @@ export default function ContactPage() {
                 />
               </Field>
               <Field label="Phone">
-                <input className="input" placeholder="(555) 555-5555" />
+                <input
+                  ref={phoneRef}
+                  className="input"
+                  placeholder="(555) 555-5555"
+                />
               </Field>
               <Field label="Service Interest">
-                <select className="input">
+                <select ref={serviceRef} className="input">
                   <option>Residential Cleaning</option>
                   <option>Commercial Cleaning</option>
                   <option>Deep Cleaning</option>
@@ -65,14 +147,26 @@ export default function ContactPage() {
               </Field>
               <Field label="Message">
                 <textarea
+                  ref={messageRef}
                   required
                   rows={4}
                   className="input resize-none"
                   placeholder="Tell us about your space…"
                 />
               </Field>
-              <button className="btn-primary w-full">
-                Send Message <Send className="w-4 h-4" />
+              <button
+                disabled={isLoading}
+                className="btn-primary w-full disabled:opacity-70 transition-all"
+              >
+                {isLoading ? (
+                  <>
+                    Sending... <Loader2 className="w-4 h-4 animate-spin" />
+                  </>
+                ) : (
+                  <>
+                    Send Message <Send className="w-4 h-4" />
+                  </>
+                )}
               </button>
               <style>{`.input{width:100%;padding:0.7rem 0.9rem;border:1px solid var(--color-border);border-radius:0.6rem;font-size:0.9rem;background:white;outline:none;transition:border .15s}.input:focus{border-color:var(--brand-green);box-shadow:0 0 0 3px color-mix(in oklab, var(--brand-green) 15%, transparent)}`}</style>
             </form>
