@@ -18,7 +18,9 @@ import {
   MapPin,
   Loader2,
   CheckCircle2,
+  Plus,
 } from "lucide-react";
+import Link from "next/link";
 
 type BookingStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
 
@@ -75,11 +77,21 @@ export default function AdminBookingsPage() {
     <div className="space-y-6">
       <div className="rounded-3xl bg-brand-dark p-8 text-white shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-brand-green/10 to-transparent" />
-        <span className="pill bg-brand-lime text-brand-dark">Booking desk</span>
-        <h2 className="mt-4 text-4xl md:text-5xl font-display font-bold">Manage Reservations</h2>
-        <p className="mt-3 max-w-2xl text-white/65 text-lg">
-          Approve, schedule, and finalize cleaning jobs with real-time status tracking.
-        </p>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+          <div>
+            <span className="pill bg-brand-lime text-brand-dark">Booking desk</span>
+            <h2 className="mt-4 text-4xl md:text-5xl font-display font-bold">Manage Reservations</h2>
+            <p className="mt-3 max-w-xl text-white/65 text-lg">
+              Approve, schedule, and finalize cleaning jobs with real-time status tracking.
+            </p>
+          </div>
+          <Link
+            href="/admin/bookings/manual"
+            className="btn-primary bg-brand-lime text-brand-dark hover:bg-white flex items-center gap-2 px-8 py-4 rounded-2xl font-black transition-all shadow-xl shadow-brand-lime/10"
+          >
+            <Plus className="w-5 h-5" /> Manual Booking
+          </Link>
+        </div>
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 items-end justify-between bg-white p-6 rounded-3xl border border-border shadow-sm">
