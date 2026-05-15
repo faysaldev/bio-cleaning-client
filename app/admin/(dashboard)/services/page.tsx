@@ -1,102 +1,180 @@
 "use client";
 
-import { AdminService, adminServices } from "@/src/utils/adminData";
-import { Check, Pencil, Plus, Sparkles, Trash2, X } from "lucide-react";
-import { FormEvent, ReactNode, useState } from "react";
+import {
+  useCreateServiceMutation,
+  useDeleteServiceMutation,
+  useGetAllServicesQuery,
+  useUpdateServiceMutation,
+} from "@/src/redux/features/services/servicesApi";
+import { useUploadFileMutation } from "@/src/redux/features/assets/assetsApi";
+import { CleaningService } from "@/src/redux/features/services/types";
+import {
+  Check,
+  Pencil,
+  Plus,
+  Sparkles,
+  Trash2,
+  X,
+  Loader2,
+  Image as ImageIcon,
+  Upload,
+} from "lucide-react";
+import { ChangeEvent, FormEvent, ReactNode, useState } from "react";
 
-const emptyService: AdminService = {
+const emptyService: Partial<CleaningService> = {
   name: "",
   description: "",
-  features: [],
+  includes: [],
   tags: [],
-  price: "",
+  basePrice: 0,
   duration: "",
-  active: true,
+  isActive: true,
+  image: "",
 };
 
 type DrawerMode = "add" | "edit";
 
-function serviceToForm(service: AdminService) {
+function serviceToForm(service: Partial<CleaningService>) {
   return {
     ...service,
-    features: service.features.join("\n"),
-    tags: service.tags.join(", "),
+    includes: service.includes?.join("\n") || "",
+    tags: service.tags?.join(", ") || "",
+    basePrice: service.basePrice?.toString() || "",
   };
 }
 
 type ServiceFormState = ReturnType<typeof serviceToForm>;
 
-function formToService(form: ServiceFormState): AdminService {
+function formToService(form: ServiceFormState): Partial<CleaningService> {
   return {
     ...form,
-    features: form.features
+    basePrice: Number(form.basePrice.replace(/[^0-9.]/g, "")) || 0,
+    includes: form.includes
       .split("\n")
-      .map((item) => item.trim())
+      .map((item: string) => item.trim())
       .filter(Boolean),
     tags: form.tags
       .split(",")
-      .map((item) => item.trim())
+      .map((item: string) => item.trim())
       .filter(Boolean),
   };
 }
 
 export default function AdminServicesPage() {
-  const [services, setServices] = useState(adminServices);
+  const { data: servicesData, isLoading: isFetching } = useGetAllServicesQuery(
+    {},
+  );
+  const [createService, { isLoading: isCreating }] = useCreateServiceMutation();
+  const [updateService, { isLoading: isUpdating }] = useUpdateServiceMutation();
+  const [deleteServiceMutation, { isLoading: isDeleting }] =
+    useDeleteServiceMutation();
+  const [uploadFile, { isLoading: isUploading }] = useUploadFileMutation();
+
+  const services = servicesData?.data || [];
+
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState<DrawerMode>("add");
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<ServiceFormState>(
     serviceToForm(emptyService),
   );
 
   const openAddDrawer = () => {
     setDrawerMode("add");
-    setEditingIndex(null);
+    setEditingId(null);
     setForm(serviceToForm(emptyService));
     setDrawerOpen(true);
   };
 
-  const openEditDrawer = (index: number) => {
+  const openEditDrawer = (service: CleaningService) => {
     setDrawerMode("edit");
-    setEditingIndex(index);
-    setForm(serviceToForm(services[index]));
+    setEditingId(service._id);
+    setForm(serviceToForm(service));
     setDrawerOpen(true);
   };
 
   const closeDrawer = () => {
     setDrawerOpen(false);
-    setEditingIndex(null);
+    setEditingId(null);
     setForm(serviceToForm(emptyService));
   };
 
-  const submitService = (event: FormEvent<HTMLFormElement>) => {
+  const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = (await uploadFile(formData).unwrap()) as any;
+      const imageUrl = res?.data?.url || res?.url;
+      if (imageUrl) {
+        setForm((prev) => ({ ...prev, image: imageUrl }));
+      }
+    } catch (err) {
+      console.error("Image upload failed:", err);
+    }
+  };
+
+  const submitService = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!form.name || !form.price) return;
+    if (!form.name || !form.basePrice) return;
 
     const nextService = formToService(form);
-    if (drawerMode === "edit" && editingIndex !== null) {
-      setServices((current) =>
-        current.map((service, index) =>
-          index === editingIndex ? nextService : service,
-        ),
-      );
-    } else {
-      setServices((current) => [nextService, ...current]);
+
+    // Clean payload for backend (stripping _id, createdAt, etc)
+    const payload = {
+      name: nextService.name,
+      description: nextService.description,
+      basePrice: nextService.basePrice,
+      includes: nextService.includes,
+      image: nextService.image,
+      duration: nextService.duration,
+      tags: nextService.tags,
+      isActive: nextService.isActive,
+    };
+
+    try {
+      if (drawerMode === "edit") {
+        await updateService({ id: editingId, data: payload }).unwrap();
+      } else {
+        await createService(payload).unwrap();
+      }
+      closeDrawer();
+    } catch (err) {
+      console.error("Failed to save service:", err);
     }
-    closeDrawer();
   };
 
-  const togglePublish = (index: number) => {
-    setServices((current) =>
-      current.map((service, itemIndex) =>
-        itemIndex === index ? { ...service, active: !service.active } : service,
-      ),
+  const togglePublish = async (service: CleaningService) => {
+    try {
+      await updateService({
+        id: service._id,
+        data: { isActive: !service.isActive },
+      }).unwrap();
+    } catch (err) {
+      console.error("Failed to toggle publish status:", err);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this service?"))
+      return;
+    try {
+      await deleteServiceMutation(id).unwrap();
+    } catch (err) {
+      console.error("Failed to delete service:", err);
+    }
+  };
+
+  if (isFetching) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-brand-green" />
+      </div>
     );
-  };
-
-  const deleteService = (index: number) => {
-    setServices((current) => current.filter((_, itemIndex) => itemIndex !== index));
-  };
+  }
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
@@ -115,44 +193,53 @@ export default function AdminServicesPage() {
         </div>
 
         <div className="mt-6 space-y-4">
-          {services.map((service, index) => (
+          {services.map((service) => (
             <article
-              key={`${service.name}-${service.price}-${index}`}
+              key={service._id}
               className="rounded-3xl border border-border bg-white p-5 transition hover:border-brand-green/50 hover:shadow-card"
             >
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-xl font-bold text-brand-dark">
-                      {service.name}
-                    </h3>
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-bold ${
-                        service.active
-                          ? "bg-brand-lime text-brand-dark"
-                          : "bg-muted text-muted-foreground"
-                      }`}
-                    >
-                      {service.active ? "Published" : "Unpublished"}
-                    </span>
-                  </div>
-                  <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                    {service.description}
-                  </p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {service.tags.map((tag) => (
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                <div className="flex flex-col gap-4 sm:flex-row">
+                  {service.image && (
+                    <img
+                      src={service.image}
+                      alt={service.name}
+                      className="h-24 w-32 rounded-2xl object-cover shadow-sm ring-1 ring-border"
+                    />
+                  )}
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-xl font-bold text-brand-dark">
+                        {service.name}
+                      </h3>
                       <span
-                        key={tag}
-                        className="rounded-full bg-brand-cream px-3 py-1 text-xs font-bold text-brand-green"
+                        className={`rounded-full px-3 py-1 text-xs font-bold ${
+                          service.isActive
+                            ? "bg-brand-lime text-brand-dark"
+                            : "bg-muted text-muted-foreground"
+                        }`}
                       >
-                        {tag}
+                        {service.isActive ? "Published" : "Unpublished"}
                       </span>
-                    ))}
+                    </div>
+                    <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+                      {service.description}
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {service.tags?.map((tag: string) => (
+                        <span
+                          key={tag}
+                          className="rounded-full bg-brand-cream px-3 py-1 text-xs font-bold text-brand-green"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
                 <div className="text-left lg:text-right">
                   <div className="font-display text-3xl font-bold text-brand-green">
-                    {service.price}
+                    ${service.basePrice}
                   </div>
                   <div className="text-sm text-muted-foreground">
                     {service.duration || "Flexible"}
@@ -161,7 +248,7 @@ export default function AdminServicesPage() {
               </div>
 
               <div className="mt-5 grid gap-2 sm:grid-cols-2">
-                {service.features.map((feature) => (
+                {service.includes.map((feature: string) => (
                   <div
                     key={feature}
                     className="flex items-center gap-2 rounded-2xl bg-brand-cream px-4 py-2 text-sm text-brand-dark"
@@ -175,21 +262,21 @@ export default function AdminServicesPage() {
               <div className="mt-5 flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => openEditDrawer(index)}
+                  onClick={() => openEditDrawer(service)}
                   className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-xs font-bold text-brand-dark hover:border-brand-green"
                 >
                   <Pencil className="w-3.5 h-3.5" /> Edit
                 </button>
                 <button
                   type="button"
-                  onClick={() => togglePublish(index)}
+                  onClick={() => togglePublish(service)}
                   className="inline-flex items-center gap-2 rounded-full bg-brand-dark px-4 py-2 text-xs font-bold text-white hover:bg-brand-green"
                 >
-                  {service.active ? "Unpublish" : "Publish"}
+                  {service.isActive ? "Unpublish" : "Publish"}
                 </button>
                 <button
                   type="button"
-                  onClick={() => deleteService(index)}
+                  onClick={() => handleDelete(service._id)}
                   className="inline-flex items-center gap-2 rounded-full bg-destructive/10 px-4 py-2 text-xs font-bold text-destructive hover:bg-destructive hover:text-white"
                 >
                   <Trash2 className="w-3.5 h-3.5" /> Delete
@@ -218,11 +305,12 @@ export default function AdminServicesPage() {
           <h3 className="text-2xl text-brand-dark">Fields</h3>
           <div className="mt-4 space-y-3 text-sm text-muted-foreground">
             {[
+              "Service Image (visual branding)",
               "Name of the cleaning",
               "Description",
-              "Feature list",
+              "Includes list",
               "Duration",
-              "Price",
+              "Base Price",
               "Tags such as office, home, premium",
             ].map((item) => (
               <div key={item} className="flex items-center gap-2">
@@ -261,8 +349,51 @@ export default function AdminServicesPage() {
             </div>
 
             <form onSubmit={submitService} className="mt-8 space-y-5">
+              <Field label="Service Image">
+                <div className="relative group overflow-hidden rounded-3xl border border-dashed border-border bg-brand-cream p-1 transition hover:border-brand-green">
+                  {form.image ? (
+                    <div className="relative aspect-video w-full overflow-hidden rounded-2xl">
+                      <img
+                        src={form.image}
+                        alt="Preview"
+                        className="h-full w-full object-cover transition group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition group-hover:opacity-100">
+                        <label className="cursor-pointer rounded-full bg-white px-4 py-2 text-xs font-bold text-brand-dark shadow-xl hover:bg-brand-lime transition">
+                          Change Image
+                          <input
+                            type="file"
+                            className="hidden"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  ) : (
+                    <label className="flex h-32 cursor-pointer flex-col items-center justify-center gap-2">
+                      {isUploading ? (
+                        <Loader2 className="h-6 w-6 animate-spin text-brand-green" />
+                      ) : (
+                        <Upload className="h-6 w-6 text-brand-green" />
+                      )}
+                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                        {isUploading ? "Uploading..." : "Click to upload image"}
+                      </span>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                      />
+                    </label>
+                  )}
+                </div>
+              </Field>
+
               <Field label="Name of the cleaning">
                 <input
+                  required
                   value={form.name}
                   onChange={(event) =>
                     setForm({ ...form, name: event.target.value })
@@ -281,17 +412,17 @@ export default function AdminServicesPage() {
                   placeholder="Short service description"
                 />
               </Field>
-              <Field label="Features list">
+              <Field label="Includes list">
                 <textarea
-                  value={form.features}
+                  value={form.includes}
                   onChange={(event) =>
-                    setForm({ ...form, features: event.target.value })
+                    setForm({ ...form, includes: event.target.value })
                   }
                   className="admin-input min-h-32 resize-none"
                   placeholder={"Kitchen wipe-down\nBathroom sanitizing\nFloors"}
                 />
                 <p className="mt-2 text-xs text-muted-foreground">
-                  Add one feature per line.
+                  Add one item per line.
                 </p>
               </Field>
               <div className="grid sm:grid-cols-2 gap-4">
@@ -305,15 +436,21 @@ export default function AdminServicesPage() {
                     placeholder="2-3 hrs"
                   />
                 </Field>
-                <Field label="Price">
-                  <input
-                    value={form.price}
-                    onChange={(event) =>
-                      setForm({ ...form, price: event.target.value })
-                    }
-                    className="admin-input"
-                    placeholder="$149"
-                  />
+                <Field label="Base Price">
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      $
+                    </span>
+                    <input
+                      required
+                      value={form.basePrice}
+                      onChange={(event) =>
+                        setForm({ ...form, basePrice: event.target.value })
+                      }
+                      className="admin-input pl-8"
+                      placeholder="149"
+                    />
+                  </div>
                 </Field>
               </div>
               <Field label="Tags">
@@ -329,17 +466,25 @@ export default function AdminServicesPage() {
                   Separate tags with commas.
                 </p>
               </Field>
-              <label className="flex items-center gap-3 rounded-2xl bg-brand-cream p-4 text-sm font-semibold text-brand-dark">
+              <label className="flex items-center gap-3 rounded-2xl bg-brand-cream p-4 text-sm font-semibold text-brand-dark cursor-pointer transition hover:bg-brand-lime/10">
                 <input
                   type="checkbox"
-                  checked={form.active}
+                  checked={form.isActive}
                   onChange={(event) =>
-                    setForm({ ...form, active: event.target.checked })
+                    setForm({ ...form, isActive: event.target.checked })
                   }
+                  className="rounded border-border text-brand-green focus:ring-brand-green"
                 />
                 Publish this service
               </label>
-              <button className="btn-primary w-full">
+              <button
+                type="submit"
+                disabled={isCreating || isUpdating}
+                className="btn-primary w-full disabled:opacity-70 flex items-center justify-center gap-2"
+              >
+                {(isCreating || isUpdating) && (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                )}
                 {drawerMode === "edit" ? "Save changes" : "Add service"}
               </button>
             </form>
@@ -351,13 +496,7 @@ export default function AdminServicesPage() {
   );
 }
 
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}) {
+function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="block">
       <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">

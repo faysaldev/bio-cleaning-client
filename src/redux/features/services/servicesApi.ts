@@ -26,10 +26,7 @@ const servicesApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Service"],
     }),
-    updateService: builder.mutation<
-      CleaningService,
-      { id: string; data: Partial<CleaningService> }
-    >({
+    updateService: builder.mutation({
       query: ({ id, data }) => ({
         url: `/services/${id}`,
         method: "PATCH",
