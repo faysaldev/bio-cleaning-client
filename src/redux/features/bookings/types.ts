@@ -29,5 +29,6 @@ export interface BookingResponse {
     page: number;
     limit: number;
     total: number;
+    totalPage: number;
   };
 }
