@@ -1,8 +1,20 @@
+export interface StatDetail {
+  value: number;
+  change: number;
+}
+
 export interface DashboardStats {
-  totalRevenue: number;
-  totalBookings: number;
-  confirmedBookings: number;
-  completedBookings: number;
-  totalClients: number;
-  clientList: any[]; // Define more specifically if possible
+  revenue: StatDetail;
+  bookings: StatDetail;
+  completed: StatDetail;
+  clients: StatDetail;
+  clientList: any[];
+}
+
+export interface DashboardStatsResponse {
+  data: DashboardStats;
+}
+
+export interface RecentBookingsResponse {
+  data: any[];
 }
