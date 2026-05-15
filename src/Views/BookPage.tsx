@@ -22,7 +22,10 @@ import Link from "next/link";
 import { SiteLayout } from "../Layouts/SiteLayout";
 import { useGsapReveal } from "../hooks/useGsapReveal";
 import { useGetShortServicesQuery } from "../redux/features/services/servicesApi";
-import { useGetBookedSlotsQuery } from "../redux/features/bookings/bookingsApi";
+import {
+  useGetBookedSlotsQuery,
+  useCreateBookingMutation,
+} from "../redux/features/bookings/bookingsApi";
 
 const STEPS = ["Service", "Date & Time", "Your Details", "Confirm"];
 
@@ -97,6 +100,54 @@ export default function BookPage() {
   }
 
   const estimatedTotal = estimateTotal(data);
+
+  const [createBooking, { isLoading: isBooking }] = useCreateBookingMutation();
+
+  const handleConfirm = async () => {
+    // Mapping service names to enum-style keys
+    const serviceMap: Record<string, string> = {
+      "Residential": "RESIDENTIAL",
+      "Commercial": "COMMERCIAL",
+      "Deep Clean": "DEEP_CLEAN",
+      "Deep Cleans": "DEEP_CLEAN",
+      "Move-In/Out": "MOVE_IN_OUT",
+    };
+
+    const frequencyMap: Record<string, string> = {
+      "One-time": "ONE_TIME",
+      "Weekly": "WEEKLY",
+      "Bi-weekly": "BI_WEEKLY",
+      "Monthly": "MONTHLY",
+    };
+
+    const payload = {
+      serviceType: serviceMap[data.service] || "RESIDENTIAL",
+      propertySize: data.size,
+      date: data.date,
+      timeSlot: data.time,
+      frequency: frequencyMap[data.frequency] || "ONE_TIME",
+      customerDetails: {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        address: {
+          line1: data.addr1,
+          city: data.city,
+          zip: data.zip,
+        },
+      },
+      totalAmount: estimatedTotal,
+    };
+
+    try {
+      const res = await createBooking(payload as any).unwrap();
+      setReference(res.reference);
+      setDone(true);
+    } catch (err) {
+      console.error("Booking failed:", err);
+      // You could add a toast or error state here
+    }
+  };
 
   if (done) {
     return (
@@ -443,13 +494,16 @@ export default function BookPage() {
                   </button>
                 ) : (
                   <button
-                    onClick={() => {
-                      setReference(createBookingReference());
-                      setDone(true);
-                    }}
-                    className="btn-primary"
+                    onClick={handleConfirm}
+                    disabled={isBooking}
+                    className="btn-primary flex items-center gap-2"
                   >
-                    Confirm Booking <Check className="w-4 h-4" />
+                    {isBooking ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Check className="w-4 h-4" />
+                    )}
+                    {isBooking ? "Processing..." : "Confirm Booking"}
                   </button>
                 )}
               </div>
