@@ -342,9 +342,7 @@ export default function BookPage() {
                     <div className="grid sm:grid-cols-3 gap-2 mt-2">
                       {["Morning 8-12", "Afternoon 12-5", "Evening 5-8"].map(
                         (t) => {
-                          const isBooked = bookedSlots.some(
-                            (s: any) => s.timeSlot === t,
-                          );
+                          const isBooked = bookedSlots.includes(t);
                           return (
                             <button
                               key={t}

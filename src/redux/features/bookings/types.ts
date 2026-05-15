@@ -21,9 +21,7 @@ export interface Booking {
   createdAt: string;
 }
 
-export interface BookedSlot {
-  timeSlot: string;
-}
+export type BookedSlot = string;
 
 export interface BookingResponse {
   data: Booking[];
