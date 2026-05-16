@@ -1,91 +1,109 @@
-# BIO Cleaning LLC - Professional Eco-Friendly Cleaning Services
+# BIO Cleaning LLC - Professional Eco-Friendly Cleaning Platform
 
-![BIO Cleaning LLC](https://bio-cleaning-llc.vercel.app/og-image.jpg)
+![BIO Cleaning LLC Banner](https://bio-cleaning-llc.vercel.app/og-image.jpg)
 
-BIO Cleaning LLC is a premium, professional cleaning service platform built with Next.js and high-performance backend architecture. This project provides a seamless booking experience for residential and commercial clients while offering a robust administrative dashboard for service moderation and order management.
+BIO Cleaning LLC is a high-performance, full-stack cleaning service management platform. It solves the friction of traditional manual booking by providing a sophisticated, automated engine for both residential and commercial clients, paired with a robust administrative control center.
 
-## 🚀 Live Links
+---
+
+## 🚀 Live Ecosystem
 - **Frontend (Live)**: [https://bio-cleaning-llc.vercel.app/](https://bio-cleaning-llc.vercel.app/)
 - **Backend (Source)**: [https://github.com/faysaldev/bio-cleaning-backends](https://github.com/faysaldev/bio-cleaning-backends)
 
 ---
 
 ## 🔐 Administrative Access
-To manage services, view bookings, and respond to customer inquiries, use the following credentials on the `/admin/login` page:
+To manage the operational side of the business, log in at `/admin/login`:
 
-- **Email**: `faysaladmin@gmail.com`
-- **Password**: `Password123@`
+- **Admin Email**: `faysaladmin@gmail.com`
+- **Admin Password**: `Password123@`
 
 ---
 
-## ✨ Features
+## 🛠 The Problem We Solve
+Traditional cleaning businesses often rely on phone calls, delayed email quotes, and manual scheduling, leading to:
+- **Inefficiency**: Long wait times for price estimates.
+- **Scheduling Errors**: Double-bookings and manual calendar management.
+- **Low Engagement**: Static websites that don't allow for immediate customer conversion.
+- **Opaque Tracking**: Customers and admins lack a real-time view of service status.
 
-### 🏠 Client Platform
-- **Dynamic Booking Flow**: Intelligent multi-step booking system with real-time price estimation and slot availability checks.
-- **Service Discovery**: Explore detailed cleaning packages including Deep Cleans, Move-In/Out, and Commercial services.
-- **Eco-Friendly Focus**: Built with sustainability in mind, highlighting green cleaning values.
-- **Responsive Design**: Fully optimized for mobile, tablet, and desktop viewing.
-- **SEO Optimized**: Advanced metadata, OpenGraph, and JSON-LD for maximum search engine visibility.
+**BIO Cleaning LLC** bridges this gap with an automated "Cleaning-as-a-Service" (CaaS) model, ensuring instant bookings and transparent operations.
 
-### 🛠 Administrative Dashboard
-- **Operational Command Center**: Real-time stats on revenue, bookings, and customer growth.
-- **Booking Management**: Review, confirm, or cancel reservations with automated status tracking.
-- **Service Builder**: Create, edit, and publish new cleaning packages dynamically.
-- **Inquiry Moderation**: A dedicated hub to view and reply to customer contact messages via a professional bottom-drawer interface.
-- **Secure Authentication**: Protected routes with secure login and session management.
+---
+
+## 📖 User Guide: How to Use
+
+### For Customers (The Booking Engine)
+1. **Discover Services**: Browse through eco-friendly cleaning packages (Deep Clean, Residential, etc.) with live pricing.
+2. **Instant Booking**: Use the 4-step booking engine:
+   - **Step 1**: Select Service & Property Size (Studio to 4BR+).
+   - **Step 2**: Choose a Date & real-time available Time Slot.
+   - **Step 3**: Provide contact and address details.
+   - **Step 4**: Review the instant quote and confirm the reservation.
+3. **Automated Tracking**: Receive a unique reference number (e.g., `BIO-10005`) for order tracking.
+
+### For Administrators (The Management Desk)
+1. **Operations Dashboard**: View real-time revenue stats, booking counts, and recent customer activity.
+2. **Booking Orchestration**:
+   - Navigate to **Bookings** to see all incoming requests.
+   - **PENDING**: Review and "Confirm" or "Cancel" requests.
+   - **CONFIRMED**: Mark as "Completed" once the cleaning is finished.
+3. **Manual Bookings**: Create reservations directly in the system for customers who call in or walk in.
+4. **Service Builder**: 
+   - Dynamically add new cleaning types or adjust prices.
+   - Toggle "Publish/Unpublish" to manage site visibility instantly.
+5. **Contact Moderation**: 
+   - View all customer inquiries in a centralized list.
+   - Use the **Bottom Drawer Reply** system to provide professional feedback.
 
 ---
 
 ## 🛠 Tech Stack
 
-### Frontend
+### Frontend Architecture
 - **Framework**: Next.js 14+ (App Router)
-- **State Management**: Redux Toolkit & RTK Query
-- **Styling**: Vanilla CSS with modern Design Tokens
-- **Animations**: GSAP (GreenSock Animation Platform)
-- **Icons**: Lucide React
+- **State Management**: Redux Toolkit & RTK Query (Real-time data fetching)
+- **Animations**: GSAP (Smooth visual reveals and transitions)
+- **Styling**: Vanilla CSS with modern Design Tokens & HSL color palettes
+- **SEO**: Dynamic Metadata API, Sitemap.xml, and Robots.txt generation
 
-### Backend (Infrastructure)
+### Backend Infrastructure
 - **Language**: TypeScript / Node.js
-- **Framework**: Express / NestJS
-- **Database**: MongoDB / PostgreSQL
-- **Security**: JWT & Role-Based Access Control
+- **Database**: MongoDB (Scalable document storage)
+- **API**: Express.js with standardized RESTful patterns
+- **Validation**: Zod (End-to-end type safety)
 
 ---
 
-## 🛠 Installation & Local Development
+## 🛠 Local Setup & Installation
 
-1. **Clone the repository**:
+1. **Clone & Enter**:
    ```bash
    git clone https://github.com/faysaldev/bio-cleaning-client.git
+   cd bio-cleaning-client
    ```
 
-2. **Install dependencies**:
+2. **Dependencies**:
    ```bash
    pnpm install
    ```
 
-3. **Configure Environment Variables**:
-   Create a `.env.local` file in the root directory and add your backend URL:
-   ```env
-   NEXT_PUBLIC_BASE_URL=http://localhost:9500/api/v1
-   ```
+3. **Environment**:
+   Set `NEXT_PUBLIC_BASE_URL` in `.env.local` to point to your backend API.
 
-4. **Run the development server**:
+4. **Dev Server**:
    ```bash
    pnpm dev
    ```
 
 ---
 
-## 📈 SEO Implementation
-The project follows modern SEO best practices:
-- **Semantic HTML**: Proper use of `<header>`, `<main>`, `<footer>`, and heading hierarchy.
-- **Metadata API**: Dynamic titles and descriptions for every page.
-- **OpenGraph**: Rich social sharing cards for platforms like Facebook and LinkedIn.
-- **Performance**: Optimized images and code-splitting for near-instant load times.
+## 📈 SEO & Performance
+- **Dynamic Meta Tags**: Services page metadata is generated dynamically from live API data.
+- **Sitemap**: Automatically generated for all public routes.
+- **Core Web Vitals**: Optimized for LCP (Largest Contentful Paint) using Next.js Image and font optimization.
 
 ---
 
 ## 📄 License
-This project is licensed under the MIT License.
+This project is licensed under the **MIT License**. See the [LICENSE](./LICENSE) file for details.
