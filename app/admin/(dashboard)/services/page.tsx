@@ -3,6 +3,7 @@
 import {
   useCreateServiceMutation,
   useDeleteServiceMutation,
+  useGetAllServicesAdminQuery,
   useGetAllServicesQuery,
   useUpdateServiceMutation,
 } from "@/src/redux/features/services/servicesApi";
@@ -61,9 +62,8 @@ function formToService(form: ServiceFormState): Partial<CleaningService> {
 }
 
 export default function AdminServicesPage() {
-  const { data: servicesData, isLoading: isFetching } = useGetAllServicesQuery(
-    {},
-  );
+  const { data: servicesData, isLoading: isFetching } =
+    useGetAllServicesAdminQuery({});
   const [createService, { isLoading: isCreating }] = useCreateServiceMutation();
   const [updateService, { isLoading: isUpdating }] = useUpdateServiceMutation();
   const [deleteServiceMutation, { isLoading: isDeleting }] =
@@ -182,16 +182,23 @@ export default function AdminServicesPage() {
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between border-b border-border pb-8 mb-8">
           <div>
             <div className="flex items-center gap-3">
-              <span className="pill bg-brand-green/10 text-brand-green">Administration</span>
-              <span className="text-xs font-bold text-muted-foreground">• {services.length} Total Services</span>
+              <span className="pill bg-brand-green/10 text-brand-green">
+                Administration
+              </span>
+              <span className="text-xs font-bold text-muted-foreground">
+                • {services.length} Total Services
+              </span>
             </div>
-            <h2 className="mt-4 text-4xl font-display font-bold text-brand-dark tracking-tight">Cleaning Services</h2>
+            <h2 className="mt-4 text-4xl font-display font-bold text-brand-dark tracking-tight">
+              Cleaning Services
+            </h2>
             <p className="mt-2 text-sm text-muted-foreground max-w-lg">
-              Configure and moderate the professional cleaning packages displayed on your public booking platform.
+              Configure and moderate the professional cleaning packages
+              displayed on your public booking platform.
             </p>
           </div>
-          <button 
-            onClick={openAddDrawer} 
+          <button
+            onClick={openAddDrawer}
             className="btn-primary flex items-center gap-2 px-8 py-4 rounded-2xl shadow-xl shadow-brand-green/20"
           >
             <Plus className="w-5 h-5" /> Add New Service
@@ -199,7 +206,7 @@ export default function AdminServicesPage() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
-          {services.map((service) => (
+          {services.map((service: CleaningService) => (
             <article
               key={service._id}
               className="group rounded-[2rem] border border-border bg-white p-6 transition-all duration-300 hover:border-brand-green/30 hover:shadow-xl hover:-translate-y-1"
@@ -252,7 +259,9 @@ export default function AdminServicesPage() {
                     </span>
                   ))}
                   {service.tags && service.tags.length > 3 && (
-                    <span className="text-[10px] font-bold text-muted-foreground">+{service.tags.length - 3} more</span>
+                    <span className="text-[10px] font-bold text-muted-foreground">
+                      +{service.tags.length - 3} more
+                    </span>
                   )}
                 </div>
 
@@ -275,14 +284,14 @@ export default function AdminServicesPage() {
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
-                  
+
                   <button
                     type="button"
                     onClick={() => togglePublish(service)}
                     className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                      service.isActive 
-                      ? "bg-brand-dark text-white hover:bg-brand-green" 
-                      : "bg-brand-green text-white hover:bg-brand-dark"
+                      service.isActive
+                        ? "bg-brand-dark text-white hover:bg-brand-green"
+                        : "bg-brand-green text-white hover:bg-brand-dark"
                     }`}
                   >
                     {service.isActive ? "Unpublish" : "Publish Now"}
