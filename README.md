@@ -1,154 +1,91 @@
-# BIO Cleaning - Frontend & Proposed Backend Documentation
+# BIO Cleaning LLC - Professional Eco-Friendly Cleaning Services
 
-This repository contains the frontend for BIO Cleaning, a professional cleaning service platform. Below is the documentation for the proposed backend API, data models, and types required to support the current frontend implementation.
+![BIO Cleaning LLC](https://bio-cleaning-llc.vercel.app/og-image.jpg)
 
----
+BIO Cleaning LLC is a premium, professional cleaning service platform built with Next.js and high-performance backend architecture. This project provides a seamless booking experience for residential and commercial clients while offering a robust administrative dashboard for service moderation and order management.
 
-## 🛠 Tech Stack (Proposed)
-- **Framework**: Next.js (App Router)
-- **Database**: PostgreSQL / MongoDB (Prisma ORM recommended)
-- **Validation**: Zod
-- **Authentication**: NextAuth.js or Clerk
+## 🚀 Live Links
+- **Frontend (Live)**: [https://bio-cleaning-llc.vercel.app/](https://bio-cleaning-llc.vercel.app/)
+- **Backend (Source)**: [https://github.com/faysaldev/bio-cleaning-backends](https://github.com/faysaldev/bio-cleaning-backends)
 
 ---
 
-## 📊 Data Models (Database Schema)
+## 🔐 Administrative Access
+To manage services, view bookings, and respond to customer inquiries, use the following credentials on the `/admin/login` page:
 
-### 1. `Booking`
-Stores all information related to a cleaning service request.
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `id` | UUID | Primary Key |
-| `reference` | String | Unique human-readable ID (e.g., `BIO-54210`) |
-| `serviceType` | Enum | `RESIDENTIAL`, `COMMERCIAL`, `DEEP_CLEAN`, `MOVE_IN_OUT` |
-| `propertySize` | String | e.g., `Studio`, `1BR`, `2BR`, `3BR`, `4BR+`, `Office` |
-| `date` | DateTime | Scheduled date for cleaning |
-| `timeSlot` | String | `Morning 8-12`, `Afternoon 12-5`, `Evening 5-8` |
-| `frequency` | Enum | `ONE_TIME`, `WEEKLY`, `BI_WEEKLY`, `MONTHLY` |
-| `customerName` | String | Full name of the client |
-| `customerEmail`| String | Contact email |
-| `customerPhone`| String | Contact phone number |
-| `addressLine1` | String | Primary address |
-| `addressLine2` | String? | Apartment, suite, etc. (Optional) |
-| `city` | String | City |
-| `zipCode` | String | Postal code |
-| `notes` | Text? | Special instructions or notes (Optional) |
-| `totalAmount` | Float | Final estimated price |
-| `status` | Enum | `PENDING`, `CONFIRMED`, `COMPLETED`, `CANCELLED` |
-| `createdAt` | DateTime | Auto-generated timestamp |
-
-### 2. `ContactSubmission`
-Stores messages from the contact form.
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `id` | UUID | Primary Key |
-| `fullName` | String | Sender's name |
-| `email` | String | Sender's email |
-| `phone` | String | Sender's phone |
-| `service` | String | Service they are interested in |
-| `message` | Text | The actual message content |
-| `createdAt` | DateTime | Timestamp |
-
-### 3. `Service` (Dynamic Services)
-Allows the admin to update service offerings and pricing.
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `id` | UUID | Primary Key |
-| `name` | String | Service name |
-| `description` | Text | Short description |
-| `basePrice` | Float | Starting price |
-| `includes` | String[] | List of features included |
-| `image` | String | Image URL |
-| `isActive` | Boolean | Whether to show on site |
+- **Email**: `faysaladmin@gmail.com`
+- **Password**: `Password123@`
 
 ---
 
-## 🚀 API Documentation (Proposed Endpoints)
+## ✨ Features
 
-### Bookings API
-- **`POST /api/bookings`**
-  - **Description**: Create a new booking.
-  - **Body**: `BookingCreateInput` (See types below).
-  - **Access**: Public.
-- **`GET /api/bookings`**
-  - **Description**: Retrieve all bookings. Supports filtering by status and date.
-  - **Access**: Admin Only.
-- **`GET /api/bookings/:id`**
-  - **Description**: Get details for a specific booking.
-  - **Access**: Admin / Customer (with ref).
-- **`PATCH /api/bookings/:id`**
-  - **Description**: Update booking status (e.g., Mark as Confirmed).
-  - **Access**: Admin Only.
+### 🏠 Client Platform
+- **Dynamic Booking Flow**: Intelligent multi-step booking system with real-time price estimation and slot availability checks.
+- **Service Discovery**: Explore detailed cleaning packages including Deep Cleans, Move-In/Out, and Commercial services.
+- **Eco-Friendly Focus**: Built with sustainability in mind, highlighting green cleaning values.
+- **Responsive Design**: Fully optimized for mobile, tablet, and desktop viewing.
+- **SEO Optimized**: Advanced metadata, OpenGraph, and JSON-LD for maximum search engine visibility.
 
-### Contact API
-- **`POST /api/contact`**
-  - **Description**: Submit the contact form.
-  - **Body**: `ContactSubmissionInput`.
-  - **Access**: Public.
-- **`GET /api/contact`**
-  - **Description**: View all contact messages.
-  - **Access**: Admin Only.
-
-### Services API
-- **`GET /api/services`**
-  - **Description**: Fetch all active services for the Services page.
-  - **Access**: Public.
+### 🛠 Administrative Dashboard
+- **Operational Command Center**: Real-time stats on revenue, bookings, and customer growth.
+- **Booking Management**: Review, confirm, or cancel reservations with automated status tracking.
+- **Service Builder**: Create, edit, and publish new cleaning packages dynamically.
+- **Inquiry Moderation**: A dedicated hub to view and reply to customer contact messages via a professional bottom-drawer interface.
+- **Secure Authentication**: Protected routes with secure login and session management.
 
 ---
 
-## ⌨️ TypeScript Types
+## 🛠 Tech Stack
 
-```typescript
-// Shared Types
-export type BookingStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
+### Frontend
+- **Framework**: Next.js 14+ (App Router)
+- **State Management**: Redux Toolkit & RTK Query
+- **Styling**: Vanilla CSS with modern Design Tokens
+- **Animations**: GSAP (GreenSock Animation Platform)
+- **Icons**: Lucide React
 
-export interface Booking {
-  id: string;
-  reference: string;
-  serviceType: "RESIDENTIAL" | "COMMERCIAL" | "DEEP_CLEAN" | "MOVE_IN_OUT";
-  propertySize: string;
-  date: string;
-  timeSlot: string;
-  frequency: "ONE_TIME" | "WEEKLY" | "BI_WEEKLY" | "MONTHLY";
-  customerDetails: {
-    name: string;
-    email: string;
-    phone: string;
-    address: {
-      line1: string;
-      line2?: string;
-      city: string;
-      zip: string;
-    };
-  };
-  notes?: string;
-  totalAmount: number;
-  status: BookingStatus;
-  createdAt: string;
-}
-
-export interface ContactSubmission {
-  fullName: string;
-  email: string;
-  phone: string;
-  serviceInterest: string;
-  message: string;
-}
-```
+### Backend (Infrastructure)
+- **Language**: TypeScript / Node.js
+- **Framework**: Express / NestJS
+- **Database**: MongoDB / PostgreSQL
+- **Security**: JWT & Role-Based Access Control
 
 ---
 
-## 🛠 Getting Started (Frontend)
+## 🛠 Installation & Local Development
 
-First, run the development server:
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/faysaldev/bio-cleaning-client.git
+   ```
 
-```bash
-pnpm dev
-```
+2. **Install dependencies**:
+   ```bash
+   pnpm install
+   ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. **Configure Environment Variables**:
+   Create a `.env.local` file in the root directory and add your backend URL:
+   ```env
+   NEXT_PUBLIC_BASE_URL=http://localhost:9500/api/v1
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+4. **Run the development server**:
+   ```bash
+   pnpm dev
+   ```
+
+---
+
+## 📈 SEO Implementation
+The project follows modern SEO best practices:
+- **Semantic HTML**: Proper use of `<header>`, `<main>`, `<footer>`, and heading hierarchy.
+- **Metadata API**: Dynamic titles and descriptions for every page.
+- **OpenGraph**: Rich social sharing cards for platforms like Facebook and LinkedIn.
+- **Performance**: Optimized images and code-splitting for near-instant load times.
+
+---
+
+## 📄 License
+This project is licensed under the MIT License.
