@@ -16,12 +16,8 @@ import {
   Trash2,
   X,
   Loader2,
+  Image as ImageIcon,
   Upload,
-  Eye,
-  EyeOff,
-  Tag,
-  Clock,
-  DollarSign,
 } from "lucide-react";
 import { ChangeEvent, FormEvent, ReactNode, useState } from "react";
 
@@ -52,12 +48,12 @@ type ServiceFormState = ReturnType<typeof serviceToForm>;
 function formToService(form: ServiceFormState): Partial<CleaningService> {
   return {
     ...form,
-    basePrice: Number(form.basePrice.toString().replace(/[^0-9.]/g, "")) || 0,
-    includes: (form.includes as any)
+    basePrice: Number(form.basePrice.replace(/[^0-9.]/g, "")) || 0,
+    includes: form.includes
       .split("\n")
       .map((item: string) => item.trim())
       .filter(Boolean),
-    tags: (form.tags as any)
+    tags: form.tags
       .split(",")
       .map((item: string) => item.trim())
       .filter(Boolean),
@@ -106,12 +102,16 @@ export default function AdminServicesPage() {
   const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     const formData = new FormData();
     formData.append("file", file);
+
     try {
       const res = (await uploadFile(formData).unwrap()) as any;
       const imageUrl = res?.data?.url || res?.url;
-      if (imageUrl) setForm((prev) => ({ ...prev, image: imageUrl }));
+      if (imageUrl) {
+        setForm((prev) => ({ ...prev, image: imageUrl }));
+      }
     } catch (err) {
       console.error("Image upload failed:", err);
     }
@@ -120,7 +120,10 @@ export default function AdminServicesPage() {
   const submitService = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!form.name || !form.basePrice) return;
+
     const nextService = formToService(form);
+
+    // Clean payload for backend (stripping _id, createdAt, etc)
     const payload = {
       name: nextService.name,
       description: nextService.description,
@@ -131,6 +134,7 @@ export default function AdminServicesPage() {
       tags: nextService.tags,
       isActive: nextService.isActive,
     };
+
     try {
       if (drawerMode === "edit") {
         await updateService({ id: editingId, data: payload }).unwrap();
@@ -150,226 +154,204 @@ export default function AdminServicesPage() {
         data: { isActive: !service.isActive },
       }).unwrap();
     } catch (err) {
-      console.error("Failed to toggle:", err);
+      console.error("Failed to toggle publish status:", err);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Delete this service?")) return;
+    if (!window.confirm("Are you sure you want to delete this service?"))
+      return;
     try {
       await deleteServiceMutation(id).unwrap();
     } catch (err) {
-      console.error("Failed to delete:", err);
+      console.error("Failed to delete service:", err);
     }
   };
 
   if (isFetching) {
     return (
       <div className="flex h-96 items-center justify-center">
-        <Loader2 className="h-5 w-5 animate-spin text-brand-green" />
+        <Loader2 className="h-10 w-10 animate-spin text-brand-green" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-brand-dark">Services</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {services.length} service{services.length !== 1 ? "s" : ""} listed
-          </p>
+    <div className="space-y-6">
+      <section className="rounded-3xl border border-border bg-white p-8 shadow-sm">
+        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between border-b border-border pb-8 mb-8">
+          <div>
+            <div className="flex items-center gap-3">
+              <span className="pill bg-brand-green/10 text-brand-green">Administration</span>
+              <span className="text-xs font-bold text-muted-foreground">• {services.length} Total Services</span>
+            </div>
+            <h2 className="mt-4 text-4xl font-display font-bold text-brand-dark tracking-tight">Cleaning Services</h2>
+            <p className="mt-2 text-sm text-muted-foreground max-w-lg">
+              Configure and moderate the professional cleaning packages displayed on your public booking platform.
+            </p>
+          </div>
+          <button 
+            onClick={openAddDrawer} 
+            className="btn-primary flex items-center gap-2 px-8 py-4 rounded-2xl shadow-xl shadow-brand-green/20"
+          >
+            <Plus className="w-5 h-5" /> Add New Service
+          </button>
         </div>
-        <button
-          onClick={openAddDrawer}
-          className="inline-flex items-center gap-2 bg-brand-dark text-white text-xs font-bold rounded-xl px-4 py-2.5 hover:bg-brand-green transition-colors"
-        >
-          <Plus className="w-3.5 h-3.5" /> Add Service
-        </button>
-      </div>
 
-      {/* Services grid */}
-      {services.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-border p-16 text-center">
-          <Sparkles className="mx-auto h-8 w-8 text-muted-foreground/20 mb-3" />
-          <p className="text-sm font-semibold text-brand-dark">
-            No services yet
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Add your first cleaning service to get started.
-          </p>
-        </div>
-      ) : (
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid md:grid-cols-2 gap-6">
           {services.map((service) => (
-            <div
+            <article
               key={service._id}
-              className="bg-white rounded-2xl border border-border overflow-hidden hover:border-brand-green/25 hover:shadow-sm transition-all duration-200 group"
+              className="group rounded-[2rem] border border-border bg-white p-6 transition-all duration-300 hover:border-brand-green/30 hover:shadow-xl hover:-translate-y-1"
             >
-              {/* Image */}
-              <div className="aspect-[16/9] bg-[#f0f4f1] overflow-hidden relative">
-                {service.image ? (
-                  <img
-                    src={service.image}
-                    alt={service.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                ) : (
-                  <div className="w-full h-full grid place-items-center">
-                    <Sparkles className="w-8 h-8 text-brand-green/30" />
-                  </div>
-                )}
-                <div className="absolute top-3 right-3">
-                  <span
-                    className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full ${
-                      service.isActive
-                        ? "bg-brand-lime text-brand-dark"
-                        : "bg-white/90 text-muted-foreground border border-border"
-                    }`}
-                  >
-                    {service.isActive ? "Live" : "Draft"}
-                  </span>
-                </div>
-              </div>
-
-              <div className="p-4">
-                <div className="mb-3">
-                  <h3 className="font-bold text-brand-dark text-sm leading-tight">
-                    {service.name}
-                  </h3>
-                  {service.description && (
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
-                      {service.description}
-                    </p>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="flex items-center gap-1 text-xs font-bold text-brand-dark">
-                    <DollarSign className="w-3 h-3 text-brand-green" />
-                    {service.basePrice}
-                  </div>
-                  {service.duration && (
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Clock className="w-3 h-3" />
-                      {service.duration}
+              <div className="flex flex-col gap-6">
+                <div className="flex gap-5">
+                  {service.image ? (
+                    <img
+                      src={service.image}
+                      alt={service.name}
+                      className="h-24 w-24 rounded-2xl object-cover shadow-md ring-1 ring-border shrink-0"
+                    />
+                  ) : (
+                    <div className="h-24 w-24 rounded-2xl bg-brand-cream flex items-center justify-center shrink-0 border border-border">
+                      <ImageIcon className="w-8 h-8 text-brand-green/30" />
                     </div>
                   )}
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span
+                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-widest ${
+                          service.isActive
+                            ? "bg-brand-lime text-brand-dark"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {service.isActive ? "Published" : "Draft"}
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-bold text-brand-dark truncate">
+                      {service.name}
+                    </h3>
+                    <div className="mt-1 font-display text-2xl font-bold text-brand-green">
+                      ${service.basePrice}
+                    </div>
+                  </div>
                 </div>
 
-                {service.tags && service.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {service.tags.slice(0, 3).map((tag) => (
-                      <span
-                        key={tag}
-                        className="text-[9px] font-bold uppercase tracking-wide bg-[#f0f4f1] text-muted-foreground px-2 py-0.5 rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                <p className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]">
+                  {service.description}
+                </p>
 
-                <div className="flex items-center gap-2 pt-3 border-t border-border">
+                <div className="flex flex-wrap gap-1.5">
+                  {service.tags?.slice(0, 3).map((tag: string) => (
+                    <span
+                      key={tag}
+                      className="rounded-lg bg-brand-cream px-2.5 py-1 text-[10px] font-black uppercase tracking-tighter text-brand-green"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                  {service.tags && service.tags.length > 3 && (
+                    <span className="text-[10px] font-bold text-muted-foreground">+{service.tags.length - 3} more</span>
+                  )}
+                </div>
+
+                <div className="pt-6 border-t border-border flex flex-wrap items-center justify-between gap-3 mt-auto">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => openEditDrawer(service)}
+                      className="h-10 w-10 rounded-xl border border-border flex items-center justify-center text-brand-dark hover:bg-brand-cream transition-colors"
+                      title="Edit Service"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(service._id)}
+                      className="h-10 w-10 rounded-xl bg-destructive/5 text-destructive flex items-center justify-center hover:bg-destructive hover:text-white transition-all"
+                      title="Delete Service"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                  
                   <button
+                    type="button"
                     onClick={() => togglePublish(service)}
-                    disabled={isUpdating}
-                    className={`flex-1 flex items-center justify-center gap-1.5 text-[10px] font-bold rounded-lg py-1.5 transition-colors ${
-                      service.isActive
-                        ? "bg-[#f0f4f1] text-muted-foreground hover:text-brand-dark"
-                        : "bg-brand-lime/20 text-brand-dark hover:bg-brand-lime/40"
+                    className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                      service.isActive 
+                      ? "bg-brand-dark text-white hover:bg-brand-green" 
+                      : "bg-brand-green text-white hover:bg-brand-dark"
                     }`}
                   >
-                    {service.isActive ? (
-                      <EyeOff className="w-3 h-3" />
-                    ) : (
-                      <Eye className="w-3 h-3" />
-                    )}
-                    {service.isActive ? "Unpublish" : "Publish"}
-                  </button>
-                  <button
-                    onClick={() => openEditDrawer(service)}
-                    className="w-7 h-7 rounded-lg bg-[#f0f4f1] hover:bg-brand-green/10 grid place-items-center transition-colors"
-                  >
-                    <Pencil className="w-3 h-3 text-brand-green" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(service._id)}
-                    disabled={isDeleting}
-                    className="w-7 h-7 rounded-lg bg-[#f0f4f1] hover:bg-destructive/8 grid place-items-center transition-colors"
-                  >
-                    <Trash2 className="w-3 h-3 text-muted-foreground hover:text-destructive" />
+                    {service.isActive ? "Unpublish" : "Publish Now"}
                   </button>
                 </div>
               </div>
-            </div>
+            </article>
           ))}
         </div>
-      )}
+      </section>
 
-      {/* Drawer */}
       {drawerOpen && (
         <div className="fixed inset-0 z-[100]">
-          <div
-            className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"
+          <button
+            aria-label="Close drawer"
+            className="absolute inset-0 bg-black/45"
             onClick={closeDrawer}
           />
-          <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-border px-5 py-4 flex items-center justify-between z-10">
+          <div className="absolute left-0 top-0 h-full w-full max-w-xl overflow-y-auto bg-white p-6 shadow-2xl animate-[fade-in_.2s_ease-out]">
+            <div className="flex items-start justify-between gap-4">
               <div>
-                <div className="text-[9px] uppercase tracking-widest font-bold text-brand-green mb-0.5">
-                  {drawerMode === "edit" ? "Edit Service" : "New Service"}
-                </div>
-                <h2 className="text-base font-bold text-brand-dark">
-                  {drawerMode === "edit"
-                    ? "Update cleaning service"
-                    : "Add cleaning service"}
+                <span className="pill">
+                  {drawerMode === "edit" ? "Edit service" : "New service"}
+                </span>
+                <h2 className="mt-3 text-3xl text-brand-dark">
+                  {drawerMode === "edit" ? "Update cleaning" : "Add cleaning"}
                 </h2>
               </div>
               <button
+                type="button"
                 onClick={closeDrawer}
-                className="w-8 h-8 rounded-xl bg-[#f0f4f1] hover:bg-brand-cream grid place-items-center transition-colors"
+                className="rounded-full border border-border p-2"
+                aria-label="Close service drawer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={submitService} className="p-5 space-y-4">
-              {/* Image upload */}
-              <div>
-                <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
-                  Service Image
-                </span>
-                <div className="mt-1.5 rounded-xl border-2 border-dashed border-border hover:border-brand-green bg-[#f8faf9] overflow-hidden transition-colors group/img">
+            <form onSubmit={submitService} className="mt-8 space-y-5">
+              <Field label="Service Image">
+                <div className="relative group overflow-hidden rounded-3xl border border-dashed border-border bg-brand-cream p-1 transition hover:border-brand-green">
                   {form.image ? (
-                    <div className="relative aspect-video">
+                    <div className="relative aspect-video w-full overflow-hidden rounded-2xl">
                       <img
-                        src={form.image as string}
+                        src={form.image}
                         alt="Preview"
-                        className="w-full h-full object-cover"
+                        className="h-full w-full object-cover transition group-hover:scale-105"
                       />
-                      <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity cursor-pointer">
-                        <span className="bg-white text-brand-dark text-xs font-bold px-3 py-1.5 rounded-lg">
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition group-hover:opacity-100">
+                        <label className="cursor-pointer rounded-full bg-white px-4 py-2 text-xs font-bold text-brand-dark shadow-xl hover:bg-brand-lime transition">
                           Change Image
-                        </span>
-                        <input
-                          type="file"
-                          className="hidden"
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                        />
-                      </label>
+                          <input
+                            type="file"
+                            className="hidden"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                          />
+                        </label>
+                      </div>
                     </div>
                   ) : (
-                    <label className="flex h-24 cursor-pointer flex-col items-center justify-center gap-1.5">
+                    <label className="flex h-32 cursor-pointer flex-col items-center justify-center gap-2">
                       {isUploading ? (
-                        <Loader2 className="h-5 w-5 animate-spin text-brand-green" />
+                        <Loader2 className="h-6 w-6 animate-spin text-brand-green" />
                       ) : (
-                        <Upload className="h-5 w-5 text-brand-green/50" />
+                        <Upload className="h-6 w-6 text-brand-green" />
                       )}
-                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                        {isUploading ? "Uploading…" : "Click to upload"}
+                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                        {isUploading ? "Uploading..." : "Click to upload image"}
                       </span>
                       <input
                         type="file"
@@ -380,127 +362,109 @@ export default function AdminServicesPage() {
                     </label>
                   )}
                 </div>
-              </div>
+              </Field>
 
-              <Field label="Service Name">
+              <Field label="Name of the cleaning">
                 <input
                   required
-                  value={form.name as string}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="admin-field"
+                  value={form.name}
+                  onChange={(event) =>
+                    setForm({ ...form, name: event.target.value })
+                  }
+                  className="admin-input"
                   placeholder="Premium Kitchen Reset"
                 />
               </Field>
-
               <Field label="Description">
                 <textarea
-                  value={form.description as string}
-                  onChange={(e) =>
-                    setForm({ ...form, description: e.target.value })
+                  value={form.description}
+                  onChange={(event) =>
+                    setForm({ ...form, description: event.target.value })
                   }
-                  className="admin-field min-h-20 resize-none"
+                  className="admin-input min-h-28 resize-none"
                   placeholder="Short service description"
                 />
               </Field>
-
-              <Field label="What's Included (one per line)">
+              <Field label="Includes list">
                 <textarea
-                  value={form.includes as string}
-                  onChange={(e) =>
-                    setForm({ ...form, includes: e.target.value })
+                  value={form.includes}
+                  onChange={(event) =>
+                    setForm({ ...form, includes: event.target.value })
                   }
-                  className="admin-field min-h-28 resize-none"
+                  className="admin-input min-h-32 resize-none"
                   placeholder={"Kitchen wipe-down\nBathroom sanitizing\nFloors"}
                 />
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Add one item per line.
+                </p>
               </Field>
-
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid sm:grid-cols-2 gap-4">
                 <Field label="Duration">
                   <input
-                    value={form.duration as string}
-                    onChange={(e) =>
-                      setForm({ ...form, duration: e.target.value })
+                    value={form.duration}
+                    onChange={(event) =>
+                      setForm({ ...form, duration: event.target.value })
                     }
-                    className="admin-field"
-                    placeholder="2–3 hrs"
+                    className="admin-input"
+                    placeholder="2-3 hrs"
                   />
                 </Field>
-                <Field label="Base Price ($)">
-                  <input
-                    required
-                    value={form.basePrice as string}
-                    onChange={(e) =>
-                      setForm({ ...form, basePrice: e.target.value })
-                    }
-                    className="admin-field"
-                    placeholder="149"
-                  />
+                <Field label="Base Price">
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      $
+                    </span>
+                    <input
+                      required
+                      value={form.basePrice}
+                      onChange={(event) =>
+                        setForm({ ...form, basePrice: event.target.value })
+                      }
+                      className="admin-input pl-8"
+                      placeholder="149"
+                    />
+                  </div>
                 </Field>
               </div>
-
-              <Field label="Tags (comma separated)">
+              <Field label="Tags">
                 <input
-                  value={form.tags as string}
-                  onChange={(e) => setForm({ ...form, tags: e.target.value })}
-                  className="admin-field"
+                  value={form.tags}
+                  onChange={(event) =>
+                    setForm({ ...form, tags: event.target.value })
+                  }
+                  className="admin-input"
                   placeholder="home, office, premium"
                 />
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Separate tags with commas.
+                </p>
               </Field>
-
-              <label className="flex items-center gap-3 rounded-xl bg-[#f0f4f1] px-4 py-3 cursor-pointer hover:bg-brand-lime/10 transition-colors">
+              <label className="flex items-center gap-3 rounded-2xl bg-brand-cream p-4 text-sm font-semibold text-brand-dark cursor-pointer transition hover:bg-brand-lime/10">
                 <input
                   type="checkbox"
-                  checked={form.isActive as boolean}
-                  onChange={(e) =>
-                    setForm({ ...form, isActive: e.target.checked })
+                  checked={form.isActive}
+                  onChange={(event) =>
+                    setForm({ ...form, isActive: event.target.checked })
                   }
-                  className="rounded border-border"
+                  className="rounded border-border text-brand-green focus:ring-brand-green"
                 />
-                <span className="text-sm font-semibold text-brand-dark">
-                  Publish this service
-                </span>
+                Publish this service
               </label>
-
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={closeDrawer}
-                  className="flex-1 py-2.5 rounded-xl border border-border text-sm font-semibold hover:bg-[#f0f4f1] transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isCreating || isUpdating}
-                  className="flex-1 py-2.5 rounded-xl bg-brand-dark text-white text-sm font-bold flex items-center justify-center gap-2 hover:bg-brand-green transition-colors disabled:opacity-50"
-                >
-                  {(isCreating || isUpdating) && (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  )}
-                  {drawerMode === "edit" ? "Save Changes" : "Add Service"}
-                </button>
-              </div>
+              <button
+                type="submit"
+                disabled={isCreating || isUpdating}
+                className="btn-primary w-full disabled:opacity-70 flex items-center justify-center gap-2"
+              >
+                {(isCreating || isUpdating) && (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                )}
+                {drawerMode === "edit" ? "Save changes" : "Add service"}
+              </button>
             </form>
           </div>
         </div>
       )}
-
-      <style>{`
-        .admin-field {
-          width: 100%;
-          border: 1px solid var(--border);
-          border-radius: 0.75rem;
-          background: #f8faf9;
-          padding: 0.625rem 0.875rem;
-          font-size: 0.875rem;
-          outline: none;
-          transition: border-color 0.15s;
-        }
-        .admin-field:focus {
-          border-color: var(--brand-green);
-          background: white;
-        }
-      `}</style>
+      <style>{`.admin-input{width:100%;border:1px solid var(--border);border-radius:1rem;background:white;padding:.85rem 1rem;outline:none}.admin-input:focus{border-color:var(--brand-green);box-shadow:0 0 0 3px color-mix(in oklab,var(--brand-green) 15%,transparent)}`}</style>
     </div>
   );
 }
@@ -508,10 +472,10 @@ export default function AdminServicesPage() {
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="block">
-      <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
+      <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
         {label}
       </span>
-      <div className="mt-1.5">{children}</div>
+      <div className="mt-2">{children}</div>
     </label>
   );
 }
