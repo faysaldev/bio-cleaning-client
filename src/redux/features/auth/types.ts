@@ -1,5 +1,6 @@
 export interface User {
   id: string;
+  _id?: string;
   name: string;
   email: string;
   role: "admin" | "user";
@@ -11,18 +12,14 @@ export interface TApiResponse<T> {
   message: string;
   status: string;
   data: T;
+  meta?: unknown;
 }
 
-export interface LoginData extends User {
-  token: string;
+export interface AuthSessionData {
+  user: User;
+  csrfToken: string;
 }
 
-export type LoginResponse = TApiResponse<LoginData>;
-
-export interface ForgotPasswordResponse {
-  message: string;
-}
-
-export type ChangePasswordResponse = {
-  message: string;
-};
+export type LoginResponse = TApiResponse<AuthSessionData>;
+export type ForgotPasswordResponse = TApiResponse<Record<string, never>>;
+export type ChangePasswordResponse = TApiResponse<Record<string, never>>;

@@ -40,8 +40,7 @@ export function ConfirmStep({ data, estimatedTotal }: ConfirmStepProps) {
         </div>
       </div>
       <div className="mt-4 p-3 rounded-xl bg-brand-yellow/20 text-sm flex items-center gap-2">
-        <Sparkles className="w-4 h-4 text-brand-dark" /> 20% off your first
-        cleaning has been applied!
+        <Sparkles className="w-4 h-4 text-brand-dark" /> This total is calculated from the live service pricing on our secure server.
       </div>
     </div>
   );

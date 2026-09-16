@@ -1,6 +1,7 @@
 "use client";
 
-import { logout, selectCurrentUser } from "@/src/redux/features/auth/authSlice";
+import { clearSession, selectCurrentUser, setSession } from "@/src/redux/features/auth/authSlice";
+import { useGetSessionQuery, useLogoutSessionMutation } from "@/src/redux/features/auth/authApi";
 import {
   CalendarCheck,
   LayoutDashboard,
@@ -33,23 +34,38 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [isChecking, setIsChecking] = useState(true);
+  const { data: session, isLoading, isFetching, isError } = useGetSessionQuery();
+  const [logoutSession] = useLogoutSessionMutation();
 
   useEffect(() => {
-    // Professional auth check
-    if (!user || user.role !== "admin") {
-      router.replace("/admin/login");
-    } else {
-      setIsChecking(false);
+    if (session?.user) {
+      if (session.user.role !== "admin") {
+        dispatch(clearSession());
+        router.replace("/admin/login");
+        return;
+      }
+      dispatch(setSession(session));
+      return;
     }
-  }, [user, router]);
 
-  const handleSignOut = () => {
-    dispatch(logout());
-    router.replace("/admin/login");
+    if (!isLoading && !isFetching && isError) {
+      dispatch(clearSession());
+      router.replace("/admin/login");
+    }
+  }, [session, isLoading, isFetching, isError, dispatch, router]);
+
+  const handleSignOut = async () => {
+    try {
+      await logoutSession().unwrap();
+    } catch {
+      // Local session state is still cleared if the server session already expired.
+    } finally {
+      dispatch(clearSession());
+      router.replace("/admin/login");
+    }
   };
 
-  if (isChecking) {
+  if (isLoading || isFetching || !user || user.role !== "admin") {
     return (
       <div className="min-h-screen bg-brand-cream grid place-items-center">
         <div className="text-center">

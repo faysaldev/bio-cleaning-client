@@ -1,24 +1,19 @@
 "use client";
 
-import { store, persistor } from "@/src/redux/store/store";
+import { store } from "@/src/redux/store/store";
+import { useEffect } from "react";
 import { Provider } from "react-redux";
-import { PersistGate } from "redux-persist/integration/react";
 
-// Loading component for PersistGate
-const PersistLoader = () => (
-  <div className="flex h-screen w-full items-center justify-center">
-    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-  </div>
-);
+const LEGACY_AUTH_STORAGE_KEY = "persist:auth-bio-cleaning";
 
 const ReduxProvider = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <Provider store={store}>
-      <PersistGate loading={<PersistLoader />} persistor={persistor}>
-        {children}
-      </PersistGate>
-    </Provider>
-  );
+  useEffect(() => {
+    // Remove the old redux-persist payload because it may contain the legacy
+    // bearer token. Authentication is now held in HttpOnly cookies instead.
+    window.localStorage.removeItem(LEGACY_AUTH_STORAGE_KEY);
+  }, []);
+
+  return <Provider store={store}>{children}</Provider>;
 };
 
 export default ReduxProvider;

@@ -63,7 +63,7 @@ export default function AdminBookingsPage() {
 
   const bookings = bookingsResponse?.data || [];
   const meta = bookingsResponse?.meta;
-  const totalPages = meta?.totalPage || 1;
+  const totalPages = meta?.totalPages || 1;
 
   if (isLoading) {
     return (
@@ -239,7 +239,7 @@ export default function AdminBookingsPage() {
         )}
       </div>
 
-      {meta && meta.totalPage > 1 && (
+      {meta && meta.totalPages > 1 && (
         <div className="flex items-center justify-between bg-white p-4 rounded-[2rem] border border-border">
           <div className="text-sm text-muted-foreground pl-2 font-medium">
             Page <span className="text-brand-dark font-bold">{page}</span> of {totalPages}

@@ -1,16 +1,16 @@
 "use client";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, ArrowLeft, Check, Loader2, Sparkles } from "lucide-react";
 import { useGsapReveal } from "@/src/hooks/useGsapReveal";
 import { useGetShortServicesQuery } from "@/src/redux/features/services/servicesApi";
 import {
-  useGetBookedSlotsQuery,
   useCreateBookingMutation,
+  useGetBookedSlotsQuery,
+  useGetBookingQuoteMutation,
 } from "@/src/redux/features/bookings/bookingsApi";
-
-// Components
+import type { BookingFrequency } from "@/src/redux/features/bookings/types";
 import { BookingProgress } from "@/src/components/Booking/BookingProgress";
 import { ServiceStep } from "@/src/components/Booking/ServiceStep";
 import { DateTimeStep } from "@/src/components/Booking/DateTimeStep";
@@ -21,126 +21,126 @@ import { BookingSuccess } from "@/src/components/Booking/BookingSuccess";
 
 const STEPS = ["Service", "Date & Time", "Details", "Review"];
 
-const sizeAdjustments: Record<string, number> = {
-  Studio: -30,
-  "1BR": 0,
-  "2BR": 40,
-  "3BR": 85,
-  "4BR+": 140,
-  Office: 120,
+const frequencyMap: Record<string, BookingFrequency> = {
+  "One-time": "ONE_TIME",
+  Weekly: "WEEKLY",
+  "Bi-weekly": "BI_WEEKLY",
+  Monthly: "MONTHLY",
 };
 
 export default function ManualBookingPage() {
   const [data, setData] = useState<any>({
+    serviceId: "",
     service: "",
     size: "1BR",
     time: "Morning 8-12",
     frequency: "One-time",
     date: "",
   });
+  const [quoteTotal, setQuoteTotal] = useState<number | null>(null);
+  const [submitError, setSubmitError] = useState("");
 
   const {
     data: servicesResponse,
     isLoading: isServicesLoading,
     error,
   } = useGetShortServicesQuery();
+  const services = servicesResponse?.data || [];
 
   const { data: slotsResponse } = useGetBookedSlotsQuery(data.date || "", {
     skip: !data.date,
   });
-
-  const services = servicesResponse?.data || [];
   const bookedSlots = slotsResponse?.data || [];
-  
+
+  const [getBookingQuote] = useGetBookingQuoteMutation();
+  const [createBooking, { isLoading: isBooking }] = useCreateBookingMutation();
+
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [reference, setReference] = useState("");
   const detailsRef = useRef<any>(null);
   const ref = useGsapReveal<HTMLDivElement>();
 
-  const [createBooking, { isLoading: isBooking }] = useCreateBookingMutation();
+  useEffect(() => {
+    if (services.length > 0 && !data.serviceId) {
+      setData((previous: any) => ({
+        ...previous,
+        serviceId: services[0]._id,
+        service: services[0].name,
+      }));
+    }
+  }, [services, data.serviceId]);
 
   useEffect(() => {
-    if (services.length > 0 && !data.service) {
-      setData((prev: any) => ({ ...prev, service: services[0].name }));
-    }
-  }, [services, data.service]);
+    if (!data.serviceId) return;
+    let active = true;
+    setQuoteTotal(null);
 
-  function estimateTotal(currentData: any) {
-    const service = services.find((item) => item.name === currentData.service);
-    const frequencyDiscount =
-      currentData.frequency === "Weekly"
-        ? 0.85
-        : currentData.frequency === "Bi-weekly"
-          ? 0.9
-          : currentData.frequency === "Monthly"
-            ? 0.95
-            : 1;
+    getBookingQuote({
+      serviceId: data.serviceId,
+      propertySize: data.size,
+      frequency: frequencyMap[data.frequency] || "ONE_TIME",
+      extraCodes: [],
+    })
+      .unwrap()
+      .then((quote) => {
+        if (active) setQuoteTotal(quote.totalAmount);
+      })
+      .catch(() => {
+        if (active) setQuoteTotal(null);
+      });
 
-    return Math.max(
-      89,
-      Math.round(
-        ((service?.basePrice ?? 149) + (sizeAdjustments[currentData.size] ?? 0)) *
-          frequencyDiscount,
-      ),
-    );
-  }
+    return () => {
+      active = false;
+    };
+  }, [data.serviceId, data.size, data.frequency, getBookingQuote]);
 
-  const estimatedTotal = estimateTotal(data);
+  const selectedService = services.find((service) => service._id === data.serviceId);
+  const estimatedTotal = quoteTotal ?? selectedService?.basePrice ?? 0;
 
   const handleUpdate = (updates: any) => {
-    setData((prev: any) => ({ ...prev, ...updates }));
+    setSubmitError("");
+    setData((previous: any) => ({ ...previous, ...updates }));
   };
 
   const handleNext = () => {
     if (step === 2 && detailsRef.current) {
       const detailsData = detailsRef.current.getData();
-      setData((prev: any) => ({ ...prev, ...detailsData }));
+      setData((previous: any) => ({ ...previous, ...detailsData }));
     }
-    setStep(step + 1);
+    setStep((current) => current + 1);
   };
 
   const handleConfirm = async () => {
-    const serviceMap: Record<string, string> = {
-      "Residential": "RESIDENTIAL",
-      "Commercial": "COMMERCIAL",
-      "Deep Clean": "DEEP_CLEAN",
-      "Deep Cleans": "DEEP_CLEAN",
-      "Move-In/Out": "MOVE_IN_OUT",
-    };
-
-    const frequencyMap: Record<string, string> = {
-      "One-time": "ONE_TIME",
-      "Weekly": "WEEKLY",
-      "Bi-weekly": "BI_WEEKLY",
-      "Monthly": "MONTHLY",
-    };
-
-    const payload = {
-      serviceType: serviceMap[data.service] || "RESIDENTIAL",
-      propertySize: data.size,
-      date: data.date,
-      timeSlot: data.time,
-      frequency: frequencyMap[data.frequency] || "ONE_TIME",
-      customerDetails: {
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        address: {
-          line1: data.addr1,
-          city: data.city,
-          zip: data.zip,
-        },
-      },
-      totalAmount: estimatedTotal,
-    };
+    setSubmitError("");
+    if (!data.serviceId) {
+      setSubmitError("Please select an available service.");
+      return;
+    }
 
     try {
-      const res = await createBooking(payload as any).unwrap();
-      setReference(res.reference);
+      const booking = await createBooking({
+        serviceId: data.serviceId,
+        propertySize: data.size,
+        date: data.date,
+        timeSlot: data.time,
+        frequency: frequencyMap[data.frequency] || "ONE_TIME",
+        extraCodes: [],
+        customerDetails: {
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          address: {
+            line1: data.addr1,
+            city: data.city,
+            zip: data.zip,
+          },
+        },
+      }).unwrap();
+      setReference(booking.reference);
       setDone(true);
-    } catch (err) {
-      console.error("Booking failed:", err);
+    } catch (err: any) {
+      setSubmitError(err?.data?.message || "The booking could not be created. Please choose another slot.");
     }
   };
 
@@ -173,7 +173,7 @@ export default function ManualBookingPage() {
                 services={services}
                 isLoading={isServicesLoading}
                 error={error}
-                selectedService={data.service}
+                selectedServiceId={data.serviceId}
                 selectedSize={data.size}
                 onUpdate={handleUpdate}
               />
@@ -189,12 +189,13 @@ export default function ManualBookingPage() {
               />
             )}
 
-            {step === 2 && (
-              <DetailsStep ref={detailsRef} initialData={data} />
-            )}
+            {step === 2 && <DetailsStep ref={detailsRef} initialData={data} />}
+            {step === 3 && <ConfirmStep data={data} estimatedTotal={estimatedTotal} />}
 
-            {step === 3 && (
-              <ConfirmStep data={data} estimatedTotal={estimatedTotal} />
+            {submitError && (
+              <div className="mt-6 rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-sm font-medium text-destructive">
+                {submitError}
+              </div>
             )}
 
             <div className="flex justify-between mt-12 pt-8 border-t border-border">
@@ -205,7 +206,7 @@ export default function ManualBookingPage() {
               >
                 <ArrowLeft className="w-4 h-4" /> Back
               </button>
-              
+
               {step < STEPS.length - 1 ? (
                 <button onClick={handleNext} className="btn-primary">
                   Continue <ArrowRight className="w-4 h-4" />
@@ -213,8 +214,8 @@ export default function ManualBookingPage() {
               ) : (
                 <button
                   onClick={handleConfirm}
-                  disabled={isBooking}
-                  className="btn-primary flex items-center gap-2"
+                  disabled={isBooking || quoteTotal === null}
+                  className="btn-primary flex items-center gap-2 disabled:opacity-60"
                 >
                   {isBooking ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -231,10 +232,10 @@ export default function ManualBookingPage() {
             <BookingSummary data={data} estimatedTotal={estimatedTotal} />
             <div className="p-6 rounded-3xl bg-brand-yellow/10 border border-brand-yellow/20">
               <div className="flex items-center gap-2 text-brand-dark font-bold text-sm mb-2">
-                <Sparkles className="w-4 h-4" /> Admin Override
+                <Sparkles className="w-4 h-4" /> Admin booking
               </div>
               <p className="text-xs text-brand-dark/70 leading-relaxed">
-                As an administrator, you are creating this booking on behalf of the client. Ensure all contact details are verified.
+                The same server-side pricing and slot reservation rules apply to manual bookings, preventing accidental double-booking or price drift.
               </p>
             </div>
           </aside>

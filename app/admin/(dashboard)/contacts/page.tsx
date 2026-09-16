@@ -187,7 +187,7 @@ export default function AdminContactsPage() {
           ))}
 
           {/* Pagination Controls */}
-          {meta && meta.totalPage > 1 && (
+          {meta && meta.totalPagess > 1 && (
             <div className="flex items-center justify-between bg-white p-4 rounded-3xl border border-border mt-6">
               <div className="text-sm text-muted-foreground pl-2">
                 Showing <span className="font-bold text-brand-dark">{(meta.page - 1) * meta.limit + 1}</span> to <span className="font-bold text-brand-dark">{Math.min(meta.page * meta.limit, meta.total)}</span> of <span className="font-bold text-brand-dark">{meta.total}</span> messages
@@ -201,7 +201,7 @@ export default function AdminContactsPage() {
                   <ChevronLeft className="h-5 w-5" />
                 </button>
                 
-                {[...Array(meta.totalPage)].map((_, i) => (
+                {[...Array(meta.totalPages)].map((_, i) => (
                   <button
                     key={i + 1}
                     onClick={() => setPage(i + 1)}
@@ -216,8 +216,8 @@ export default function AdminContactsPage() {
                 ))}
 
                 <button
-                  onClick={() => setPage(Math.min(meta.totalPage, page + 1))}
-                  disabled={page === meta.totalPage}
+                  onClick={() => setPage(Math.min(meta.totalPages, page + 1))}
+                  disabled={page === meta.totalPages}
                   className="p-2 rounded-xl hover:bg-brand-cream disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
                   <ChevronRight className="h-5 w-5" />

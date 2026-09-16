@@ -15,6 +15,6 @@ export interface ContactResponse {
     page: number;
     limit: number;
     total: number;
-    totalPage: number;
+    totalPages: number;
   };
 }

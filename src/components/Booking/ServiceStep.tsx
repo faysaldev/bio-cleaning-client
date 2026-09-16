@@ -4,17 +4,17 @@ import { CleaningServiceShortDetails } from "../../redux/features/services/types
 interface ServiceStepProps {
   services: CleaningServiceShortDetails[];
   isLoading: boolean;
-  error: any;
-  selectedService: string;
+  error: unknown;
+  selectedServiceId: string;
   selectedSize: string;
-  onUpdate: (data: any) => void;
+  onUpdate: (data: Record<string, string>) => void;
 }
 
 export function ServiceStep({
   services,
   isLoading,
   error,
-  selectedService,
+  selectedServiceId,
   selectedSize,
   onUpdate,
 }: ServiceStepProps) {
@@ -33,25 +33,28 @@ export function ServiceStep({
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 gap-3">
-          {services.map((s) => (
+          {services.map((service) => (
             <button
-              key={s._id}
-              onClick={() => onUpdate({ service: s.name })}
+              key={service._id}
+              type="button"
+              onClick={() =>
+                onUpdate({ serviceId: service._id, service: service.name })
+              }
               className={`p-4 rounded-2xl border-2 text-left transition ${
-                selectedService === s.name
+                selectedServiceId === service._id
                   ? "border-brand-green bg-brand-green/5 shadow-card"
                   : "border-border hover:border-brand-green/50"
               }`}
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <div className="font-semibold text-brand-dark">{s.name}</div>
+                  <div className="font-semibold text-brand-dark">{service.name}</div>
                   <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                    {s.description}
+                    {service.description}
                   </div>
                 </div>
                 <span className="text-sm font-bold text-brand-green">
-                  ${s.basePrice}
+                  ${service.basePrice}
                 </span>
               </div>
             </button>
@@ -65,10 +68,10 @@ export function ServiceStep({
         <select
           className="mt-2 w-full p-3 rounded-xl border border-border bg-white"
           value={selectedSize}
-          onChange={(e) => onUpdate({ size: e.target.value })}
+          onChange={(event) => onUpdate({ size: event.target.value })}
         >
-          {sizes.map((o) => (
-            <option key={o}>{o}</option>
+          {sizes.map((option) => (
+            <option key={option}>{option}</option>
           ))}
         </select>
       </label>

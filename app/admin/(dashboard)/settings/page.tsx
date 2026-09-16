@@ -1,7 +1,9 @@
 "use client";
 
 import { useChangePasswordMutation } from "@/src/redux/features/auth/authApi";
-import { selectCurrentUser } from "@/src/redux/features/auth/authSlice";
+import { clearSession, selectCurrentUser } from "@/src/redux/features/auth/authSlice";
+import { useAppDispatch } from "@/src/redux/hooks";
+import { useRouter } from "next/navigation";
 import {
   BadgeCheck,
   KeyRound,
@@ -20,6 +22,8 @@ import { useSelector } from "react-redux";
 
 export default function AdminSettingsPage() {
   const user = useSelector(selectCurrentUser);
+  const dispatch = useAppDispatch();
+  const router = useRouter();
   const [changePassword, { isLoading }] = useChangePasswordMutation();
   
   const formRef = useRef<HTMLFormElement>(null);
@@ -47,9 +51,10 @@ export default function AdminSettingsPage() {
     }
 
     try {
-      const res = await changePassword({ oldPassword, newPassword }).unwrap();
-      setMessage({ type: "success", text: res.message || "Password updated successfully" });
+      await changePassword({ oldPassword, newPassword }).unwrap();
       formRef.current.reset();
+      dispatch(clearSession());
+      router.replace("/admin/login");
     } catch (err: any) {
       setMessage({ 
         type: "error", 

@@ -8,7 +8,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLoginMutation } from "@/src/redux/features/auth/authApi";
 import { useAppDispatch } from "@/src/redux/hooks";
-import { setUser } from "@/src/redux/features/auth/authSlice";
+import { setSession } from "@/src/redux/features/auth/authSlice";
 import { LOGO_URL } from "@/src/components/Footer";
 
 export default function AdminLoginPage() {
@@ -16,6 +16,7 @@ export default function AdminLoginPage() {
   const passwordRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [login, { isLoading }] = useLoginMutation();
@@ -33,9 +34,8 @@ export default function AdminLoginPage() {
     }
 
     try {
-      const res = await login({ email, password }).unwrap();
-      const { token, ...user } = res.data;
-      dispatch(setUser({ user, token }));
+      const res = await login({ email, password, rememberMe }).unwrap();
+      dispatch(setSession(res.data));
       router.push("/admin");
     } catch (err: any) {
       setError(err?.data?.message || "Invalid credentials. Please try again.");
@@ -146,6 +146,8 @@ export default function AdminLoginPage() {
               <label className="flex items-center gap-2 text-muted-foreground cursor-pointer">
                 <input
                   type="checkbox"
+                  checked={rememberMe}
+                  onChange={(event) => setRememberMe(event.target.checked)}
                   className="rounded border-border text-brand-green focus:ring-brand-green"
                 />{" "}
                 Remember me
