@@ -10,6 +10,7 @@ import {
   ExternalLink,
   LayoutDashboard,
   Mail,
+  MessagesSquare,
   Search,
   Settings,
   Sparkles,
@@ -38,6 +39,7 @@ const commands: Array<{ href: string; label: string; detail: string; icon: any; 
   { href: "/admin/services", label: "Services", detail: "Pricing, duration, extras and publishing", icon: Sparkles, roles: adminWorkspaceRoles },
   { href: "/admin/settings/scheduling", label: "Scheduling & capacity", detail: "Hours, timezone, deposits and blocks", icon: CalendarClock, roles: ["owner", "admin", "manager", "dispatcher", "read_only"] },
   { href: "/admin/contacts", label: "Contacts", detail: "Customer messages and replies", icon: Mail, roles: adminWorkspaceRoles },
+  { href: "/admin/communications", label: "Communications", detail: "Notifications, reviews and retention automations", icon: MessagesSquare, roles: adminWorkspaceRoles },
   { href: "/admin/settings", label: "Settings", detail: "Profile and security", icon: Settings, roles: adminWorkspaceRoles },
   { href: "/", label: "View website", detail: "Open the public site", icon: ExternalLink, roles: adminWorkspaceRoles },
 ];

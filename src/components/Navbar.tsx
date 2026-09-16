@@ -73,6 +73,7 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
+          <Link href="/portal/login" className="btn-ghost-light min-h-10 px-3 text-xs">My account</Link>
           <a href="tel:+18002462532" className="btn-ghost-light min-h-10 px-3 text-xs">
             <Phone className="h-3.5 w-3.5" /> Call us
           </a>
@@ -109,8 +110,9 @@ export function Navbar() {
             })}
           </nav>
           <div className="mt-2 grid grid-cols-2 gap-2 border-t border-white/8 pt-2">
+            <Link href="/portal/login" className="btn-ghost-light">My account</Link>
             <a href="tel:+18002462532" className="btn-ghost-light"><Phone className="h-4 w-4" /> Call us</a>
-            <Link href="/book" className="btn-primary">Book now</Link>
+            <Link href="/book" className="btn-primary col-span-2">Book now</Link>
           </div>
         </div>
       ) : null}

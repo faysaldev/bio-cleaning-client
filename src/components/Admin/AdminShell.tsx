@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   LogOut,
   Mail,
+  MessagesSquare,
   Menu,
   UsersRound,
   UserRoundSearch,
@@ -45,6 +46,7 @@ const navItems: Array<{ href: string; label: string; icon: any; roles: UserRole[
   { href: "/admin/services", label: "Services", icon: Sparkles, roles: adminWorkspaceRoles },
   { href: "/admin/settings/scheduling", label: "Scheduling", icon: CalendarClock, roles: ["owner", "admin", "manager", "dispatcher", "read_only"] },
   { href: "/admin/contacts", label: "Contacts", icon: Mail, roles: adminWorkspaceRoles },
+  { href: "/admin/communications", label: "Communications", icon: MessagesSquare, roles: adminWorkspaceRoles },
   { href: "/admin/settings", label: "Settings", icon: Settings, roles: adminWorkspaceRoles },
 ];
 
@@ -61,6 +63,7 @@ function sectionTitle(pathname: string) {
   if (pathname.startsWith("/admin/bookings")) return "Bookings";
   if (pathname.startsWith("/admin/services")) return "Services";
   if (pathname.startsWith("/admin/contacts")) return "Contacts";
+  if (pathname.startsWith("/admin/communications")) return "Communications & retention";
   if (pathname.startsWith("/admin/settings/scheduling")) return "Scheduling & capacity";
   if (pathname.startsWith("/admin/settings")) return "Settings";
   return "Operations overview";

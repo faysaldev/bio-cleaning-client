@@ -16,6 +16,10 @@ const rawBaseQuery = fetchBaseQuery({
   prepareHeaders: (headers, { getState }) => {
     const csrfToken = (getState() as RootState).auth.csrfToken;
     if (csrfToken) headers.set("x-csrf-token", csrfToken);
+    if (typeof window !== "undefined") {
+      const portalCsrf = window.sessionStorage.getItem("bio_portal_csrf");
+      if (portalCsrf) headers.set("x-portal-csrf", portalCsrf);
+    }
     return headers;
   },
 });
@@ -59,7 +63,9 @@ const baseQueryWithReauth: BaseQueryFn<
     !requestUrl.includes("/auth/register") &&
     !requestUrl.includes("/auth/refresh") &&
     !requestUrl.includes("/auth/forgot-password") &&
-    !requestUrl.includes("/auth/reset-password");
+    !requestUrl.includes("/auth/reset-password") &&
+    !requestUrl.startsWith("/portal") &&
+    !requestUrl.startsWith("/reviews/public");
 
   if (result.error?.status === 401 && canRefresh) {
     const session = await refreshSession(api, extraOptions);
@@ -78,6 +84,6 @@ export const baseApi = createApi({
   reducerPath: "baseApi",
   baseQuery: baseQueryWithReauth,
   keepUnusedDataFor: 300,
-  tagTypes: ["User", "Asset", "Booking", "Contact", "Service", "Dashboard", "Scheduling", "Lead", "LeadTask", "Customer", "Team", "FieldOps", "Quote", "Invoice", "Payment"],
+  tagTypes: ["User", "Asset", "Booking", "Contact", "Service", "Dashboard", "Scheduling", "Lead", "LeadTask", "Customer", "Team", "FieldOps", "Quote", "Invoice", "Payment", "Portal", "Notification", "Review", "Retention"],
   endpoints: () => ({}),
 });

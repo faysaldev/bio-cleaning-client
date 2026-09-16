@@ -48,6 +48,7 @@ export function BookingWizard({ mode = "public" }: { mode?: "public" | "admin" }
   const [submitError, setSubmitError] = useState("");
   const [success, setSuccess] = useState<{ reference: string; manageToken?: string; occurrenceCount: number; paymentMessage?: string }>();
   const [sessionId] = useState(() => crypto.randomUUID());
+  const [rebookApplied, setRebookApplied] = useState(mode !== "public");
 
   const { data: servicesResponse, isLoading: servicesLoading, error: servicesError } = useGetShortServicesQuery();
   const services = servicesResponse?.data || [];
@@ -61,6 +62,41 @@ export function BookingWizard({ mode = "public" }: { mode?: "public" | "admin" }
   const creating = mode === "admin" ? creatingAdmin : creatingPublic;
 
   const quoteInput = useMemo(() => data.serviceId ? ({ serviceId: data.serviceId, property: data.property, frequency: data.frequency, extraCodes: data.extraCodes, promoCode: data.promoCode }) : null, [data.serviceId, data.property, data.frequency, data.extraCodes, data.promoCode]);
+
+  useEffect(() => {
+    if (mode !== "public" || rebookApplied) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("rebook") !== "1") { setRebookApplied(true); return; }
+    try {
+      const raw = sessionStorage.getItem("bio-rebook-draft");
+      if (raw) {
+        const draft = JSON.parse(raw);
+        setData((current) => ({
+          ...current,
+          serviceId: draft.serviceId || current.serviceId,
+          property: draft.property || current.property,
+          extraCodes: Array.isArray(draft.extraCodes) ? draft.extraCodes : [],
+          frequency: draft.frequency || current.frequency,
+          occurrenceCount: 1,
+          date: "",
+          timeSlot: "",
+          customerDetails: {
+            ...current.customerDetails,
+            ...(draft.customerDetails || {}),
+            address: { ...current.customerDetails.address, ...(draft.customerDetails?.address || {}) },
+          },
+          notes: draft.notes || "",
+          promoCode: undefined,
+          paymentOption: "PAY_LATER",
+        }));
+        sessionStorage.removeItem("bio-rebook-draft");
+      }
+    } catch {
+      sessionStorage.removeItem("bio-rebook-draft");
+    } finally {
+      setRebookApplied(true);
+    }
+  }, [mode, rebookApplied]);
 
   useEffect(() => {
     if (services.length && !data.serviceId) setData((current) => ({ ...current, serviceId: services[0]._id }));
