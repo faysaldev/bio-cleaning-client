@@ -5,6 +5,8 @@ import {
   BadgeCheck,
   CalendarCheck,
   DollarSign,
+  FileText,
+  Receipt,
   Mail,
   Sparkles,
   TrendingUp,
@@ -135,6 +137,34 @@ export default function AdminDashboardPage() {
               </article>
             ))}
       </section>
+
+
+      {stats?.finance ? (
+        <section className="grid gap-3 md:grid-cols-3" aria-label="Finance summary">
+          <Link href="/admin/invoices" className="surface p-5 transition hover:-translate-y-0.5 hover:border-brand-green/25">
+            <div className="flex items-center justify-between"><Receipt className="h-5 w-5 text-brand-green"/><ArrowRight className="h-4 w-4 text-muted-foreground"/></div>
+            <p className="mt-4 text-xs font-bold uppercase tracking-[0.08em] text-muted-foreground">Outstanding invoices</p>
+            <p className="mt-1 text-2xl font-extrabold text-brand-dark">${Number(stats.finance.outstandingInvoices || 0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</p>
+          </Link>
+          <Link href="/admin/payments" className="surface p-5 transition hover:-translate-y-0.5 hover:border-brand-green/25">
+            <div className="flex items-center justify-between"><DollarSign className="h-5 w-5 text-brand-green"/><ArrowRight className="h-4 w-4 text-muted-foreground"/></div>
+            <p className="mt-4 text-xs font-bold uppercase tracking-[0.08em] text-muted-foreground">Paid revenue</p>
+            <p className="mt-1 text-2xl font-extrabold text-brand-dark">${Number(stats.finance.paidRevenue || 0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</p>
+          </Link>
+          <Link href="/admin/quotes" className="surface p-5 transition hover:-translate-y-0.5 hover:border-brand-green/25">
+            <div className="flex items-center justify-between"><FileText className="h-5 w-5 text-brand-green"/><ArrowRight className="h-4 w-4 text-muted-foreground"/></div>
+            <p className="mt-4 text-xs font-bold uppercase tracking-[0.08em] text-muted-foreground">Average booking value</p>
+            <p className="mt-1 text-2xl font-extrabold text-brand-dark">${Number(stats.finance.averageBookingValue || 0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</p>
+          </Link>
+        </section>
+      ) : null}
+
+      {stats?.finance?.paymentStatus?.length ? (
+        <section className="surface p-5" aria-label="Invoice payment status">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-brand-green">Accounts receivable</p><h3 className="mt-1 text-lg font-bold text-brand-dark">Invoice status</h3></div><Link href="/admin/invoices" className="text-xs font-extrabold text-brand-green">Open invoices</Link></div>
+          <div className="mt-4 flex flex-wrap gap-2">{stats.finance.paymentStatus.map((item) => <div key={item.status} className="rounded-xl border border-border bg-brand-cream/35 px-3 py-2"><div className="flex items-center gap-2"><span className="text-xs font-extrabold text-brand-dark">{item.status.replaceAll("_"," ")}</span><span className="rounded-md bg-white px-1.5 py-0.5 text-[10px] font-extrabold text-muted-foreground">{item.count}</span></div><p className="mt-1 text-xs font-bold text-muted-foreground">${Number(item.amount || 0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</p></div>)}</div>
+        </section>
+      ) : null}
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_330px]">
         <section>

@@ -154,14 +154,19 @@ export interface Customer360 {
   bookings: Array<any>;
   upcomingWork: Array<any>;
   invoices: Array<{
-    id: string;
-    reference: string;
-    source: string;
-    amount: number;
-    depositAmount: number;
-    paymentStatus: string;
-    service: string;
-    date: string;
+    _id: string;
+    invoiceNumber: string;
+    bookingId: any;
+    status: string;
+    total: number;
+    amountPaid: number;
+    amountRefunded: number;
+    amountDue: number;
+    currency: string;
+    issuedAt: string;
+    dueAt: string;
+    sentAt?: string;
+    paidAt?: string;
   }>;
   outstandingBalance: number;
   lifetimeValue: number;

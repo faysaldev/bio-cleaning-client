@@ -11,6 +11,7 @@ import {
   CircleDollarSign,
   Clock3,
   ExternalLink,
+  FileText,
   Mail,
   MessageSquare,
   Phone,
@@ -158,6 +159,7 @@ export default function LeadDetailPage() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Link className="btn-secondary" href={`/admin/quotes?leadId=${id}`}><FileText className="h-4 w-4" /> Create estimate</Link>
           {customerId ? <Link className="btn-secondary" href={`/admin/customers/${customerId}`}><UserCheck className="h-4 w-4" /> Open customer</Link> : <button type="button" disabled={convertState.isLoading} onClick={() => void changeStatus("WON")} className="btn-primary"><UserCheck className="h-4 w-4" /> Convert to customer</button>}
         </div>
       </section>

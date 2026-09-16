@@ -6,6 +6,9 @@ import {
   CalendarCheck,
   CalendarClock,
   CalendarDays,
+  CreditCard,
+  FileText,
+  Receipt,
   LayoutDashboard,
   LogOut,
   Mail,
@@ -36,6 +39,9 @@ const navItems: Array<{ href: string; label: string; icon: any; roles: UserRole[
   { href: "/admin/leads", label: "Leads", icon: UserRoundSearch, roles: adminWorkspaceRoles },
   { href: "/admin/customers", label: "Customers", icon: UsersRound, roles: adminWorkspaceRoles },
   { href: "/admin/bookings", label: "Bookings", icon: CalendarCheck, roles: adminWorkspaceRoles },
+  { href: "/admin/quotes", label: "Quotes", icon: FileText, roles: adminWorkspaceRoles },
+  { href: "/admin/invoices", label: "Invoices", icon: Receipt, roles: adminWorkspaceRoles },
+  { href: "/admin/payments", label: "Payments", icon: CreditCard, roles: adminWorkspaceRoles },
   { href: "/admin/services", label: "Services", icon: Sparkles, roles: adminWorkspaceRoles },
   { href: "/admin/settings/scheduling", label: "Scheduling", icon: CalendarClock, roles: ["owner", "admin", "manager", "dispatcher", "read_only"] },
   { href: "/admin/contacts", label: "Contacts", icon: Mail, roles: adminWorkspaceRoles },
@@ -49,6 +55,9 @@ function sectionTitle(pathname: string) {
   if (pathname.startsWith("/admin/leads")) return "Leads & pipeline";
   if (pathname.startsWith("/admin/customers")) return "Customers";
   if (pathname.startsWith("/admin/bookings/manual")) return "Create booking";
+  if (pathname.startsWith("/admin/quotes")) return "Quotes & estimates";
+  if (pathname.startsWith("/admin/invoices")) return "Invoices & collections";
+  if (pathname.startsWith("/admin/payments")) return "Payments & refunds";
   if (pathname.startsWith("/admin/bookings")) return "Bookings";
   if (pathname.startsWith("/admin/services")) return "Services";
   if (pathname.startsWith("/admin/contacts")) return "Contacts";

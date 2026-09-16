@@ -9,6 +9,14 @@ export interface DashboardStats {
   completed: StatDetail;
   clients: StatDetail;
   clientList: any[];
+  finance?: {
+    outstandingInvoices: number;
+    paidRevenue: number;
+    averageBookingValue: number;
+    invoiceCount: number;
+    aging: Array<{ label: string; amount: number }>;
+    paymentStatus: Array<{ status: string; count: number; amount: number }>;
+  };
 }
 
 export interface DashboardStatsResponse {
