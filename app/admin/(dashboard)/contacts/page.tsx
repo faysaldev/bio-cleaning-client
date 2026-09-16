@@ -1,74 +1,73 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 import {
-  Mail,
-  User,
-  Phone,
-  MessageSquare,
-  Clock,
-  Reply,
-  Loader2,
   AlertCircle,
-  X,
-  Filter,
   ChevronLeft,
   ChevronRight,
+  Clock,
+  Filter,
+  Mail,
+  MessageSquare,
+  Phone,
+  Reply,
+  Send,
+  User,
+  X,
 } from "lucide-react";
 import {
   useGetAllContactMessagesQuery,
   useReplyToContactMutation,
 } from "@/src/redux/features/contact/contactApi";
 import { ContactMessage } from "@/src/redux/features/contact/types";
+import { EmptyState, ErrorState, LoadingState } from "@/src/components/ui/feedback";
 
 export default function AdminContactsPage() {
   const [status, setStatus] = useState("PENDING");
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError } = useGetAllContactMessagesQuery({ 
-    status, 
-    page, 
-    limit: 10 
-  });
   const [replyTo, setReplyTo] = useState<ContactMessage | null>(null);
+  const [replyError, setReplyError] = useState("");
   const replyRef = useRef<HTMLTextAreaElement>(null);
+
+  const { data, isLoading, isError, refetch } = useGetAllContactMessagesQuery({
+    status,
+    page,
+    limit: 10,
+  });
   const [sendReply, { isLoading: isReplying }] = useReplyToContactMutation();
 
   const handleReply = async () => {
     const replyText = replyRef.current?.value;
-    if (!replyTo || !replyText?.trim()) return;
+    if (!replyTo || !replyText?.trim()) {
+      setReplyError("Write a reply before sending.");
+      return;
+    }
 
+    setReplyError("");
     try {
-      const id = (replyTo as any)._id || replyTo.id;
-      await sendReply({ id, reply: replyText }).unwrap();
+      const id = (replyTo as ContactMessage & { _id?: string })._id || replyTo.id;
+      await sendReply({ id, reply: replyText.trim() }).unwrap();
       setReplyTo(null);
       if (replyRef.current) replyRef.current.value = "";
-    } catch (err) {
-      console.error("Failed to send reply:", err);
+    } catch (error: any) {
+      setReplyError(error?.data?.message || "The reply could not be sent. Please try again.");
     }
   };
 
   const handleStatusChange = (newStatus: string) => {
     setStatus(newStatus);
-    setPage(1); // Reset to first page on filter change
+    setPage(1);
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex h-96 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-green" />
-      </div>
-    );
-  }
+  if (isLoading) return <LoadingState label="Loading customer messages…" />;
 
   if (isError) {
     return (
-      <div className="rounded-2xl bg-red-50 p-10 text-center">
-        <AlertCircle className="mx-auto h-12 w-12 text-red-500 mb-4" />
-        <h3 className="text-lg font-bold text-red-900">
-          Failed to load messages
-        </h3>
-        <p className="text-red-700">Please try refreshing the page.</p>
-      </div>
+      <ErrorState
+        title="Messages are unavailable"
+        description="We couldn’t load customer inquiries. Your existing replies are unchanged."
+        action={<button type="button" onClick={() => refetch()} className="btn-secondary">Try again</button>}
+      />
     );
   }
 
@@ -77,243 +76,147 @@ export default function AdminContactsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <section className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="text-3xl font-display font-bold text-brand-dark">
-            Contact Messages
-          </h1>
-          <p className="text-muted-foreground">
-            Manage and respond to customer inquiries.
+          <span className="editorial-kicker">Customer inbox</span>
+          <h1 className="admin-page-heading mt-3 text-brand-dark">Contact messages</h1>
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
+            Review inquiries, understand the requested service, and respond from a focused message workflow.
           </p>
         </div>
-        
-        <div className="flex items-center gap-3 bg-white p-2 rounded-2xl border border-border shadow-sm">
-          <div className="flex items-center gap-2 px-3 text-muted-foreground">
-            <Filter className="h-4 w-4" />
-            <span className="text-xs font-bold uppercase tracking-wider">Status:</span>
+
+        <div className="flex w-fit items-center gap-1 rounded-xl border border-border bg-white p-1 shadow-sm" role="group" aria-label="Message status filter">
+          <div className="hidden items-center gap-2 px-2 text-muted-foreground sm:flex">
+            <Filter className="h-3.5 w-3.5" />
+            <span className="text-[10px] font-extrabold uppercase tracking-[0.12em]">Status</span>
           </div>
-          <div className="flex gap-1">
-            {["PENDING", "REPLIED"].map((s) => (
-              <button
-                key={s}
-                onClick={() => handleStatusChange(s)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                  status === s
-                    ? "bg-brand-green text-white shadow-lg shadow-brand-green/20"
-                    : "hover:bg-brand-cream text-muted-foreground"
-                }`}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
+          {["PENDING", "REPLIED"].map((value) => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={status === value}
+              onClick={() => handleStatusChange(value)}
+              className={`rounded-lg px-3 py-2 text-xs font-extrabold transition-colors ${
+                status === value ? "bg-brand-dark text-white" : "text-muted-foreground hover:bg-brand-cream hover:text-brand-dark"
+              }`}
+            >
+              {value === "PENDING" ? "Pending" : "Replied"}
+            </button>
+          ))}
         </div>
-      </div>
+      </section>
 
       {messages.length === 0 ? (
-        <div className="rounded-[2.5rem] bg-white border border-border p-20 text-center shadow-sm">
-          <MessageSquare className="mx-auto h-16 w-16 text-muted-foreground/20 mb-4" />
-          <h3 className="text-xl font-bold text-brand-dark">No {status.toLowerCase()} messages</h3>
-          <p className="text-muted-foreground">
-            Items will appear here once they match your filter.
-          </p>
-        </div>
+        <EmptyState
+          icon={MessageSquare}
+          title={`No ${status.toLowerCase()} messages`}
+          description="Messages will appear here as soon as they match this status."
+        />
       ) : (
-        <div className="grid gap-4">
-          {messages.map((msg) => (
-            <div
-              key={(msg as any)._id || msg.id}
-              className="group rounded-3xl bg-white border border-border p-6 hover:shadow-xl hover:border-brand-green/30 transition-all duration-300"
-            >
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-2xl bg-brand-cream flex items-center justify-center">
-                    <User className="h-6 w-6 text-brand-green" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-brand-dark">
-                      {msg.fullName}
-                    </h3>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
-                      <span className="flex items-center gap-1">
-                        <Mail className="h-3 w-3" /> {msg.email}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Phone className="h-3 w-3" /> {msg.phone}
-                      </span>
+        <section className="space-y-3" aria-label="Customer messages">
+          {messages.map((message) => {
+            const resolvedStatus = message.reply || (message as ContactMessage & { status?: string }).status === "REPLIED" ? "REPLIED" : "PENDING";
+            return (
+              <article key={(message as ContactMessage & { _id?: string })._id || message.id} className="surface p-4 sm:p-5">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-cream text-brand-green">
+                      <User className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <h2 className="truncate text-base font-bold text-brand-dark">{message.fullName}</h2>
+                      <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+                        <a href={`mailto:${message.email}`} className="flex items-center gap-1 hover:text-brand-green"><Mail className="h-3 w-3" /> {message.email}</a>
+                        <a href={`tel:${message.phone}`} className="flex items-center gap-1 hover:text-brand-green"><Phone className="h-3 w-3" /> {message.phone}</a>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium text-muted-foreground bg-brand-cream px-3 py-1 rounded-full flex items-center gap-1">
-                    <Clock className="h-3 w-3" />{" "}
-                    {new Date(msg.createdAt).toLocaleDateString()}
-                  </span>
-                  <span className={`text-xs font-bold px-3 py-1 rounded-full ${
-                    msg.reply || (msg as any).status === "REPLIED"
-                      ? "bg-brand-green/10 text-brand-green"
-                      : "bg-brand-yellow/10 text-brand-dark"
-                  }`}>
-                    {(msg as any).status || "PENDING"}
-                  </span>
-                </div>
-              </div>
 
-              <div className="bg-brand-cream/50 rounded-2xl p-4 mb-4">
-                <div className="text-[10px] uppercase tracking-widest font-black text-brand-green mb-2">
-                  Subject: {msg.service}
-                </div>
-                <p className="text-brand-dark/80 italic">
-                  &ldquo;{msg.message}&rdquo;
-                </p>
-              </div>
-
-              {msg.reply ? (
-                <div className="bg-brand-green/5 border border-brand-green/10 rounded-2xl p-4">
-                  <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-brand-green mb-2">
-                    <Reply className="h-3 w-3" /> Admin Reply
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1 rounded-lg border border-border bg-brand-cream/60 px-2 py-1 text-[11px] font-semibold text-muted-foreground">
+                      <Clock className="h-3 w-3" /> {new Date(message.createdAt).toLocaleDateString()}
+                    </span>
+                    <span className={`status-badge ${resolvedStatus === "REPLIED" ? "border-brand-green/25 bg-brand-green/8 text-brand-green" : "border-brand-yellow/40 bg-brand-yellow/14 text-brand-dark"}`}>
+                      {resolvedStatus}
+                    </span>
                   </div>
-                  <p className="text-brand-dark/70">{msg.reply}</p>
                 </div>
-              ) : (
-                <button
-                  onClick={() => setReplyTo(msg)}
-                  className="btn-secondary w-full md:w-auto"
-                >
-                  <Reply className="h-4 w-4 mr-2" /> Reply to message
-                </button>
-              )}
-            </div>
-          ))}
 
-          {/* Pagination Controls */}
-          {meta && meta.totalPagess > 1 && (
-            <div className="flex items-center justify-between bg-white p-4 rounded-3xl border border-border mt-6">
-              <div className="text-sm text-muted-foreground pl-2">
-                Showing <span className="font-bold text-brand-dark">{(meta.page - 1) * meta.limit + 1}</span> to <span className="font-bold text-brand-dark">{Math.min(meta.page * meta.limit, meta.total)}</span> of <span className="font-bold text-brand-dark">{meta.total}</span> messages
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setPage(Math.max(1, page - 1))}
-                  disabled={page === 1}
-                  className="p-2 rounded-xl hover:bg-brand-cream disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </button>
-                
-                {[...Array(meta.totalPages)].map((_, i) => (
-                  <button
-                    key={i + 1}
-                    onClick={() => setPage(i + 1)}
-                    className={`w-10 h-10 rounded-xl text-sm font-bold transition-all ${
-                      page === i + 1
-                        ? "bg-brand-green text-white shadow-lg shadow-brand-green/20"
-                        : "hover:bg-brand-cream text-muted-foreground"
-                    }`}
-                  >
-                    {i + 1}
+                <div className="mt-4 rounded-xl border border-border/70 bg-brand-cream/45 p-4">
+                  <div className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-brand-green">Requested service · {message.service}</div>
+                  <p className="mt-2 text-sm leading-6 text-brand-dark/78">{message.message}</p>
+                </div>
+
+                {message.reply ? (
+                  <div className="mt-3 rounded-xl border border-brand-green/14 bg-brand-green/5 p-4">
+                    <div className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-brand-green"><Reply className="h-3 w-3" /> Admin reply</div>
+                    <p className="mt-2 text-sm leading-6 text-brand-dark/72">{message.reply}</p>
+                  </div>
+                ) : (
+                  <button type="button" onClick={() => { setReplyError(""); setReplyTo(message); }} className="btn-secondary mt-4">
+                    <Reply className="h-4 w-4" /> Reply to message
                   </button>
-                ))}
-
-                <button
-                  onClick={() => setPage(Math.min(meta.totalPages, page + 1))}
-                  disabled={page === meta.totalPages}
-                  className="p-2 rounded-xl hover:bg-brand-cream disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+                )}
+              </article>
+            );
+          })}
+        </section>
       )}
 
-      {/* Reply Drawer */}
-      <div
-        className={`fixed inset-0 z-50 transition-all duration-500 ${replyTo ? "visible pointer-events-auto" : "invisible pointer-events-none"}`}
-      >
-        <div
-          className={`absolute inset-0 bg-brand-dark/40 backdrop-blur-[2px] transition-opacity duration-500 ${replyTo ? "opacity-100" : "opacity-0"}`}
-          onClick={() => setReplyTo(null)}
-        />
+      {meta && meta.totalPages > 1 ? (
+        <nav className="surface flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between" aria-label="Message pagination">
+          <p className="px-1 text-xs font-semibold text-muted-foreground">
+            Showing <span className="font-extrabold text-brand-dark">{(meta.page - 1) * meta.limit + 1}</span>–<span className="font-extrabold text-brand-dark">{Math.min(meta.page * meta.limit, meta.total)}</span> of <span className="font-extrabold text-brand-dark">{meta.total}</span>
+          </p>
+          <div className="flex gap-2">
+            <button type="button" onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1} className="btn-secondary flex-1 px-3 sm:flex-none"><ChevronLeft className="h-4 w-4" /> Previous</button>
+            <button type="button" onClick={() => setPage(Math.min(meta.totalPages, page + 1))} disabled={page === meta.totalPages} className="btn-secondary flex-1 px-3 sm:flex-none">Next <ChevronRight className="h-4 w-4" /></button>
+          </div>
+        </nav>
+      ) : null}
 
-        <div
-          className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-[3rem] shadow-2xl transition-transform duration-500 transform ${replyTo ? "translate-y-0" : "translate-y-full"}`}
+      <div className={`fixed inset-0 z-[70] ${replyTo ? "pointer-events-auto visible" : "pointer-events-none invisible"}`} aria-hidden={!replyTo}>
+        <button type="button" aria-label="Close reply drawer" className={`absolute inset-0 bg-brand-dark/42 backdrop-blur-[2px] transition-opacity ${replyTo ? "opacity-100" : "opacity-0"}`} onClick={() => setReplyTo(null)} />
+        <aside
+          role="dialog"
+          aria-modal="true"
+          aria-label="Reply to customer"
+          className={`absolute right-0 top-0 h-full w-full max-w-xl overflow-y-auto border-l border-border bg-white shadow-elevated transition-transform duration-200 ${replyTo ? "translate-x-0" : "translate-x-full"}`}
         >
-          <div className="max-w-4xl mx-auto p-8 md:p-12">
-            <div className="flex items-center justify-between mb-8">
+          <div className="p-5 sm:p-7">
+            <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-3xl font-display font-bold text-brand-dark">
-                  Send Reply
-                </h2>
-                <div className="flex items-center gap-3 mt-2">
-                  <div className="h-8 w-8 rounded-lg bg-brand-green/10 flex items-center justify-center">
-                    <User className="h-4 w-4 text-brand-green" />
-                  </div>
-                  <span className="text-sm font-bold text-brand-dark">
-                    {replyTo?.fullName}
-                  </span>
-                  <span className="text-sm text-muted-foreground">•</span>
-                  <span className="text-sm text-muted-foreground">
-                    {replyTo?.email}
-                  </span>
-                </div>
+                <span className="editorial-kicker">Customer reply</span>
+                <h2 className="mt-3 text-2xl font-bold text-brand-dark">Reply to {replyTo?.fullName}</h2>
+                <p className="mt-1 text-sm text-muted-foreground">{replyTo?.email}</p>
               </div>
-              <button
-                onClick={() => setReplyTo(null)}
-                className="h-12 w-12 rounded-full hover:bg-brand-cream grid place-items-center transition-colors"
-              >
-                <X className="h-6 w-6" />
+              <button type="button" onClick={() => setReplyTo(null)} className="grid h-10 w-10 place-items-center rounded-lg border border-border text-muted-foreground hover:bg-brand-cream hover:text-brand-dark" aria-label="Close reply drawer"><X className="h-4 w-4" /></button>
+            </div>
+
+            <div className="mt-7 rounded-xl border border-border bg-brand-cream/45 p-4">
+              <div className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-brand-green">Original message</div>
+              <p className="mt-2 text-sm leading-6 text-brand-dark/72">{replyTo?.message}</p>
+            </div>
+
+            <div className="mt-3 flex items-start gap-2 rounded-xl border border-brand-yellow/25 bg-brand-yellow/10 p-3 text-xs font-bold text-brand-dark">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+              Requested service: {replyTo?.service}
+            </div>
+
+            <div className="mt-6">
+              <label htmlFor="admin-reply" className="field-label">Your reply</label>
+              <textarea id="admin-reply" ref={replyRef} className="field-control min-h-52 resize-y" placeholder="Write a clear, helpful response…" onChange={() => replyError && setReplyError("")} />
+              {replyError ? <p className="mt-2 text-xs font-semibold text-destructive" role="alert">{replyError}</p> : null}
+            </div>
+
+            <div className="mt-6 flex gap-2 border-t border-border pt-5">
+              <button type="button" onClick={() => setReplyTo(null)} className="btn-secondary flex-1">Cancel</button>
+              <button type="button" onClick={handleReply} disabled={isReplying} className="btn-primary flex-1 disabled:opacity-60">
+                {isReplying ? "Sending…" : <><Send className="h-4 w-4" /> Send reply</>}
               </button>
             </div>
-
-            <div className="grid lg:grid-cols-[1fr_1.5fr] gap-8">
-              <div className="space-y-4">
-                <div className="bg-brand-cream/50 rounded-[2rem] p-6">
-                  <div className="text-[10px] uppercase tracking-widest font-black text-brand-green mb-3">
-                    Original Message
-                  </div>
-                  <p className="text-brand-dark/70 text-sm italic leading-relaxed">
-                    &ldquo;{replyTo?.message}&rdquo;
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 p-4 bg-brand-yellow/10 rounded-2xl border border-brand-yellow/20">
-                  <AlertCircle className="h-4 w-4 text-brand-dark" />
-                  <span className="text-xs font-bold text-brand-dark uppercase tracking-wider">
-                    Client requested: {replyTo?.service}
-                  </span>
-                </div>
-              </div>
-
-              <div>
-                <textarea
-                  ref={replyRef}
-                  className="w-full h-48 p-6 rounded-[2rem] border border-border focus:ring-4 focus:ring-brand-green/10 outline-none resize-none transition-all duration-300"
-                  placeholder="Type your response here..."
-                />
-                <div className="flex gap-4 mt-6">
-                  <button
-                    onClick={() => setReplyTo(null)}
-                    className="btn-secondary flex-1 py-4"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleReply}
-                    disabled={isReplying}
-                    className="btn-primary flex-1 py-4 disabled:opacity-50 shadow-xl shadow-brand-green/20"
-                  >
-                    {isReplying ? (
-                      <Loader2 className="h-5 w-5 animate-spin mx-auto" />
-                    ) : (
-                      "Send Professional Reply"
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
           </div>
-        </div>
+        </aside>
       </div>
     </div>
   );

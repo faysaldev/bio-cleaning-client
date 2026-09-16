@@ -41,7 +41,7 @@ export default function SatisfiedClients() {
     <section className="py-24">
       <div className="container-page">
         <div
-          className="rounded-[2.5rem] bg-brand-lime p-10 md:p-16 text-center text-brand-dark relative overflow-hidden"
+          className="rounded-2xl bg-brand-lime p-10 md:p-16 text-center text-brand-dark relative overflow-hidden"
           role="region"
           aria-roledescription="carousel"
           aria-label="Satisfied client reviews"
@@ -66,7 +66,7 @@ export default function SatisfiedClients() {
 
             <div
               key={idx}
-              className="mt-8 max-w-3xl mx-auto rounded-3xl bg-white/35 border border-white/40 p-7 md:p-9 shadow-xl animate-[fade-in_.45s_ease-out]"
+              className="mt-8 max-w-3xl mx-auto rounded-2xl bg-white/35 border border-white/40 p-7 md:p-9 shadow-xl animate-[fade-in_.45s_ease-out]"
               aria-live="polite"
             >
               <div className="flex justify-center gap-0.5 text-brand-dark mb-5">

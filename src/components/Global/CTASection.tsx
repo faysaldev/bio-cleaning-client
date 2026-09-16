@@ -8,32 +8,20 @@ interface CTASectionProps {
 
 export function CTASection({ title, subtitle }: CTASectionProps) {
   return (
-    <section className="py-24">
+    <section className="py-20 sm:py-24">
       <div className="container-page">
-        <div className="relative rounded-[3rem] bg-brand-green p-10 md:p-20 overflow-hidden shadow-2xl">
-          {/* Decorative Elements */}
-          <div className="absolute top-0 right-0 w-1/2 h-full bg-white/5 skew-x-12 translate-x-20 pointer-events-none" />
-          <Sparkles className="absolute top-10 right-10 w-12 h-12 text-white/20 animate-pulse" />
-          
+        <div className="relative overflow-hidden rounded-2xl bg-brand-green p-8 shadow-elevated sm:p-12 md:p-16">
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-white/8 to-transparent" />
+          <Sparkles className="absolute right-8 top-8 h-10 w-10 text-white/14" aria-hidden="true" />
           <div className="relative z-10 max-w-2xl text-white">
-            <h2 className="text-4xl md:text-6xl font-display font-bold leading-tight">
-              {title}
-            </h2>
-            <p className="mt-6 text-white/80 text-lg md:text-xl leading-relaxed">
-              {subtitle}
-            </p>
-            <div className="mt-10 flex flex-wrap gap-4">
-              <Link
-                href="/book"
-                className="bg-brand-dark text-white font-black px-10 py-5 rounded-2xl inline-flex items-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-brand-dark/20"
-              >
-                Book Your Clean <ArrowRight className="w-5 h-5" />
+            <h2 className="text-4xl font-extrabold leading-[1.02] tracking-[-0.05em] md:text-6xl">{title}</h2>
+            <p className="mt-5 text-base leading-7 text-white/78 md:text-lg">{subtitle}</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/book" className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-brand-dark px-5 font-extrabold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-black/70">
+                Book your clean <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link
-                href="/contact"
-                className="bg-white text-brand-green font-black px-10 py-5 rounded-2xl inline-flex items-center gap-3 hover:bg-brand-cream transition-all shadow-2xl shadow-white/10"
-              >
-                Get Custom Quote
+              <Link href="/contact" className="inline-flex min-h-12 items-center rounded-xl border border-white/40 bg-white px-5 font-extrabold text-brand-green transition hover:bg-brand-cream">
+                Get custom quote
               </Link>
             </div>
           </div>

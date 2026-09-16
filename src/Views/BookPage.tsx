@@ -157,7 +157,7 @@ export default function BookPage() {
         <section className="py-10 bg-brand-cream">
           <div className="container-page max-w-5xl">
             <div className="grid lg:grid-cols-3 gap-8 items-start">
-              <div className="lg:col-span-2 card-primary p-6 md:p-10">
+              <div className="lg:col-span-2 card-primary p-5 sm:p-6 md:p-8">
                 {step === 0 && (
                   <ServiceStep
                     services={services}
@@ -183,7 +183,7 @@ export default function BookPage() {
                 {step === 3 && <ConfirmStep data={data} estimatedTotal={estimatedTotal} />}
 
                 {submitError && (
-                  <div className="mt-6 rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-sm font-medium text-destructive">
+                  <div className="feedback-panel mt-6 border-destructive/20 bg-destructive/5 text-destructive">
                     {submitError}
                   </div>
                 )}
@@ -228,16 +228,16 @@ export default function BookPage() {
 
         <section className="pb-20">
           <div className="container-page">
-            <div className="rounded-3xl bg-brand-yellow p-8 md:p-12 flex flex-col md:flex-row items-center gap-6 justify-between">
+            <div className="rounded-2xl border border-brand-yellow/40 bg-brand-yellow p-8 md:p-10 flex flex-col md:flex-row items-center gap-6 justify-between">
               <div>
-                <h2 className="text-3xl font-display font-bold text-brand-dark">
+                <h2 className="text-3xl font-bold tracking-[-0.04em] text-brand-dark">
                   Ready for a clean break?
                 </h2>
                 <p className="text-brand-dark/70 mt-2">
                   Our professional team is standing by to transform your space.
                 </p>
               </div>
-              <button onClick={() => setStep(0)} className="btn-dark px-10 py-4 text-lg">
+              <button onClick={() => setStep(0)} className="inline-flex min-h-12 items-center justify-center rounded-xl bg-brand-dark px-6 text-sm font-extrabold text-white transition hover:bg-brand-green">
                 Start Over
               </button>
             </div>

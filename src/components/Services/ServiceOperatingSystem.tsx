@@ -52,7 +52,7 @@ export function ServiceOperatingSystem() {
             {steps.map(({ icon: Icon, title, copy }) => (
               <div
                 key={title}
-                className="rounded-[2rem] border border-white/5 bg-white/5 p-8 backdrop-blur-xl hover:bg-white/10 transition-colors group"
+                className="rounded-2xl border border-white/5 bg-white/5 p-8 backdrop-blur-xl hover:bg-white/10 transition-colors group"
               >
                 <div className="w-14 h-14 rounded-2xl bg-brand-lime text-brand-dark grid place-items-center mb-6 shadow-lg shadow-brand-lime/20 group-hover:rotate-6 transition-transform">
                   <Icon className="w-7 h-7" />

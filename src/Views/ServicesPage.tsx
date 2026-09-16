@@ -35,7 +35,7 @@ const addons = [
 
 export default function ServicesPage() {
   const ref = useGsapReveal<HTMLDivElement>();
-  const { data: servicesResponse, isLoading } = useGetAllServicesQuery({});
+  const { data: servicesResponse, isLoading, isError, refetch } = useGetAllServicesQuery({});
   const [previewService, setPreviewService] = useState<CleaningService | null>(
     null,
   );
@@ -66,6 +66,8 @@ export default function ServicesPage() {
           <ServiceGrid
             services={services}
             isLoading={isLoading}
+            isError={isError}
+            onRetry={() => refetch()}
             onPreview={setPreviewService}
           />
         </section>

@@ -6,29 +6,40 @@ import {
   useUpdateBookingStatusMutation,
 } from "@/src/redux/features/bookings/bookingsApi";
 import {
+  Calendar,
   Check,
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  Search,
-  X,
-  Filter,
-  Calendar,
-  Clock,
-  User,
   MapPin,
-  Loader2,
-  CheckCircle2,
   Plus,
+  Search,
+  Sparkles,
+  User,
+  X,
 } from "lucide-react";
 import Link from "next/link";
+import { EmptyState, ErrorState, TableSkeleton } from "@/src/components/ui/feedback";
 
 type BookingStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
 
+const filters: Array<{ value: "" | BookingStatus; label: string }> = [
+  { value: "", label: "All" },
+  { value: "PENDING", label: "Pending" },
+  { value: "CONFIRMED", label: "Confirmed" },
+  { value: "COMPLETED", label: "Completed" },
+  { value: "CANCELLED", label: "Cancelled" },
+];
+
 function statusClass(status: string) {
-  if (status === "CONFIRMED") return "bg-brand-lime text-brand-dark";
-  if (status === "COMPLETED") return "bg-brand-green text-white";
-  if (status === "CANCELLED") return "bg-destructive/10 text-destructive";
-  return "bg-brand-cream text-brand-green";
+  if (status === "CONFIRMED") return "border-brand-green/25 bg-brand-green/8 text-brand-green";
+  if (status === "COMPLETED") return "border-brand-dark/20 bg-brand-dark text-white";
+  if (status === "CANCELLED") return "border-destructive/20 bg-destructive/7 text-destructive";
+  return "border-brand-yellow/45 bg-brand-yellow/15 text-brand-dark";
+}
+
+function bookingId(booking: { _id?: string; id?: string }) {
+  return booking._id || booking.id || "";
 }
 
 export default function AdminBookingsPage() {
@@ -36,8 +47,15 @@ export default function AdminBookingsPage() {
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("");
+  const [actionError, setActionError] = useState("");
 
-  const { data: bookingsResponse, isLoading, isError } = useGetAllBookingsQuery({
+  const {
+    data: bookingsResponse,
+    isLoading,
+    isFetching,
+    isError,
+    refetch,
+  } = useGetAllBookingsQuery({
     page,
     limit: 10,
     search: searchQuery,
@@ -47,222 +65,274 @@ export default function AdminBookingsPage() {
   const [updateStatus, { isLoading: isUpdating }] = useUpdateBookingStatusMutation();
 
   const handleUpdateStatus = async (id: string, newStatus: BookingStatus) => {
+    if (!id) return;
+    setActionError("");
     try {
       await updateStatus({ id, status: newStatus }).unwrap();
-    } catch (err) {
-      console.error("Failed to update status:", err);
+    } catch (error: any) {
+      setActionError(error?.data?.message || "The booking status could not be updated. Please try again.");
     }
   };
 
-  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      setSearchQuery(searchInput);
-      setPage(1);
-    }
+  const submitSearch = () => {
+    setSearchQuery(searchInput.trim());
+    setPage(1);
   };
 
   const bookings = bookingsResponse?.data || [];
   const meta = bookingsResponse?.meta;
   const totalPages = meta?.totalPages || 1;
 
-  if (isLoading) {
+  if (isError) {
     return (
-      <div className="flex h-96 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-green" />
-      </div>
+      <ErrorState
+        title="Bookings are unavailable"
+        description="We couldn’t load reservations from the server. No booking data was changed."
+        action={<button type="button" onClick={() => refetch()} className="btn-secondary">Try again</button>}
+      />
     );
   }
 
   return (
     <div className="space-y-6">
-      <div className="rounded-3xl bg-brand-dark p-8 text-white shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-brand-green/10 to-transparent" />
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+      <section className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <span className="editorial-kicker">Booking desk</span>
+          <h2 className="admin-page-heading mt-3 text-brand-dark">Reservations, without the noise.</h2>
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
+            Search customers, track each job, and move bookings through confirmation and completion from one responsive workspace.
+          </p>
+        </div>
+        <Link href="/admin/bookings/manual" className="btn-primary shrink-0">
+          <Plus className="h-4 w-4" /> Manual booking
+        </Link>
+      </section>
+
+      <section className="surface p-4 sm:p-5" aria-label="Booking filters">
+        <div className="grid gap-4 xl:grid-cols-[minmax(280px,1fr)_auto] xl:items-end">
           <div>
-            <span className="pill bg-brand-lime text-brand-dark">Booking desk</span>
-            <h2 className="mt-4 text-4xl md:text-5xl font-display font-bold">Manage Reservations</h2>
-            <p className="mt-3 max-w-xl text-white/65 text-lg">
-              Approve, schedule, and finalize cleaning jobs with real-time status tracking.
-            </p>
+            <label htmlFor="booking-search" className="field-label">Search bookings</label>
+            <div className="flex gap-2">
+              <div className="relative min-w-0 flex-1">
+                <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  id="booking-search"
+                  value={searchInput}
+                  onChange={(event) => setSearchInput(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") submitSearch();
+                  }}
+                  placeholder="Reference, customer, email or phone"
+                  className="field-control pl-10"
+                />
+              </div>
+              <button type="button" onClick={submitSearch} className="btn-secondary px-4">Search</button>
+            </div>
           </div>
-          <Link
-            href="/admin/bookings/manual"
-            className="btn-primary bg-brand-lime text-brand-dark hover:bg-white flex items-center gap-2 px-8 py-4 rounded-2xl font-black transition-all shadow-xl shadow-brand-lime/10"
-          >
-            <Plus className="w-5 h-5" /> Manual Booking
-          </Link>
-        </div>
-      </div>
 
-      <div className="flex flex-col md:flex-row gap-4 items-end justify-between bg-white p-6 rounded-3xl border border-border shadow-sm">
-        <div className="w-full md:max-w-md">
-          <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">
-            Search Bookings (Press Enter)
-          </label>
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 w-4 h-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={handleSearchKeyDown}
-              placeholder="Reference, Customer, or Phone..."
-              className="w-full rounded-2xl border border-border bg-brand-cream py-3.5 pl-11 pr-4 outline-none focus:border-brand-green transition-all"
-            />
+          <div>
+            <p className="field-label">Status</p>
+            <div className="flex max-w-full gap-1 overflow-x-auto rounded-xl border border-border bg-brand-cream/55 p-1" role="group" aria-label="Filter bookings by status">
+              {filters.map(({ value, label }) => (
+                <button
+                  key={label}
+                  type="button"
+                  aria-pressed={statusFilter === value}
+                  onClick={() => {
+                    setStatusFilter(value);
+                    setPage(1);
+                  }}
+                  className={`shrink-0 rounded-lg px-3 py-2 text-xs font-extrabold transition-colors ${
+                    statusFilter === value
+                      ? "bg-brand-dark text-white shadow-sm"
+                      : "text-muted-foreground hover:bg-white hover:text-brand-dark"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="flex gap-2 bg-brand-cream p-1.5 rounded-2xl border border-border">
-          {["", "PENDING", "CONFIRMED", "COMPLETED", "CANCELLED"].map((s) => (
+        {(searchQuery || statusFilter) && (
+          <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border/70 pt-4 text-xs text-muted-foreground">
+            <span className="font-semibold">Active filters:</span>
+            {searchQuery ? <span className="rounded-md border border-border bg-white px-2 py-1 font-semibold text-brand-dark">Search: {searchQuery}</span> : null}
+            {statusFilter ? <span className="rounded-md border border-border bg-white px-2 py-1 font-semibold text-brand-dark">{statusFilter}</span> : null}
             <button
-              key={s}
+              type="button"
+              className="font-extrabold text-brand-green hover:text-brand-dark"
               onClick={() => {
-                setStatusFilter(s);
+                setSearchInput("");
+                setSearchQuery("");
+                setStatusFilter("");
                 setPage(1);
               }}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                statusFilter === s
-                  ? "bg-brand-green text-white shadow-lg shadow-brand-green/20"
-                  : "hover:bg-white text-muted-foreground"
-              }`}
             >
-              {s || "ALL"}
+              Clear filters
             </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid gap-4">
-        {bookings.length === 0 ? (
-          <div className="rounded-[2.5rem] bg-white border border-border p-20 text-center">
-            <Calendar className="mx-auto h-16 w-16 text-muted-foreground/20 mb-4" />
-            <h3 className="text-xl font-bold text-brand-dark">No bookings found</h3>
-            <p className="text-muted-foreground">Try adjusting your filters or search terms.</p>
           </div>
-        ) : (
-          bookings.map((booking) => (
-            <div
-              key={(booking as any)._id || (booking as any).id}
-              className="group rounded-3xl bg-white border border-border p-6 hover:shadow-xl hover:border-brand-green/30 transition-all duration-300 overflow-x-auto"
-            >
-              <div className="grid md:grid-cols-[1fr_auto] gap-6 min-w-[600px] md:min-w-0">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <span className="text-[10px] font-black tracking-widest text-brand-green bg-brand-green/5 px-3 py-1 rounded-lg uppercase">
-                      {booking.reference}
-                    </span>
-                    <span
-                      className={`text-[9px] uppercase font-black px-3 py-1 rounded-full ${statusClass(booking.status)}`}
-                    >
-                      {booking.status}
-                    </span>
-                  </div>
-
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-brand-cream flex items-center justify-center shrink-0">
-                        <User className="w-4 h-4 text-brand-green" />
-                      </div>
-                      <div>
-                        <div className="text-[9px] uppercase tracking-widest text-muted-foreground font-bold">Customer</div>
-                        <div className="font-bold text-brand-dark text-xs leading-none">{booking.customerDetails.name}</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-brand-cream flex items-center justify-center shrink-0">
-                        <Calendar className="w-4 h-4 text-brand-green" />
-                      </div>
-                      <div>
-                        <div className="text-[9px] uppercase tracking-widest text-muted-foreground font-bold">Date & Time</div>
-                        <div className="font-bold text-brand-dark text-xs leading-none">{new Date(booking.date).toLocaleDateString()} · {booking.timeSlot}</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-brand-cream flex items-center justify-center shrink-0">
-                        <Sparkles className="w-4 h-4 text-brand-green" />
-                      </div>
-                      <div>
-                        <div className="text-[9px] uppercase tracking-widest text-muted-foreground font-bold">Service</div>
-                        <div className="font-bold text-brand-dark text-xs leading-none">{booking.serviceType} · {booking.propertySize}</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-brand-cream flex items-center justify-center shrink-0">
-                        <MapPin className="w-4 h-4 text-brand-green" />
-                      </div>
-                      <div>
-                        <div className="text-[9px] uppercase tracking-widest text-muted-foreground font-bold">Location</div>
-                        <div className="font-bold text-brand-dark text-xs leading-none">{booking.customerDetails.address.city}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col md:items-end justify-between gap-4 border-t md:border-t-0 md:border-l border-border pt-4 md:pt-0 md:pl-6">
-                  <div className="text-right">
-                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Total Amount</div>
-                    <div className="text-3xl font-display font-bold text-brand-dark">${booking.totalAmount}</div>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    {booking.status === "PENDING" && (
-                      <>
-                        <button
-                          onClick={() => handleUpdateStatus((booking as any)._id || (booking as any).id, "CANCELLED")}
-                          disabled={isUpdating}
-                          className="btn-secondary px-4 py-2 text-xs"
-                        >
-                          <X className="w-3.5 h-3.5" /> Cancel
-                        </button>
-                        <button
-                          onClick={() => handleUpdateStatus((booking as any)._id || (booking as any).id, "CONFIRMED")}
-                          disabled={isUpdating}
-                          className="btn-primary px-4 py-2 text-xs"
-                        >
-                          <Check className="w-3.5 h-3.5" /> Confirm
-                        </button>
-                      </>
-                    )}
-                    {booking.status === "CONFIRMED" && (
-                      <button
-                        onClick={() => handleUpdateStatus((booking as any)._id || (booking as any).id, "COMPLETED")}
-                        disabled={isUpdating}
-                        className="bg-brand-green text-white font-bold rounded-xl px-5 py-2 text-xs flex items-center gap-2 hover:bg-brand-dark transition-colors"
-                      >
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Mark Completed
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))
         )}
-      </div>
+      </section>
 
-      {meta && meta.totalPages > 1 && (
-        <div className="flex items-center justify-between bg-white p-4 rounded-[2rem] border border-border">
-          <div className="text-sm text-muted-foreground pl-2 font-medium">
-            Page <span className="text-brand-dark font-bold">{page}</span> of {totalPages}
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setPage(Math.max(1, page - 1))}
-              disabled={page === 1}
-              className="p-3 rounded-xl bg-brand-cream hover:bg-brand-green/10 text-brand-dark disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button
-              onClick={() => setPage(Math.min(totalPages, page + 1))}
-              disabled={page === totalPages}
-              className="p-3 rounded-xl bg-brand-cream hover:bg-brand-green/10 text-brand-dark disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-          </div>
+      {actionError ? (
+        <div className="feedback-panel border-destructive/20 bg-destructive/5 text-destructive" role="alert">
+          <X className="mt-0.5 h-4 w-4 shrink-0" />
+          <div><p className="font-bold">Couldn’t update booking</p><p className="mt-0.5 text-xs opacity-80">{actionError}</p></div>
         </div>
+      ) : null}
+
+      {isLoading ? (
+        <TableSkeleton rows={7} columns={7} />
+      ) : bookings.length === 0 ? (
+        <EmptyState
+          icon={Calendar}
+          title="No bookings match this view"
+          description={searchQuery || statusFilter ? "Clear or adjust the filters to broaden the result set." : "Online and manual reservations will appear here once customers start booking."}
+          action={
+            searchQuery || statusFilter ? (
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => {
+                  setSearchInput("");
+                  setSearchQuery("");
+                  setStatusFilter("");
+                  setPage(1);
+                }}
+              >
+                Reset filters
+              </button>
+            ) : (
+              <Link href="/admin/bookings/manual" className="btn-primary">Create booking</Link>
+            )
+          }
+        />
+      ) : (
+        <>
+          <div className="table-shell hidden overflow-x-auto lg:block" aria-busy={isFetching}>
+            <table className="data-table min-w-[980px]">
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>Reference</th>
+                  <th>Service</th>
+                  <th>Scheduled</th>
+                  <th>Location</th>
+                  <th className="text-right">Amount</th>
+                  <th className="text-right">Status / Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bookings.map((booking) => (
+                  <tr key={bookingId(booking)}>
+                    <td>
+                      <div className="flex items-center gap-3">
+                        <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-cream text-brand-green"><User className="h-3.5 w-3.5" /></span>
+                        <div className="min-w-0">
+                          <div className="max-w-44 truncate text-sm font-bold text-brand-dark">{booking.customerDetails.name}</div>
+                          <div className="max-w-44 truncate text-[11px] text-muted-foreground">{booking.customerDetails.email}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="font-mono text-xs font-semibold text-muted-foreground">{booking.reference}</td>
+                    <td>
+                      <div className="text-sm font-semibold text-brand-dark">{booking.serviceType}</div>
+                      <div className="mt-0.5 text-[11px] text-muted-foreground">{booking.propertySize} · {booking.frequency.replaceAll("_", " ")}</div>
+                    </td>
+                    <td>
+                      <div className="text-sm font-semibold text-brand-dark">{new Date(booking.date).toLocaleDateString()}</div>
+                      <div className="mt-0.5 text-[11px] text-muted-foreground">{booking.timeSlot}</div>
+                    </td>
+                    <td>
+                      <div className="flex items-center gap-1.5 text-sm text-brand-dark"><MapPin className="h-3.5 w-3.5 text-brand-green" />{booking.customerDetails.address.city}</div>
+                      <div className="mt-0.5 text-[11px] text-muted-foreground">{booking.customerDetails.address.zip}</div>
+                    </td>
+                    <td className="text-right text-sm font-extrabold text-brand-dark">${Number(booking.totalAmount).toFixed(2)}</td>
+                    <td>
+                      <div className="flex items-center justify-end gap-2">
+                        <span className={`status-badge ${statusClass(booking.status)}`}>{booking.status}</span>
+                        {booking.status === "PENDING" ? (
+                          <div className="flex gap-1">
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateStatus(bookingId(booking), "CANCELLED")}
+                              disabled={isUpdating}
+                              className="grid h-8 w-8 place-items-center rounded-lg border border-border bg-white text-muted-foreground hover:border-destructive/30 hover:text-destructive disabled:opacity-50"
+                              aria-label={`Cancel booking ${booking.reference}`}
+                            ><X className="h-3.5 w-3.5" /></button>
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateStatus(bookingId(booking), "CONFIRMED")}
+                              disabled={isUpdating}
+                              className="grid h-8 w-8 place-items-center rounded-lg bg-brand-green text-white hover:bg-brand-dark disabled:opacity-50"
+                              aria-label={`Confirm booking ${booking.reference}`}
+                            ><Check className="h-3.5 w-3.5" /></button>
+                          </div>
+                        ) : null}
+                        {booking.status === "CONFIRMED" ? (
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateStatus(bookingId(booking), "COMPLETED")}
+                            disabled={isUpdating}
+                            className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-brand-dark px-2.5 text-[11px] font-extrabold text-white hover:bg-brand-green disabled:opacity-50"
+                          ><CheckCircle2 className="h-3.5 w-3.5" /> Complete</button>
+                        ) : null}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="space-y-3 lg:hidden" aria-busy={isFetching}>
+            {bookings.map((booking) => (
+              <article key={bookingId(booking)} className="surface p-4 sm:p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-mono text-[11px] font-semibold text-brand-green">{booking.reference}</p>
+                    <h3 className="mt-1 truncate text-base font-bold text-brand-dark">{booking.customerDetails.name}</h3>
+                    <p className="mt-0.5 truncate text-xs text-muted-foreground">{booking.customerDetails.email}</p>
+                  </div>
+                  <span className={`status-badge shrink-0 ${statusClass(booking.status)}`}>{booking.status}</span>
+                </div>
+
+                <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-y border-border/70 py-4 text-xs">
+                  <div><dt className="font-bold text-muted-foreground">Service</dt><dd className="mt-1 font-semibold text-brand-dark">{booking.serviceType}</dd></div>
+                  <div><dt className="font-bold text-muted-foreground">Amount</dt><dd className="mt-1 font-extrabold text-brand-dark">${Number(booking.totalAmount).toFixed(2)}</dd></div>
+                  <div><dt className="font-bold text-muted-foreground">Scheduled</dt><dd className="mt-1 font-semibold text-brand-dark">{new Date(booking.date).toLocaleDateString()} · {booking.timeSlot}</dd></div>
+                  <div><dt className="font-bold text-muted-foreground">Location</dt><dd className="mt-1 font-semibold text-brand-dark">{booking.customerDetails.address.city}</dd></div>
+                </dl>
+
+                {booking.status === "PENDING" ? (
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    <button type="button" onClick={() => handleUpdateStatus(bookingId(booking), "CANCELLED")} disabled={isUpdating} className="btn-secondary"><X className="h-3.5 w-3.5" /> Cancel</button>
+                    <button type="button" onClick={() => handleUpdateStatus(bookingId(booking), "CONFIRMED")} disabled={isUpdating} className="btn-primary"><Check className="h-3.5 w-3.5" /> Confirm</button>
+                  </div>
+                ) : null}
+                {booking.status === "CONFIRMED" ? (
+                  <button type="button" onClick={() => handleUpdateStatus(bookingId(booking), "COMPLETED")} disabled={isUpdating} className="btn-primary mt-4 w-full"><CheckCircle2 className="h-4 w-4" /> Mark completed</button>
+                ) : null}
+              </article>
+            ))}
+          </div>
+        </>
       )}
+
+      {meta && meta.totalPages > 1 ? (
+        <nav className="surface flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between" aria-label="Booking pagination">
+          <p className="px-1 text-xs font-semibold text-muted-foreground">
+            Showing page <span className="font-extrabold text-brand-dark">{page}</span> of <span className="font-extrabold text-brand-dark">{totalPages}</span>
+            {typeof meta.total === "number" ? <> · {meta.total.toLocaleString()} total</> : null}
+          </p>
+          <div className="flex gap-2">
+            <button type="button" onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1 || isFetching} className="btn-secondary flex-1 px-3 sm:flex-none"><ChevronLeft className="h-4 w-4" /> Previous</button>
+            <button type="button" onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages || isFetching} className="btn-secondary flex-1 px-3 sm:flex-none">Next <ChevronRight className="h-4 w-4" /></button>
+          </div>
+        </nav>
+      ) : null}
     </div>
   );
 }
-import { Sparkles } from "lucide-react";

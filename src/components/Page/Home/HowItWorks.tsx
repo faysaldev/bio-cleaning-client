@@ -71,7 +71,7 @@ export default function HowItWorks() {
             return (
             <div
               key={s.n}
-              className={`group relative rounded-3xl p-7 min-h-72 overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl
+              className={`group relative rounded-2xl p-7 min-h-72 overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl
                 ${s.lime ? "bg-brand-lime text-brand-dark" : "bg-white text-brand-dark border border-border"}`}
             >
               <div className="relative z-10">

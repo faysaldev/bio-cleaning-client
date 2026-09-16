@@ -7,41 +7,33 @@ interface BookingProgressProps {
 
 export function BookingProgress({ steps, currentStep }: BookingProgressProps) {
   return (
-    <section className="py-10 bg-brand-cream">
+    <section className="border-y border-border bg-brand-cream/60 py-6 sm:py-7">
       <div className="container-page max-w-5xl">
-        <div className="flex items-center justify-between">
-          {steps.map((s, i) => (
-            <div key={s} className="flex-1 flex items-center">
-              <div
-                className={`flex items-center gap-2 ${
-                  i <= currentStep ? "text-brand-green" : "text-muted-foreground"
-                }`}
-              >
-                <div
-                  className={`w-9 h-9 rounded-full grid place-items-center text-sm font-bold transition ${
-                    i <= currentStep
-                      ? "bg-brand-green text-white shadow-lg shadow-brand-green/20"
-                      : "bg-white border border-border"
-                  }`}
-                >
-                  {i < currentStep ? <Check className="w-4 h-4" /> : i + 1}
+        <ol className="flex items-center justify-between" aria-label="Booking progress">
+          {steps.map((step, index) => {
+            const completed = index < currentStep;
+            const active = index === currentStep;
+            return (
+              <li key={step} className="flex flex-1 items-center" aria-current={active ? "step" : undefined}>
+                <div className={`flex items-center gap-2 ${index <= currentStep ? "text-brand-green" : "text-muted-foreground"}`}>
+                  <div className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg border text-xs font-extrabold transition ${
+                    index <= currentStep
+                      ? "border-brand-green bg-brand-green text-white"
+                      : "border-border bg-white text-muted-foreground"
+                  }`}>
+                    {completed ? <Check className="h-3.5 w-3.5" /> : index + 1}
+                  </div>
+                  <span className="hidden text-xs font-bold sm:block">{step}</span>
                 </div>
-                <span className="hidden sm:block text-sm font-medium">
-                  {s}
-                </span>
-              </div>
-              {i < steps.length - 1 && (
-                <div className="h-0.5 flex-1 mx-3 bg-border overflow-hidden">
-                  <div
-                    className={`h-full bg-brand-green transition-all ${
-                      i < currentStep ? "w-full" : "w-0"
-                    }`}
-                  />
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+                {index < steps.length - 1 ? (
+                  <div className="mx-2 h-px flex-1 overflow-hidden bg-border sm:mx-3">
+                    <div className={`h-full bg-brand-green transition-all ${completed ? "w-full" : "w-0"}`} />
+                  </div>
+                ) : null}
+              </li>
+            );
+          })}
+        </ol>
       </div>
     </section>
   );

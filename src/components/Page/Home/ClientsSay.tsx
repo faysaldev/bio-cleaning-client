@@ -50,11 +50,11 @@ export default function ClientsSay() {
           onFocus={() => setPaused(true)}
           onBlur={() => setPaused(false)}
         >
-          <div className="absolute -inset-4 bg-brand-lime/25 rounded-3xl shadow-xl rotate-2" />
-          <div className="absolute -inset-4 bg-white/10 rounded-3xl shadow-xl -rotate-1" />
+          <div className="absolute -inset-4 bg-brand-lime/25 rounded-2xl shadow-xl rotate-2" />
+          <div className="absolute -inset-4 bg-white/10 rounded-2xl shadow-xl -rotate-1" />
           <div
             key={idx}
-            className="relative bg-white rounded-3xl shadow-2xl overflow-hidden animate-[fade-in_.6s_ease-out]"
+            className="relative bg-white rounded-2xl shadow-2xl overflow-hidden animate-[fade-in_.6s_ease-out]"
             aria-live="polite"
           >
             <div className="relative aspect-video bg-gradient-to-br from-brand-dark to-brand-green grid place-items-center">

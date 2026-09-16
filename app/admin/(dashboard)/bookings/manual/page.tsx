@@ -154,20 +154,19 @@ export default function ManualBookingPage() {
 
   return (
     <div className="space-y-6" ref={ref}>
-      <div className="rounded-3xl bg-brand-dark p-8 text-white shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-brand-green/10 to-transparent" />
-        <span className="pill bg-brand-lime text-brand-dark">Admin Actions</span>
-        <h2 className="mt-4 text-4xl md:text-5xl font-display font-bold">Manual Booking</h2>
-        <p className="mt-3 max-w-2xl text-white/65 text-lg">
-          Create a new reservation for a customer directly from the dashboard.
+      <section>
+        <span className="editorial-kicker">Admin booking</span>
+        <h2 className="admin-page-heading mt-3 text-brand-dark">Create a reservation</h2>
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
+          Use the same live services, server-side pricing, and slot rules as the public booking flow.
         </p>
-      </div>
+      </section>
 
       <BookingProgress steps={STEPS} currentStep={step} />
 
       <section className="pb-20">
         <div className="grid lg:grid-cols-[1fr_380px] gap-8 items-start">
-          <div className="card-primary p-8 md:p-12 bg-white">
+          <div className="card-primary p-5 sm:p-6 md:p-8 bg-white">
             {step === 0 && (
               <ServiceStep
                 services={services}
@@ -193,7 +192,7 @@ export default function ManualBookingPage() {
             {step === 3 && <ConfirmStep data={data} estimatedTotal={estimatedTotal} />}
 
             {submitError && (
-              <div className="mt-6 rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-sm font-medium text-destructive">
+              <div className="feedback-panel mt-6 border-destructive/20 bg-destructive/5 text-destructive">
                 {submitError}
               </div>
             )}
@@ -230,7 +229,7 @@ export default function ManualBookingPage() {
 
           <aside className="space-y-4">
             <BookingSummary data={data} estimatedTotal={estimatedTotal} />
-            <div className="p-6 rounded-3xl bg-brand-yellow/10 border border-brand-yellow/20">
+            <div className="p-6 rounded-2xl bg-brand-yellow/10 border border-brand-yellow/20">
               <div className="flex items-center gap-2 text-brand-dark font-bold text-sm mb-2">
                 <Sparkles className="w-4 h-4" /> Admin booking
               </div>

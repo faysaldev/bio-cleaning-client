@@ -26,14 +26,14 @@ export function SignaturePackages() {
             {packages.map((pkg, i) => (
               <div
                 key={pkg.name}
-                className={`relative rounded-[2rem] p-8 border transition-all duration-500 hover:-translate-y-2 ${
+                className={`relative rounded-2xl p-8 border transition-all duration-500 hover:-translate-y-2 ${
                   pkg.featured
                     ? "bg-brand-dark text-white border-brand-dark shadow-2xl scale-105 z-10"
                     : "bg-white border-border shadow-card hover:shadow-xl"
                 }`}
               >
                 {pkg.featured && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-brand-green text-white px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-lg bg-brand-green px-4 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">
                     Most Popular
                   </div>
                 )}

@@ -19,7 +19,7 @@ export function PlanComparison() {
             Find Your Perfect Fit
           </h2>
         </div>
-        <div className="overflow-hidden rounded-[2.5rem] border border-border bg-white shadow-2xl">
+        <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-2xl">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>

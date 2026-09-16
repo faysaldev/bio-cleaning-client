@@ -20,16 +20,16 @@ export default function FullService() {
               src={fullService}
               alt="Cleaning team at work"
               sizes="(min-width: 1024px) 25vw, 50vw"
-              className="rounded-3xl object-cover w-full h-72 md:h-96 shadow-xl"
+              className="rounded-2xl object-cover w-full h-72 md:h-96 shadow-xl"
             />
             <Image
               src={fullService2}
               alt="Professional cleaner"
               sizes="(min-width: 1024px) 25vw, 50vw"
-              className="rounded-3xl object-cover w-full h-72 md:h-96 mt-10 shadow-2xl"
+              className="rounded-2xl object-cover w-full h-72 md:h-96 mt-10 shadow-2xl"
             />
           </div>
-          <div className="absolute left-6 right-6 bottom-6 rounded-3xl bg-brand-dark/90 text-white p-5 backdrop-blur-md shadow-2xl">
+          <div className="absolute left-6 right-6 bottom-6 rounded-2xl bg-brand-dark/90 text-white p-5 backdrop-blur-md shadow-2xl">
             <div className="grid grid-cols-3 gap-3 text-center">
               {[
                 ["50+", "Team"],
@@ -96,7 +96,7 @@ export default function FullService() {
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/book"
-              className="bg-brand-lime text-brand-dark font-bold px-7 py-3.5 rounded-full inline-flex items-center gap-2 hover:scale-[1.02] transition"
+              className="btn-primary inline-flex items-center gap-2"
             >
               Schedule a Cleaning <ArrowRight className="w-4 h-4" />
             </Link>

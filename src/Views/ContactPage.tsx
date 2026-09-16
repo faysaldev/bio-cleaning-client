@@ -12,7 +12,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { useGsapReveal } from "@/src/hooks/useGsapReveal";
-import { useRef, useState } from "react";
+import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useSubmitContactFormMutation } from "@/src/redux/features/contact/contactApi";
 
 export default function ContactPage() {
@@ -32,7 +32,7 @@ export default function ContactPage() {
     msg: string;
   } | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setStatus(null);
 
@@ -98,10 +98,11 @@ export default function ContactPage() {
 
               {status && (
                 <div
-                  className={`p-4 rounded-xl text-sm font-medium border animate-in fade-in slide-in-from-top-2 ${
+                  role={status.type === "error" ? "alert" : "status"}
+                  className={`feedback-panel ${
                     status.type === "success"
-                      ? "bg-brand-lime/20 text-brand-green border-brand-lime/30"
-                      : "bg-destructive/10 text-destructive border-destructive/20"
+                      ? "border-brand-green/20 bg-brand-green/5 text-brand-green"
+                      : "border-destructive/20 bg-destructive/5 text-destructive"
                   }`}
                 >
                   <div className="flex gap-2">
@@ -117,7 +118,7 @@ export default function ContactPage() {
                 <input
                   ref={nameRef}
                   required
-                  className="input"
+                  className="field-control"
                   placeholder="Jane Doe"
                 />
               </Field>
@@ -126,19 +127,19 @@ export default function ContactPage() {
                   ref={emailRef}
                   required
                   type="email"
-                  className="input"
+                  className="field-control"
                   placeholder="jane@email.com"
                 />
               </Field>
               <Field label="Phone">
                 <input
                   ref={phoneRef}
-                  className="input"
+                  className="field-control"
                   placeholder="(555) 555-5555"
                 />
               </Field>
               <Field label="Service Interest">
-                <select ref={serviceRef} className="input">
+                <select ref={serviceRef} className="field-control">
                   <option>Residential Cleaning</option>
                   <option>Commercial Cleaning</option>
                   <option>Deep Cleaning</option>
@@ -150,7 +151,7 @@ export default function ContactPage() {
                   ref={messageRef}
                   required
                   rows={4}
-                  className="input resize-none"
+                  className="field-control min-h-28 resize-y"
                   placeholder="Tell us about your space…"
                 />
               </Field>
@@ -168,7 +169,6 @@ export default function ContactPage() {
                   </>
                 )}
               </button>
-              <style>{`.input{width:100%;padding:0.7rem 0.9rem;border:1px solid var(--color-border);border-radius:0.6rem;font-size:0.9rem;background:white;outline:none;transition:border .15s}.input:focus{border-color:var(--brand-green);box-shadow:0 0 0 3px color-mix(in oklab, var(--brand-green) 15%, transparent)}`}</style>
             </form>
 
             <div className="space-y-5" data-reveal-group>
@@ -223,7 +223,7 @@ export default function ContactPage() {
               </h2>
             </div>
             <div
-              className="rounded-3xl overflow-hidden border border-border shadow-card aspect-[16/7] relative"
+              className="rounded-2xl overflow-hidden border border-border shadow-card aspect-[16/7] relative"
               data-reveal
             >
               <iframe
@@ -287,14 +287,12 @@ function Field({
   children,
 }: {
   label: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <label className="block">
-      <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-        {label}
-      </span>
-      <div className="mt-1.5">{children}</div>
+      <span className="field-label">{label}</span>
+      <div>{children}</div>
     </label>
   );
 }

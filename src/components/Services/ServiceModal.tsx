@@ -20,10 +20,10 @@ export function ServiceModal({ service, onClose }: ServiceModalProps) {
       />
       
       {/* Content */}
-      <div className="relative w-full max-w-4xl bg-white rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col md:flex-row max-h-[90vh]">
+      <div className="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-white/15 bg-white shadow-elevated animate-in zoom-in-95 duration-200 md:flex-row" role="dialog" aria-modal="true" aria-label={`${service.name} service details`}>
         <button 
           onClick={onClose}
-          className="absolute top-6 right-6 z-10 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white hover:text-brand-dark transition-all grid place-items-center"
+          className="absolute right-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-lg border border-white/20 bg-brand-dark/45 text-white backdrop-blur-md transition hover:bg-white hover:text-brand-dark" aria-label="Close service details"
         >
           <X className="w-5 h-5" />
         </button>
@@ -89,8 +89,8 @@ export function ServiceModal({ service, onClose }: ServiceModalProps) {
               </h3>
               <div className="grid sm:grid-cols-2 gap-3">
                 {service.includes?.map((item) => (
-                  <div key={item} className="flex items-start gap-3 p-3 rounded-2xl bg-brand-cream/50 border border-brand-cream transition-colors hover:bg-brand-cream">
-                    <div className="w-5 h-5 rounded-full bg-brand-green/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <div key={item} className="flex items-start gap-3 rounded-xl border border-brand-cream bg-brand-cream/50 p-3 transition-colors hover:bg-brand-cream">
+                    <div className="grid h-5 w-5 shrink-0 place-items-center rounded-md bg-brand-green/10 mt-0.5">
                       <Check className="w-3 h-3 text-brand-green" />
                     </div>
                     <span className="text-sm font-medium text-brand-dark">{item}</span>
@@ -106,7 +106,7 @@ export function ServiceModal({ service, onClose }: ServiceModalProps) {
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {service.tags.map(tag => (
-                    <span key={tag} className="px-3 py-1 rounded-full bg-brand-dark/5 text-[10px] font-bold uppercase tracking-wider text-brand-dark">
+                    <span key={tag} className="status-badge border-brand-dark/10 bg-brand-dark/5 text-brand-dark">
                       {tag}
                     </span>
                   ))}

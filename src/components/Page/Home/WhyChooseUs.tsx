@@ -55,7 +55,7 @@ export default function WhyChooseUs() {
           className="grid lg:grid-cols-5 gap-6 items-stretch"
           data-reveal-group
         >
-          <div className="lg:col-span-2 rounded-3xl overflow-hidden relative min-h-[420px]">
+          <div className="lg:col-span-2 rounded-2xl overflow-hidden relative min-h-[420px]">
             <Image
               src={whyChoose}
               alt="Bright clean living room"
@@ -76,7 +76,7 @@ export default function WhyChooseUs() {
             {items.map(({ icon: Icon, title, desc, lime }) => (
               <div
                 key={title}
-                className={`rounded-3xl p-7 transition hover:-translate-y-1 ${lime ? "bg-brand-lime text-brand-dark" : "bg-brand-cream text-brand-dark"}`}
+                className={`rounded-2xl p-7 transition hover:-translate-y-1 ${lime ? "bg-brand-lime text-brand-dark" : "bg-brand-cream text-brand-dark"}`}
               >
                 <div
                   className={`w-12 h-12 rounded-2xl grid place-items-center mb-5 ${lime ? "bg-brand-dark text-brand-lime" : "bg-brand-dark text-brand-lime"}`}

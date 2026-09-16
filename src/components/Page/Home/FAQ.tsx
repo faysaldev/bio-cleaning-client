@@ -51,7 +51,7 @@ export default function FAQ() {
               need it.
             </p>
             <div
-              className="mt-8 rounded-3xl bg-brand-dark text-white p-6"
+              className="mt-8 rounded-2xl bg-brand-dark text-white p-6"
               data-reveal
             >
               <MessageCircle className="w-9 h-9 text-brand-lime" />
@@ -100,7 +100,7 @@ export default function FAQ() {
             <div className="text-center mt-10">
               <Link
                 href="/contact"
-                className="bg-brand-lime text-brand-dark font-bold px-7 py-3.5 rounded-full inline-flex items-center gap-2 hover:scale-[1.02] transition"
+                className="btn-primary inline-flex items-center gap-2"
               >
                 Ask a Question <ArrowRight className="w-4 h-4" />
               </Link>

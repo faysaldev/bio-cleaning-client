@@ -64,7 +64,7 @@ export default function ServicesGallery() {
             <Link
               href="/services"
               key={s.title}
-              className={`group relative rounded-3xl overflow-hidden block min-h-[280px] ${
+              className={`group relative rounded-2xl overflow-hidden block min-h-[280px] ${
                 i === 0 ? "md:col-span-2 md:row-span-2 md:min-h-[580px]" : "md:col-span-2"
               }`}
             >

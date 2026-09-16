@@ -224,7 +224,7 @@ export default function AboutPage() {
               className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-stretch"
               data-reveal
             >
-              <div className="relative rounded-3xl overflow-hidden bg-brand-dark min-h-[460px] shadow-2xl">
+              <div className="relative rounded-2xl overflow-hidden bg-brand-dark min-h-[460px] shadow-2xl">
                 <div className="absolute inset-0 leaf-bg opacity-35" />
                 <Image
                   src={TEAM_IMAGE}
@@ -245,7 +245,7 @@ export default function AboutPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-3xl p-8 md:p-10 shadow-card flex flex-col justify-center">
+              <div className="bg-white rounded-2xl p-8 md:p-10 shadow-card flex flex-col justify-center">
                 <span className="pill w-fit">
                   <Sparkles className="w-3.5 h-3.5" /> Lead With Care
                 </span>
@@ -287,7 +287,7 @@ export default function AboutPage() {
         <section className="py-20">
           <div className="container-page">
             <div
-              className="rounded-3xl overflow-hidden grid md:grid-cols-2 bg-brand-dark text-white"
+              className="rounded-2xl overflow-hidden grid md:grid-cols-2 bg-brand-dark text-white"
               data-reveal
             >
               <div className="p-10 md:p-14">

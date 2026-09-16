@@ -4,13 +4,11 @@ import {
   useCreateServiceMutation,
   useDeleteServiceMutation,
   useGetAllServicesAdminQuery,
-  useGetAllServicesQuery,
   useUpdateServiceMutation,
 } from "@/src/redux/features/services/servicesApi";
 import { useUploadFileMutation } from "@/src/redux/features/assets/assetsApi";
 import { CleaningService } from "@/src/redux/features/services/types";
 import {
-  Check,
   Pencil,
   Plus,
   Sparkles,
@@ -21,6 +19,7 @@ import {
   Upload,
 } from "lucide-react";
 import { ChangeEvent, FormEvent, ReactNode, useState } from "react";
+import { EmptyState, ErrorState, LoadingState } from "@/src/components/ui/feedback";
 
 const emptyService: Partial<CleaningService> = {
   name: "",
@@ -62,7 +61,7 @@ function formToService(form: ServiceFormState): Partial<CleaningService> {
 }
 
 export default function AdminServicesPage() {
-  const { data: servicesData, isLoading: isFetching } =
+  const { data: servicesData, isLoading: isFetching, isError, refetch } =
     useGetAllServicesAdminQuery({});
   const [createService, { isLoading: isCreating }] = useCreateServiceMutation();
   const [updateService, { isLoading: isUpdating }] = useUpdateServiceMutation();
@@ -169,16 +168,22 @@ export default function AdminServicesPage() {
   };
 
   if (isFetching) {
+    return <LoadingState label="Loading cleaning services…" />;
+  }
+
+  if (isError) {
     return (
-      <div className="flex h-96 items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-brand-green" />
-      </div>
+      <ErrorState
+        title="Services are unavailable"
+        description="We couldn’t load your service catalog. No service data was changed."
+        action={<button type="button" onClick={() => refetch()} className="btn-secondary">Try again</button>}
+      />
     );
   }
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-border bg-white p-8 shadow-sm">
+      <section className="surface p-5 sm:p-6 lg:p-8">
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between border-b border-border pb-8 mb-8">
           <div>
             <div className="flex items-center gap-3">
@@ -199,17 +204,25 @@ export default function AdminServicesPage() {
           </div>
           <button
             onClick={openAddDrawer}
-            className="btn-primary flex items-center gap-2 px-8 py-4 rounded-2xl shadow-xl shadow-brand-green/20"
+            className="btn-primary flex items-center gap-2"
           >
             <Plus className="w-5 h-5" /> Add New Service
           </button>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        {services.length === 0 ? (
+          <EmptyState
+            icon={Sparkles}
+            title="No cleaning services yet"
+            description="Create the first service to make it available to your website and booking flow."
+            action={<button type="button" onClick={openAddDrawer} className="btn-primary"><Plus className="h-4 w-4" /> Add service</button>}
+          />
+        ) : (
+        <div className="grid md:grid-cols-2 gap-4">
           {services.map((service: CleaningService) => (
             <article
               key={service._id}
-              className="group rounded-[2rem] border border-border bg-white p-6 transition-all duration-300 hover:border-brand-green/30 hover:shadow-xl hover:-translate-y-1"
+              className="group surface p-5 transition-all duration-200 hover:border-brand-green/30"
             >
               <div className="flex flex-col gap-6">
                 <div className="flex gap-5">
@@ -227,10 +240,10 @@ export default function AdminServicesPage() {
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 mb-2">
                       <span
-                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-widest ${
+                        className={`status-badge ${
                           service.isActive
-                            ? "bg-brand-lime text-brand-dark"
-                            : "bg-muted text-muted-foreground"
+                            ? "border-brand-green/25 bg-brand-green/8 text-brand-green"
+                            : "border-border bg-muted text-muted-foreground"
                         }`}
                       >
                         {service.isActive ? "Published" : "Draft"}
@@ -278,7 +291,8 @@ export default function AdminServicesPage() {
                     <button
                       type="button"
                       onClick={() => handleDelete(service._id)}
-                      className="h-10 w-10 rounded-xl bg-destructive/5 text-destructive flex items-center justify-center hover:bg-destructive hover:text-white transition-all"
+                      disabled={isDeleting}
+                      className="h-10 w-10 rounded-xl bg-destructive/5 text-destructive flex items-center justify-center hover:bg-destructive hover:text-white transition-all disabled:opacity-50"
                       title="Delete Service"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -301,6 +315,7 @@ export default function AdminServicesPage() {
             </article>
           ))}
         </div>
+        )}
       </section>
 
       {drawerOpen && (
@@ -310,7 +325,7 @@ export default function AdminServicesPage() {
             className="absolute inset-0 bg-black/45"
             onClick={closeDrawer}
           />
-          <div className="absolute left-0 top-0 h-full w-full max-w-xl overflow-y-auto bg-white p-6 shadow-2xl animate-[fade-in_.2s_ease-out]">
+          <div className="absolute right-0 top-0 h-full w-full max-w-xl overflow-y-auto border-l border-border bg-white p-5 shadow-elevated sm:p-6 animate-[fade-in_.2s_ease-out]" role="dialog" aria-modal="true" aria-label={drawerMode === "edit" ? "Edit service" : "Add service"}>
             <div className="flex items-start justify-between gap-4">
               <div>
                 <span className="pill">
@@ -323,7 +338,7 @@ export default function AdminServicesPage() {
               <button
                 type="button"
                 onClick={closeDrawer}
-                className="rounded-full border border-border p-2"
+                className="grid h-10 w-10 place-items-center rounded-lg border border-border bg-white text-muted-foreground hover:bg-brand-cream hover:text-brand-dark"
                 aria-label="Close service drawer"
               >
                 <X className="w-5 h-5" />
@@ -332,7 +347,7 @@ export default function AdminServicesPage() {
 
             <form onSubmit={submitService} className="mt-8 space-y-5">
               <Field label="Service Image">
-                <div className="relative group overflow-hidden rounded-3xl border border-dashed border-border bg-brand-cream p-1 transition hover:border-brand-green">
+                <div className="relative group overflow-hidden rounded-2xl border border-dashed border-border bg-brand-cream p-1 transition hover:border-brand-green">
                   {form.image ? (
                     <div className="relative aspect-video w-full overflow-hidden rounded-2xl">
                       <img
@@ -341,7 +356,7 @@ export default function AdminServicesPage() {
                         className="h-full w-full object-cover transition group-hover:scale-105"
                       />
                       <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition group-hover:opacity-100">
-                        <label className="cursor-pointer rounded-full bg-white px-4 py-2 text-xs font-bold text-brand-dark shadow-xl hover:bg-brand-lime transition">
+                        <label className="cursor-pointer rounded-lg bg-white px-4 py-2 text-xs font-bold text-brand-dark shadow-card hover:bg-brand-lime transition">
                           Change Image
                           <input
                             type="file"
@@ -380,7 +395,7 @@ export default function AdminServicesPage() {
                   onChange={(event) =>
                     setForm({ ...form, name: event.target.value })
                   }
-                  className="admin-input"
+                  className="field-control"
                   placeholder="Premium Kitchen Reset"
                 />
               </Field>
@@ -390,7 +405,7 @@ export default function AdminServicesPage() {
                   onChange={(event) =>
                     setForm({ ...form, description: event.target.value })
                   }
-                  className="admin-input min-h-28 resize-none"
+                  className="field-control min-h-28 resize-y"
                   placeholder="Short service description"
                 />
               </Field>
@@ -400,7 +415,7 @@ export default function AdminServicesPage() {
                   onChange={(event) =>
                     setForm({ ...form, includes: event.target.value })
                   }
-                  className="admin-input min-h-32 resize-none"
+                  className="field-control min-h-32 resize-y"
                   placeholder={"Kitchen wipe-down\nBathroom sanitizing\nFloors"}
                 />
                 <p className="mt-2 text-xs text-muted-foreground">
@@ -414,7 +429,7 @@ export default function AdminServicesPage() {
                     onChange={(event) =>
                       setForm({ ...form, duration: event.target.value })
                     }
-                    className="admin-input"
+                    className="field-control"
                     placeholder="2-3 hrs"
                   />
                 </Field>
@@ -429,7 +444,7 @@ export default function AdminServicesPage() {
                       onChange={(event) =>
                         setForm({ ...form, basePrice: event.target.value })
                       }
-                      className="admin-input pl-8"
+                      className="field-control pl-8"
                       placeholder="149"
                     />
                   </div>
@@ -441,21 +456,21 @@ export default function AdminServicesPage() {
                   onChange={(event) =>
                     setForm({ ...form, tags: event.target.value })
                   }
-                  className="admin-input"
+                  className="field-control"
                   placeholder="home, office, premium"
                 />
                 <p className="mt-2 text-xs text-muted-foreground">
                   Separate tags with commas.
                 </p>
               </Field>
-              <label className="flex items-center gap-3 rounded-2xl bg-brand-cream p-4 text-sm font-semibold text-brand-dark cursor-pointer transition hover:bg-brand-lime/10">
+              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-brand-cream/60 p-4 text-sm font-semibold text-brand-dark transition hover:bg-brand-lime/10">
                 <input
                   type="checkbox"
                   checked={form.isActive}
                   onChange={(event) =>
                     setForm({ ...form, isActive: event.target.checked })
                   }
-                  className="rounded border-border text-brand-green focus:ring-brand-green"
+                  className="h-4 w-4 rounded border-border accent-brand-green"
                 />
                 Publish this service
               </label>
@@ -473,7 +488,6 @@ export default function AdminServicesPage() {
           </div>
         </div>
       )}
-      <style>{`.admin-input{width:100%;border:1px solid var(--border);border-radius:1rem;background:white;padding:.85rem 1rem;outline:none}.admin-input:focus{border-color:var(--brand-green);box-shadow:0 0 0 3px color-mix(in oklab,var(--brand-green) 15%,transparent)}`}</style>
     </div>
   );
 }
@@ -481,10 +495,8 @@ export default function AdminServicesPage() {
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="block">
-      <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-        {label}
-      </span>
-      <div className="mt-2">{children}</div>
+      <span className="field-label">{label}</span>
+      <div>{children}</div>
     </label>
   );
 }

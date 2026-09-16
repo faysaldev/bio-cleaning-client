@@ -3,219 +3,252 @@
 import {
   ArrowRight,
   BadgeCheck,
-  TrendingUp,
-  Users,
   CalendarCheck,
   DollarSign,
-  Loader2,
   Mail,
-  Phone,
-  User,
-  ArrowUpRight,
   Sparkles,
+  TrendingUp,
+  User,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 import {
   useGetDashboardStatsQuery,
   useGetRecentBookingsQuery,
 } from "@/src/redux/features/dashboard/dashboardApi";
+import { EmptyState, ErrorState, TableSkeleton } from "@/src/components/ui/feedback";
+
+function statusClass(status: string) {
+  if (status === "CONFIRMED") return "border-brand-green/25 bg-brand-green/8 text-brand-green";
+  if (status === "COMPLETED") return "border-brand-dark/20 bg-brand-dark text-white";
+  if (status === "CANCELLED") return "border-destructive/20 bg-destructive/7 text-destructive";
+  return "border-brand-yellow/45 bg-brand-yellow/15 text-brand-dark";
+}
 
 export default function AdminDashboardPage() {
-  const { data: recentBookingsResponse, isLoading: isBookingsLoading } =
-    useGetRecentBookingsQuery();
-  const { data: statsResponse, isLoading: isStatsLoading } =
-    useGetDashboardStatsQuery();
+  const {
+    data: recentBookingsResponse,
+    isLoading: isBookingsLoading,
+    isError: isBookingsError,
+    refetch: refetchBookings,
+  } = useGetRecentBookingsQuery();
+  const {
+    data: statsResponse,
+    isLoading: isStatsLoading,
+    isError: isStatsError,
+    refetch: refetchStats,
+  } = useGetDashboardStatsQuery();
 
   const stats = statsResponse?.data;
   const recentBookings = recentBookingsResponse?.data || [];
 
-  if (isStatsLoading || isBookingsLoading) {
+  if (isStatsError || isBookingsError) {
     return (
-      <div className="flex h-96 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-green" />
-      </div>
+      <ErrorState
+        title="Dashboard data is unavailable"
+        description="Your workspace is still safe. Refresh the dashboard data and try again."
+        action={
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={() => {
+              refetchStats();
+              refetchBookings();
+            }}
+          >
+            Try again
+          </button>
+        }
+      />
     );
   }
 
   const statCards = [
     {
-      label: "Total Revenue",
-      value: `$${stats?.revenue.value || 0}`,
-      change: `+${stats?.revenue.change || 0}%`,
+      label: "Total revenue",
+      value: `$${Number(stats?.revenue.value || 0).toLocaleString()}`,
+      change: Number(stats?.revenue.change || 0),
       icon: DollarSign,
-      color: "bg-brand-green/10 text-brand-green",
     },
     {
-      label: "Total Bookings",
-      value: stats?.bookings.value || 0,
-      change: `+${stats?.bookings.change || 0}%`,
+      label: "Total bookings",
+      value: Number(stats?.bookings.value || 0).toLocaleString(),
+      change: Number(stats?.bookings.change || 0),
       icon: CalendarCheck,
-      color: "bg-brand-yellow/10 text-brand-dark",
     },
     {
-      label: "Completed Jobs",
-      value: stats?.completed.value || 0,
-      change: `+${stats?.completed.change || 0}%`,
+      label: "Completed jobs",
+      value: Number(stats?.completed.value || 0).toLocaleString(),
+      change: Number(stats?.completed.change || 0),
       icon: BadgeCheck,
-      color: "bg-brand-lime text-brand-dark",
     },
     {
-      label: "Total Clients",
-      value: stats?.clients.value || 0,
-      change: `+${stats?.clients.change || 0}%`,
+      label: "Total clients",
+      value: Number(stats?.clients.value || 0).toLocaleString(),
+      change: Number(stats?.clients.change || 0),
       icon: Users,
-      color: "bg-brand-cream text-brand-green",
     },
   ];
 
-  function statusClass(status: string) {
-    if (status === "CONFIRMED") return "bg-brand-lime text-brand-dark";
-    if (status === "COMPLETED") return "bg-brand-green text-white";
-    if (status === "CANCELLED") return "bg-destructive/10 text-destructive";
-    return "bg-brand-cream text-brand-green";
-  }
-
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
-      {/* Header Stats */}
-      <section className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-        {statCards.map(({ label, value, change, icon: Icon, color }) => (
-          <div
-            key={label}
-            className="group rounded-[2rem] border border-border bg-white p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-          >
-            <div className="flex items-center justify-between">
-              <div className={`rounded-2xl p-4 ${color}`}>
-                <Icon className="w-6 h-6" />
-              </div>
-              <span className="flex items-center gap-1 text-xs font-bold text-brand-green bg-brand-green/5 px-2 py-1 rounded-full">
-                <TrendingUp className="w-3 h-3" /> {change}
-              </span>
-            </div>
-            <div className="mt-6">
-              <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
-                {label}
-              </p>
-              <h3 className="mt-1 text-4xl font-display font-bold text-brand-dark">
-                {value}
-              </h3>
-            </div>
-          </div>
-        ))}
+    <div className="space-y-6">
+      <section className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <span className="editorial-kicker">Live operations</span>
+          <h2 className="admin-page-heading mt-3 text-brand-dark">A clear view of today&apos;s business.</h2>
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
+            Bookings, revenue, client activity, and the work that needs attention—without dashboard clutter.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/admin/bookings/manual" className="btn-primary">
+            <CalendarCheck className="h-4 w-4" /> Create booking
+          </Link>
+          <Link href="/admin/bookings" className="btn-secondary">
+            View bookings <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
       </section>
 
-      <div className="grid gap-8 lg:grid-cols-[1fr_400px]">
-        {/* Recent Bookings */}
-        <section className="rounded-[2.5rem] border border-border bg-white p-8 shadow-sm">
-          <div className="flex items-center justify-between gap-4 mb-8">
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Business statistics">
+        {isStatsLoading
+          ? Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="surface p-5">
+                <div className="skeleton h-10 w-10 rounded-xl" />
+                <div className="skeleton mt-6 h-3 w-24 rounded-md" />
+                <div className="skeleton mt-3 h-8 w-28 rounded-md" />
+              </div>
+            ))
+          : statCards.map(({ label, value, change, icon: Icon }) => (
+              <article key={label} className="surface p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="grid h-10 w-10 place-items-center rounded-xl border border-brand-green/12 bg-brand-cream text-brand-green">
+                    <Icon className="h-[18px] w-[18px]" aria-hidden="true" />
+                  </div>
+                  <span className="inline-flex items-center gap-1 rounded-lg bg-brand-green/7 px-2 py-1 text-[11px] font-extrabold text-brand-green">
+                    <TrendingUp className="h-3 w-3" aria-hidden="true" />
+                    {change >= 0 ? "+" : ""}{change}%
+                  </span>
+                </div>
+                <p className="mt-5 text-xs font-bold uppercase tracking-[0.08em] text-muted-foreground">{label}</p>
+                <p className="mt-1 text-3xl font-extrabold tracking-[-0.045em] text-brand-dark">{value}</p>
+              </article>
+            ))}
+      </section>
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_330px]">
+        <section>
+          <div className="mb-3 flex items-end justify-between gap-4">
             <div>
-              <span className="pill bg-brand-cream text-brand-green">
-                Activity Log
-              </span>
-              <h2 className="mt-3 text-3xl font-display font-bold text-brand-dark">
-                Recent bookings
-              </h2>
+              <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-brand-green">Recent activity</p>
+              <h3 className="mt-1 text-xl font-bold text-brand-dark">Latest bookings</h3>
             </div>
-            <Link
-              href="/admin/bookings"
-              className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-dark text-white hover:bg-brand-green transition-colors"
-            >
-              <ArrowRight className="w-5 h-5" />
+            <Link href="/admin/bookings" className="text-xs font-extrabold text-brand-green hover:text-brand-dark">
+              See all
             </Link>
           </div>
 
-          <div className="space-y-4">
-            {recentBookings.length === 0 ? (
-              <div className="py-20 text-center">
-                <CalendarCheck className="mx-auto h-12 w-12 text-muted-foreground/20 mb-4" />
-                <p className="text-muted-foreground font-medium">
-                  No recent bookings found.
-                </p>
+          {isBookingsLoading ? (
+            <TableSkeleton rows={5} columns={5} />
+          ) : recentBookings.length === 0 ? (
+            <EmptyState
+              icon={CalendarCheck}
+              title="No bookings yet"
+              description="New online and manual bookings will appear here as soon as they are created."
+              action={<Link className="btn-primary" href="/admin/bookings/manual">Create first booking</Link>}
+            />
+          ) : (
+            <>
+              <div className="table-shell hidden overflow-x-auto md:block">
+                <table className="data-table min-w-[720px]">
+                  <thead>
+                    <tr>
+                      <th>Customer</th>
+                      <th>Reference</th>
+                      <th>Service</th>
+                      <th>Scheduled</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentBookings.map((booking: any) => (
+                      <tr key={booking.reference}>
+                        <td>
+                          <div className="flex items-center gap-3">
+                            <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-cream text-brand-green">
+                              <User className="h-3.5 w-3.5" />
+                            </span>
+                            <span className="font-bold text-brand-dark">{booking.name}</span>
+                          </div>
+                        </td>
+                        <td className="font-mono text-xs font-semibold text-muted-foreground">{booking.reference}</td>
+                        <td className="text-sm text-brand-dark">{String(booking.type || "").replaceAll("_", " ")}</td>
+                        <td className="text-sm text-muted-foreground">{new Date(booking.date).toLocaleDateString()}</td>
+                        <td><span className={`status-badge ${statusClass(booking.status)}`}>{booking.status}</span></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            ) : (
-              recentBookings.map((booking: any) => (
-                <div
-                  key={booking.reference}
-                  className="group flex items-center justify-between rounded-3xl border border-border p-5 hover:border-brand-green/30 hover:bg-brand-cream/20 transition-all duration-300"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-2xl bg-brand-cream flex items-center justify-center">
-                      <User className="h-6 w-6 text-brand-green" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-brand-dark leading-tight">
-                        {booking.name}
-                      </h4>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                        <span className="font-bold text-brand-green uppercase tracking-tighter">
-                          {booking.reference}
-                        </span>
-                        <span>•</span>
-                        <span>{booking.type.replace("_", " ")}</span>
+
+              <div className="space-y-2 md:hidden">
+                {recentBookings.map((booking: any) => (
+                  <article key={booking.reference} className="surface p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <h4 className="truncate text-sm font-bold text-brand-dark">{booking.name}</h4>
+                        <p className="mt-0.5 font-mono text-[11px] text-muted-foreground">{booking.reference}</p>
                       </div>
+                      <span className={`status-badge shrink-0 ${statusClass(booking.status)}`}>{booking.status}</span>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="hidden sm:block text-right">
-                      <div className="text-[10px] uppercase font-bold text-muted-foreground">
-                        Scheduled
-                      </div>
-                      <div className="text-xs font-bold text-brand-dark">
-                        {new Date(booking.date).toLocaleDateString()}
-                      </div>
+                    <div className="mt-3 grid grid-cols-2 gap-3 border-t border-border/70 pt-3 text-xs">
+                      <div><p className="font-bold text-brand-dark">Service</p><p className="mt-0.5 text-muted-foreground">{String(booking.type || "").replaceAll("_", " ")}</p></div>
+                      <div><p className="font-bold text-brand-dark">Scheduled</p><p className="mt-0.5 text-muted-foreground">{new Date(booking.date).toLocaleDateString()}</p></div>
                     </div>
-                    <span
-                      className={`rounded-full px-4 py-1.5 text-[10px] font-black uppercase tracking-widest ${statusClass(booking.status)}`}
-                    >
-                      {booking.status}
-                    </span>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+                  </article>
+                ))}
+              </div>
+            </>
+          )}
         </section>
 
-        {/* Side Panel: Top Clients & Tasks */}
-        <aside className="space-y-8">
-          {/* Recent Clients */}
-          <section className="rounded-[2.5rem] border border-border bg-white p-8 shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-display font-bold text-brand-dark">
-                Recent Clients
-              </h3>
-              <Users className="w-5 h-5 text-brand-green" />
+        <aside className="space-y-4">
+          <section className="surface p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-brand-green">Customers</p>
+                <h3 className="mt-1 text-lg font-bold text-brand-dark">Recent clients</h3>
+              </div>
+              <Users className="h-4 w-4 text-brand-green" aria-hidden="true" />
             </div>
-            <div className="space-y-5">
-              {stats?.clientList?.map((client: any) => (
-                <div key={client.email} className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-xl bg-brand-cream flex items-center justify-center shrink-0">
-                    <span className="text-xs font-black text-brand-green">
-                      {client.name.charAt(0)}
-                    </span>
-                  </div>
-                  <div className="min-w-0">
-                    <h4 className="text-sm font-bold text-brand-dark truncate">
-                      {client.name}
-                    </h4>
-                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-0.5">
-                      <Mail className="w-2.5 h-2.5" /> {client.email}
+            <div className="mt-5 space-y-4">
+              {stats?.clientList?.length ? (
+                stats.clientList.slice(0, 5).map((client: any) => (
+                  <div key={client.email} className="flex items-center gap-3">
+                    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-border bg-brand-cream text-xs font-extrabold text-brand-green">
+                      {client.name?.charAt(0) || "C"}
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="truncate text-sm font-bold text-brand-dark">{client.name}</h4>
+                      <p className="mt-0.5 flex items-center gap-1 truncate text-[11px] text-muted-foreground"><Mail className="h-3 w-3" /> {client.email}</p>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">Client profiles will appear after the first booking.</p>
+              )}
             </div>
           </section>
 
-          <div className="rounded-[2.5rem] bg-brand-lime p-8 text-brand-dark">
-            <Sparkles className="w-10 h-10" />
-            <h3 className="mt-4 text-2xl font-display font-bold">
-              Operational Sync
-            </h3>
-            <p className="mt-2 text-sm text-brand-dark/70 italic">
-              "Your performance is the best marketing tool we have."
+          <section className="overflow-hidden rounded-2xl bg-brand-dark p-5 text-white shadow-card">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-brand-lime text-brand-dark">
+              <Sparkles className="h-4 w-4" />
+            </div>
+            <h3 className="mt-5 text-xl font-bold">Built for calm operations.</h3>
+            <p className="mt-2 text-sm leading-6 text-white/62">
+              Fast actions, clear status, and fewer decorative distractions keep the admin workspace focused on the work.
             </p>
-          </div>
+          </section>
         </aside>
       </div>
     </div>

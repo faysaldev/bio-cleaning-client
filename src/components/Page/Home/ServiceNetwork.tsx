@@ -27,7 +27,7 @@ export default function ServiceNetwork() {
           className="grid lg:grid-cols-[1fr_360px] gap-5 items-stretch"
           data-reveal
         >
-          <div className="relative rounded-3xl overflow-hidden border border-border shadow-xl bg-white min-h-[420px]">
+          <div className="relative rounded-2xl overflow-hidden border border-border shadow-xl bg-white min-h-[420px]">
             <iframe
               title="Service area map"
               src="https://www.openstreetmap.org/export/embed.html?bbox=-74.5%2C40.5%2C-71.0%2C42.5&layer=mapnik"
@@ -52,7 +52,7 @@ export default function ServiceNetwork() {
               </Link>
             </div>
           </div>
-          <div className="rounded-3xl bg-brand-dark text-white p-7 flex flex-col justify-between">
+          <div className="rounded-2xl bg-brand-dark text-white p-7 flex flex-col justify-between">
             <div>
               <span className="pill bg-brand-lime text-brand-dark">
                 <Navigation className="w-3.5 h-3.5" /> Active Routes

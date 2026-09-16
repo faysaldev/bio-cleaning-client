@@ -45,75 +45,36 @@ export default function AdminResetPasswordPage() {
   };
 
   return (
-    <main className="min-h-screen bg-brand-cream grid place-items-center p-6">
-      <section className="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
-        <div className="w-14 h-14 rounded-2xl bg-brand-lime text-brand-dark grid place-items-center">
-          <LockKeyhole className="w-6 h-6" />
-        </div>
-        <h1 className="mt-6 text-4xl text-brand-dark">Choose a new password</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          This reset link can be used once and expires after one hour.
-        </p>
+    <main className="grid min-h-screen place-items-center bg-brand-cream p-5">
+      <section className="w-full max-w-md rounded-2xl border border-border bg-white p-6 shadow-elevated sm:p-8">
+        <div className="grid h-11 w-11 place-items-center rounded-xl bg-brand-lime text-brand-dark"><LockKeyhole className="h-5 w-5" /></div>
+        <h1 className="mt-6 text-3xl font-extrabold tracking-[-0.045em] text-brand-dark">Choose a new password</h1>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">This reset link can be used once and expires after one hour.</p>
 
         <form className="mt-7 space-y-4" onSubmit={handleSubmit}>
-          {error && (
-            <div className="p-3 rounded-xl bg-destructive/10 text-destructive text-sm font-medium border border-destructive/20">
-              {error}
-            </div>
-          )}
+          {error ? <div className="feedback-panel border-destructive/20 bg-destructive/5 text-destructive" role="alert">{error}</div> : null}
 
-          <label className="block">
-            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              New password
-            </span>
-            <div className="relative mt-2">
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                minLength={8}
-                required
-                autoComplete="new-password"
-                className="w-full rounded-2xl border border-border px-4 py-3 pr-12 outline-none focus:border-brand-green transition"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((value) => !value)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"
-                aria-label={showPassword ? "Hide password" : "Show password"}
-              >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+          <div>
+            <label htmlFor="new-password" className="field-label">New password</label>
+            <div className="relative">
+              <input id="new-password" type={showPassword ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} minLength={8} required autoComplete="new-password" className="field-control pr-12" />
+              <button type="button" onClick={() => setShowPassword((value) => !value)} className="absolute right-2.5 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-lg text-muted-foreground hover:bg-brand-cream" aria-label={showPassword ? "Hide password" : "Show password"}>
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-          </label>
+          </div>
 
-          <label className="block">
-            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              Confirm password
-            </span>
-            <input
-              type={showPassword ? "text" : "password"}
-              value={confirmPassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
-              minLength={8}
-              required
-              autoComplete="new-password"
-              className="mt-2 w-full rounded-2xl border border-border px-4 py-3 outline-none focus:border-brand-green transition"
-            />
-          </label>
+          <div>
+            <label htmlFor="confirm-password" className="field-label">Confirm password</label>
+            <input id="confirm-password" type={showPassword ? "text" : "password"} value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} minLength={8} required autoComplete="new-password" className="field-control" />
+          </div>
 
-          <button type="submit" disabled={isLoading} className="btn-primary w-full">
-            {isLoading ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> Updating...</>
-            ) : (
-              "Update password"
-            )}
+          <button type="submit" disabled={isLoading} className="btn-primary w-full disabled:opacity-60">
+            {isLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Updating…</> : "Update password"}
           </button>
         </form>
 
-        <Link href="/admin/login" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-brand-green">
-          <ArrowLeft className="w-4 h-4" /> Back to login
-        </Link>
+        <Link href="/admin/login" className="mt-6 inline-flex items-center gap-2 text-sm font-extrabold text-brand-green hover:text-brand-dark"><ArrowLeft className="h-4 w-4" /> Back to login</Link>
       </section>
     </main>
   );

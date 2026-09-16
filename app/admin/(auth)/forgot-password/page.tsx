@@ -1,8 +1,8 @@
 "use client";
 
-import { ArrowLeft, MailCheck, Loader2, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Loader2, MailCheck } from "lucide-react";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { useForgotPasswordMutation } from "@/src/redux/features/auth/authApi";
 
 export default function AdminForgotPasswordPage() {
@@ -11,11 +11,10 @@ export default function AdminForgotPasswordPage() {
   const [success, setSuccess] = useState(false);
   const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
 
-  const handleForgot = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleForgot = async (event: FormEvent) => {
+    event.preventDefault();
     setError("");
     setSuccess(false);
-
     const email = emailRef.current?.value;
 
     if (!email) {
@@ -32,59 +31,30 @@ export default function AdminForgotPasswordPage() {
   };
 
   return (
-    <main className="min-h-screen bg-brand-cream grid place-items-center p-6">
-      <section className="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
-        <div className="w-14 h-14 rounded-2xl bg-brand-lime text-brand-dark grid place-items-center">
-          <MailCheck className="w-6 h-6" />
-        </div>
-        <h1 className="mt-6 text-4xl text-brand-dark">Reset password</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Enter the admin email and we&apos;ll send reset instructions.
-        </p>
+    <main className="grid min-h-screen place-items-center bg-brand-cream p-5">
+      <section className="w-full max-w-md rounded-2xl border border-border bg-white p-6 shadow-elevated sm:p-8">
+        <div className="grid h-11 w-11 place-items-center rounded-xl bg-brand-lime text-brand-dark"><MailCheck className="h-5 w-5" /></div>
+        <h1 className="mt-6 text-3xl font-extrabold tracking-[-0.045em] text-brand-dark">Reset password</h1>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">Enter the admin email and we&apos;ll send reset instructions if the account exists.</p>
 
         <form className="mt-7 space-y-4" onSubmit={handleForgot}>
-          {error && (
-            <div className="p-3 rounded-xl bg-destructive/10 text-destructive text-sm font-medium border border-destructive/20 animate-in fade-in zoom-in duration-300">
-              {error}
+          {error ? <div className="feedback-panel border-destructive/20 bg-destructive/5 text-destructive" role="alert">{error}</div> : null}
+          {success ? (
+            <div className="feedback-panel border-brand-green/20 bg-brand-green/5 text-brand-green" role="status">
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+              <span>If the account exists, reset instructions have been sent.</span>
             </div>
-          )}
-          {success && (
-            <div className="p-3 rounded-xl bg-brand-lime/20 text-brand-green text-sm font-medium border border-brand-lime/30 flex items-center gap-2 animate-in fade-in zoom-in duration-300">
-              <CheckCircle2 className="w-4 h-4" /> Reset link sent to your email!
-            </div>
-          )}
+          ) : null}
 
-          <label className="block">
-            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              Admin email
-            </span>
-            <input
-              required
-              type="email"
-              ref={emailRef}
-              className="mt-2 w-full rounded-2xl border border-border px-4 py-3 outline-none focus:border-brand-green transition"
-              placeholder="admin@biocleaningllc.com"
-            />
-          </label>
-          <button
-            type="submit"
-            disabled={isLoading || success}
-            className="btn-primary w-full disabled:opacity-70"
-          >
-            {isLoading ? (
-              <>
-                Sending... <Loader2 className="w-4 h-4 animate-spin" />
-              </>
-            ) : (
-              "Send reset link"
-            )}
+          <div>
+            <label htmlFor="reset-email" className="field-label">Admin email</label>
+            <input id="reset-email" required type="email" ref={emailRef} autoComplete="email" className="field-control" placeholder="admin@biocleaningllc.com" />
+          </div>
+
+          <button type="submit" disabled={isLoading || success} className="btn-primary w-full disabled:opacity-60">
+            {isLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Sending…</> : "Send reset link"}
           </button>
-          <Link
-            href="/admin/login"
-            className="inline-flex items-center gap-2 text-sm font-bold text-brand-green hover:underline"
-          >
-            <ArrowLeft className="w-4 h-4" /> Back to login
-          </Link>
+          <Link href="/admin/login" className="inline-flex items-center gap-2 text-sm font-extrabold text-brand-green hover:text-brand-dark"><ArrowLeft className="h-4 w-4" /> Back to login</Link>
         </form>
       </section>
     </main>

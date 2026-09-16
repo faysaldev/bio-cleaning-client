@@ -10,24 +10,24 @@ interface ServiceCardProps {
 
 export function ServiceCard({ service, onPreview }: ServiceCardProps) {
   return (
-    <div className="group card-primary overflow-hidden p-0 border-none bg-white hover:shadow-2xl transition-all duration-500">
+    <div className="group card-primary overflow-hidden p-0 bg-white transition-all duration-200 hover:border-brand-green/30 hover:shadow-elevated">
       <div className="aspect-[16/9] overflow-hidden relative">
         <Image
           src={service.image}
           alt={service.name}
           fill
           sizes="(min-width: 768px) 50vw, 100vw"
-          className="object-cover transition duration-700 group-hover:scale-110"
+          className="object-cover transition duration-500 group-hover:scale-[1.03]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/80 via-brand-dark/20 to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
         
         {/* Floating Badges */}
         <div className="absolute top-4 right-4 flex flex-col gap-2 items-end">
-          <div className="pill bg-white/95 text-brand-dark font-bold shadow-lg backdrop-blur-sm">
+          <div className="status-badge border-white/70 bg-white/95 text-brand-dark shadow-sm backdrop-blur-sm">
             from ${service.basePrice}
           </div>
           {service.tags?.[0] && (
-            <div className="pill bg-brand-green text-white text-[10px] uppercase tracking-widest font-bold">
+            <div className="status-badge border-brand-green bg-brand-green text-white">
               {service.tags[0]}
             </div>
           )}
@@ -77,7 +77,7 @@ export function ServiceCard({ service, onPreview }: ServiceCardProps) {
           </button>
           <Link
             href="/book"
-            className="inline-flex items-center gap-2 bg-brand-dark text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-brand-green transition-colors shadow-lg shadow-brand-dark/10"
+            className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-brand-dark px-4 text-sm font-bold text-white transition-colors hover:bg-brand-green"
           >
             Book Now <ArrowRight className="w-4 h-4" />
           </Link>
