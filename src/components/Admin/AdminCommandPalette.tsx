@@ -3,6 +3,7 @@
 import {
   CalendarCheck,
   CalendarClock,
+  CalendarDays,
   ExternalLink,
   LayoutDashboard,
   Mail,
@@ -11,35 +12,41 @@ import {
   Sparkles,
   UsersRound,
   UserRoundSearch,
+  UserCog,
   X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { UserRole } from "@/src/redux/features/auth/types";
+import { adminWorkspaceRoles } from "@/src/lib/roles";
 
-const commands = [
-  { href: "/admin", label: "Dashboard", detail: "Operations overview", icon: LayoutDashboard },
-  { href: "/admin/leads", label: "Leads", detail: "Pipeline, sources, owners and opportunity value", icon: UserRoundSearch },
-  { href: "/admin/leads/follow-ups", label: "Follow-ups", detail: "Today, overdue and upcoming lead tasks", icon: CalendarClock },
-  { href: "/admin/customers", label: "Customers", detail: "Customer 360 profiles and history", icon: UsersRound },
-  { href: "/admin/bookings", label: "Bookings", detail: "Search and manage reservations", icon: CalendarCheck },
-  { href: "/admin/bookings/manual", label: "Create booking", detail: "Add a reservation manually", icon: CalendarCheck },
-  { href: "/admin/services", label: "Services", detail: "Pricing, duration, extras and publishing", icon: Sparkles },
-  { href: "/admin/settings/scheduling", label: "Scheduling & capacity", detail: "Hours, timezone, staff, deposits and blocks", icon: CalendarClock },
-  { href: "/admin/contacts", label: "Contacts", detail: "Customer messages and replies", icon: Mail },
-  { href: "/admin/settings", label: "Settings", detail: "Profile and security", icon: Settings },
-  { href: "/", label: "View website", detail: "Open the public site", icon: ExternalLink },
+const commands: Array<{ href: string; label: string; detail: string; icon: any; roles: UserRole[] }> = [
+  { href: "/admin", label: "Dashboard", detail: "Operations overview", icon: LayoutDashboard, roles: adminWorkspaceRoles },
+  { href: "/admin/dispatch", label: "Dispatch", detail: "Day, week and month field calendar", icon: CalendarDays, roles: adminWorkspaceRoles },
+  { href: "/admin/team", label: "Team & crews", detail: "Roles, schedules, skills and crew membership", icon: UserCog, roles: adminWorkspaceRoles },
+  { href: "/admin/leads", label: "Leads", detail: "Pipeline, sources, owners and opportunity value", icon: UserRoundSearch, roles: adminWorkspaceRoles },
+  { href: "/admin/leads/follow-ups", label: "Follow-ups", detail: "Today, overdue and upcoming lead tasks", icon: CalendarClock, roles: adminWorkspaceRoles },
+  { href: "/admin/customers", label: "Customers", detail: "Customer 360 profiles and history", icon: UsersRound, roles: adminWorkspaceRoles },
+  { href: "/admin/bookings", label: "Bookings", detail: "Search and manage reservations", icon: CalendarCheck, roles: adminWorkspaceRoles },
+  { href: "/admin/bookings/manual", label: "Create booking", detail: "Add a reservation manually", icon: CalendarCheck, roles: ["owner", "admin", "manager", "dispatcher"] },
+  { href: "/admin/services", label: "Services", detail: "Pricing, duration, extras and publishing", icon: Sparkles, roles: adminWorkspaceRoles },
+  { href: "/admin/settings/scheduling", label: "Scheduling & capacity", detail: "Hours, timezone, deposits and blocks", icon: CalendarClock, roles: ["owner", "admin", "manager", "dispatcher", "read_only"] },
+  { href: "/admin/contacts", label: "Contacts", detail: "Customer messages and replies", icon: Mail, roles: adminWorkspaceRoles },
+  { href: "/admin/settings", label: "Settings", detail: "Profile and security", icon: Settings, roles: adminWorkspaceRoles },
+  { href: "/", label: "View website", detail: "Open the public site", icon: ExternalLink, roles: adminWorkspaceRoles },
 ];
 
-export function AdminCommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function AdminCommandPalette({ open, onClose, role }: { open: boolean; onClose: () => void; role: UserRole }) {
   const [query, setQuery] = useState("");
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const filtered = useMemo(() => {
     const value = query.trim().toLowerCase();
-    if (!value) return commands;
-    return commands.filter((item) => `${item.label} ${item.detail}`.toLowerCase().includes(value));
-  }, [query]);
+    const allowed = commands.filter((item) => item.roles.includes(role));
+    if (!value) return allowed;
+    return allowed.filter((item) => `${item.label} ${item.detail}`.toLowerCase().includes(value));
+  }, [query, role]);
 
   useEffect(() => {
     if (!open) return;

@@ -1,9 +1,11 @@
+export type UserRole = "owner" | "admin" | "manager" | "dispatcher" | "cleaner" | "support" | "read_only" | "user";
+
 export interface User {
   id: string;
   _id?: string;
   name: string;
   email: string;
-  role: "admin" | "user";
+  role: UserRole;
   image?: string;
 }
 

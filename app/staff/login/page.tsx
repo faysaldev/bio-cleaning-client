@@ -1,0 +1,15 @@
+"use client";
+
+import { FormEvent, useState } from "react";
+import { ArrowRight, Eye, EyeOff, Loader2, Sparkles } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useLoginMutation } from "@/src/redux/features/auth/authApi";
+import { setSession } from "@/src/redux/features/auth/authSlice";
+import { useAppDispatch } from "@/src/redux/hooks";
+import { adminWorkspaceRoles } from "@/src/lib/roles";
+
+export default function StaffLoginPage(){
+  const [show,setShow]=useState(false);const [error,setError]=useState("");const [login,{isLoading}]=useLoginMutation();const dispatch=useAppDispatch();const router=useRouter();
+  const submit=async(e:FormEvent<HTMLFormElement>)=>{e.preventDefault();setError("");const f=new FormData(e.currentTarget);try{const res=await login({email:String(f.get("email")),password:String(f.get("password")),rememberMe:Boolean(f.get("remember"))}).unwrap();dispatch(setSession(res.data));if(res.data.user.role==="cleaner")router.replace("/staff");else if(adminWorkspaceRoles.includes(res.data.user.role))router.replace("/admin");else setError("This account does not have staff workspace access.");}catch(err:any){setError(err?.data?.message||"Invalid email or password.");}};
+  return <main className="grid min-h-screen place-items-center bg-brand-dark p-5"><section className="w-full max-w-md rounded-2xl border border-white/10 bg-white p-6 shadow-2xl sm:p-8"><div className="grid h-12 w-12 place-items-center rounded-xl bg-brand-lime text-brand-dark"><Sparkles className="h-5 w-5"/></div><span className="mt-6 block text-[10px] font-extrabold uppercase tracking-[.16em] text-brand-green">BIO Cleaning field team</span><h1 className="mt-2 text-3xl font-extrabold tracking-[-.045em] text-brand-dark">Your jobs, one clear workspace.</h1><p className="mt-2 text-sm leading-6 text-muted-foreground">Sign in to see today’s assigned visits, customer instructions, checklists and field evidence.</p>{error?<div className="feedback-panel mt-5 border-destructive/20 bg-destructive/5 text-destructive" role="alert">{error}</div>:null}<form onSubmit={submit} className="mt-6 space-y-4"><label><span className="field-label">Email</span><input name="email" type="email" required autoComplete="email" className="field-control"/></label><label><span className="field-label">Password</span><div className="relative"><input name="password" type={show?"text":"password"} required autoComplete="current-password" className="field-control pr-12"/><button type="button" onClick={()=>setShow(v=>!v)} className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center text-muted-foreground" aria-label={show?"Hide password":"Show password"}>{show?<EyeOff className="h-4 w-4"/>:<Eye className="h-4 w-4"/>}</button></div></label><label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground"><input name="remember" type="checkbox"/>Keep me signed in</label><button disabled={isLoading} className="btn-primary w-full">{isLoading?<Loader2 className="h-4 w-4 animate-spin"/>:null}Sign in <ArrowRight className="h-4 w-4"/></button></form></section></main>;
+}

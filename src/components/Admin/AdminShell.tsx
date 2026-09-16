@@ -5,12 +5,14 @@ import { useGetSessionQuery, useLogoutSessionMutation } from "@/src/redux/featur
 import {
   CalendarCheck,
   CalendarClock,
+  CalendarDays,
   LayoutDashboard,
   LogOut,
   Mail,
   Menu,
   UsersRound,
   UserRoundSearch,
+  UserCog,
   Search,
   Settings,
   Sparkles,
@@ -24,19 +26,25 @@ import { LOGO_URL } from "../Footer";
 import Image from "next/image";
 import { LoadingState } from "@/src/components/ui/feedback";
 import { AdminCommandPalette } from "@/src/components/Admin/AdminCommandPalette";
+import { adminWorkspaceRoles } from "@/src/lib/roles";
+import type { UserRole } from "@/src/redux/features/auth/types";
 
-const navItems = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/leads", label: "Leads", icon: UserRoundSearch },
-  { href: "/admin/customers", label: "Customers", icon: UsersRound },
-  { href: "/admin/bookings", label: "Bookings", icon: CalendarCheck },
-  { href: "/admin/services", label: "Services", icon: Sparkles },
-  { href: "/admin/settings/scheduling", label: "Scheduling", icon: CalendarClock },
-  { href: "/admin/contacts", label: "Contacts", icon: Mail },
-  { href: "/admin/settings", label: "Settings", icon: Settings },
+const navItems: Array<{ href: string; label: string; icon: any; roles: UserRole[] }> = [
+  { href: "/admin", label: "Dashboard", icon: LayoutDashboard, roles: adminWorkspaceRoles },
+  { href: "/admin/dispatch", label: "Dispatch", icon: CalendarDays, roles: ["owner", "admin", "manager", "dispatcher", "support", "read_only"] },
+  { href: "/admin/team", label: "Team & crews", icon: UserCog, roles: ["owner", "admin", "manager", "dispatcher", "support", "read_only"] },
+  { href: "/admin/leads", label: "Leads", icon: UserRoundSearch, roles: adminWorkspaceRoles },
+  { href: "/admin/customers", label: "Customers", icon: UsersRound, roles: adminWorkspaceRoles },
+  { href: "/admin/bookings", label: "Bookings", icon: CalendarCheck, roles: adminWorkspaceRoles },
+  { href: "/admin/services", label: "Services", icon: Sparkles, roles: adminWorkspaceRoles },
+  { href: "/admin/settings/scheduling", label: "Scheduling", icon: CalendarClock, roles: ["owner", "admin", "manager", "dispatcher", "read_only"] },
+  { href: "/admin/contacts", label: "Contacts", icon: Mail, roles: adminWorkspaceRoles },
+  { href: "/admin/settings", label: "Settings", icon: Settings, roles: adminWorkspaceRoles },
 ];
 
 function sectionTitle(pathname: string) {
+  if (pathname.startsWith("/admin/dispatch")) return "Dispatch & field operations";
+  if (pathname.startsWith("/admin/team")) return "Team & crews";
   if (pathname.startsWith("/admin/leads/follow-ups")) return "Lead follow-ups";
   if (pathname.startsWith("/admin/leads")) return "Leads & pipeline";
   if (pathname.startsWith("/admin/customers")) return "Customers";
@@ -63,7 +71,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (session?.user) {
-      if (session.user.role !== "admin") {
+      if (!adminWorkspaceRoles.includes(session.user.role)) {
         dispatch(clearSession());
         router.replace("/admin/login");
         return;
@@ -104,7 +112,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
     }
   };
 
-  if (isLoading || isFetching || !user || user.role !== "admin") {
+  if (isLoading || isFetching || !user || !adminWorkspaceRoles.includes(user.role)) {
     return (
       <div className="min-h-screen bg-brand-cream p-5 lg:p-10">
         <div className="mx-auto max-w-xl pt-[24vh]">
@@ -167,7 +175,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
 
           <nav className="mt-6 space-y-1" aria-label="Admin navigation">
             <p className="px-3 pb-2 text-[10px] font-extrabold uppercase tracking-[0.18em] text-white/32">Workspace</p>
-            {navItems.map(({ href, label, icon: Icon }) => {
+            {navItems.filter((item) => item.roles.includes(user.role)).map(({ href, label, icon: Icon }) => {
               const active = pathname === href || (href !== "/admin" && pathname.startsWith(href));
               return (
                 <Link
@@ -246,7 +254,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         <main className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8">{children}</main>
       </div>
 
-      <AdminCommandPalette open={commandOpen} onClose={closeCommand} />
+      <AdminCommandPalette open={commandOpen} onClose={closeCommand} role={user.role} />
     </div>
   );
 }

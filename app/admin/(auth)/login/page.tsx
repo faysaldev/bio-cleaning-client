@@ -10,6 +10,7 @@ import { useLoginMutation } from "@/src/redux/features/auth/authApi";
 import { useAppDispatch } from "@/src/redux/hooks";
 import { setSession } from "@/src/redux/features/auth/authSlice";
 import { LOGO_URL } from "@/src/components/Footer";
+import { adminWorkspaceRoles } from "@/src/lib/roles";
 
 export default function AdminLoginPage() {
   const emailRef = useRef<HTMLInputElement>(null);
@@ -36,7 +37,9 @@ export default function AdminLoginPage() {
     try {
       const res = await login({ email, password, rememberMe }).unwrap();
       dispatch(setSession(res.data));
-      router.push("/admin");
+      if (res.data.user.role === "cleaner") router.push("/staff");
+      else if (adminWorkspaceRoles.includes(res.data.user.role)) router.push("/admin");
+      else setError("This account does not have administrative access.");
     } catch (err: any) {
       setError(err?.data?.message || "Invalid credentials. Please try again.");
     }
