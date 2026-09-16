@@ -1,100 +1,40 @@
-import { ArrowRight, CalendarCheck, ClipboardCheck, Home, Sparkles } from "lucide-react";
+import { CalendarCheck, ClipboardCheck, Home, Sparkles, UserCheck, WandSparkles } from "lucide-react";
+
+const steps = [
+  { n: "01", title: "Tell us about the space", desc: "Choose the service, property details, and priorities.", icon: ClipboardCheck },
+  { n: "02", title: "Choose a real time", desc: "Pick an available day and arrival window online.", icon: CalendarCheck },
+  { n: "03", title: "We prepare the plan", desc: "The scope, notes, and service requirements stay together.", icon: WandSparkles },
+  { n: "04", title: "Your crew arrives", desc: "A vetted team brings the required products and equipment.", icon: UserCheck },
+  { n: "05", title: "We clean + verify", desc: "The job follows the BIO path and closes with quality control.", icon: Sparkles },
+  { n: "06", title: "You get the space back", desc: "Walk in to a reset home or workplace, ready to use.", icon: Home },
+];
 
 export default function HowItWorks() {
-  const steps = [
-    {
-      n: "01",
-      title: "Free Quote",
-      desc: "Tell us about your space — get a transparent estimate in minutes.",
-      lime: true,
-      icon: ClipboardCheck,
-    },
-    {
-      n: "02",
-      title: "Pick a Date",
-      desc: "Book online or call. Same-day & weekend slots available.",
-      lime: false,
-      icon: CalendarCheck,
-    },
-    {
-      n: "03",
-      title: "Custom Plan",
-      desc: "We tailor the checklist to your home or business needs.",
-      lime: false,
-      icon: ClipboardCheck,
-    },
-    {
-      n: "04",
-      title: "We Clean",
-      desc: "A vetted team arrives with all eco supplies and equipment.",
-      lime: false,
-      icon: Sparkles,
-    },
-    {
-      n: "05",
-      title: "Walkthrough",
-      desc: "Inspect with our lead cleaner before we leave.",
-      lime: false,
-      icon: ClipboardCheck,
-    },
-    {
-      n: "06",
-      title: "Enjoy",
-      desc: "Relax in a spotless, fresh-smelling space. Re-clean on us if needed.",
-      lime: true,
-      icon: Home,
-    },
-  ];
   return (
-    <section className="py-24 bg-brand-cream">
+    <section className="relative overflow-hidden bg-brand-dark py-24 text-white md:py-32">
       <div className="container-page">
-        <div className="text-center mb-14">
-          <span className="pill" data-reveal>
-            — Our Process —
-          </span>
-          <h2
-            className="mt-3 text-4xl md:text-5xl text-brand-dark font-display"
-            data-reveal
-          >
-            How does it work?
-          </h2>
-          <p
-            className="mt-3 text-muted-foreground max-w-xl mx-auto"
-            data-reveal
-          >
-            Six simple steps from first contact to a sparkling-clean space.
+        <div className="grid gap-8 lg:grid-cols-[.7fr_1.3fr] lg:items-end">
+          <div data-cinema-reveal>
+            <span className="editorial-kicker border-white/14 bg-white/7 text-brand-lime">From booking to handoff</span>
+            <h2 className="mt-5 text-4xl md:text-5xl">One clear path. No cleaning-day guesswork.</h2>
+          </div>
+          <p className="max-w-2xl text-white/58 lg:justify-self-end" data-cinema-reveal>
+            The website, scheduling flow, and cleaning team all follow the same job information so what you requested online is what the crew sees on arrival.
           </p>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5" data-reveal-group>
-          {steps.map((s) => {
-            const Icon = s.icon;
-            return (
-            <div
-              key={s.n}
-              className={`group relative rounded-2xl p-7 min-h-72 overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl
-                ${s.lime ? "bg-brand-lime text-brand-dark" : "bg-white text-brand-dark border border-border"}`}
-            >
-              <div className="relative z-10">
-                <div
-                  className="inline-flex items-center justify-center w-14 h-14 rounded-2xl text-base font-bold bg-brand-dark text-brand-lime shadow-lg"
-                >
-                  <Icon className="w-6 h-6" />
-                </div>
-                <div className="mt-8 text-xs uppercase tracking-[0.25em] opacity-60">
-                  Step {s.n}
-                </div>
-                <h3 className="mt-5 text-2xl font-display">{s.title}</h3>
-                <p className="text-sm mt-3 opacity-75 leading-relaxed">
-                  {s.desc}
-                </p>
-                <div className="mt-6 inline-flex items-center gap-2 text-xs font-bold">
-                  Continue <ArrowRight className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <div className="absolute -right-10 -bottom-10 w-32 h-32 rounded-full bg-brand-green/10 transition group-hover:scale-125" />
-            </div>
-          );
-          })}
+
+        <div className="relative mt-14" data-cinema-group>
+          <div className="absolute left-5 top-5 hidden h-px w-[calc(100%-2.5rem)] bg-white/14 lg:block" />
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+            {steps.map(({ n, title, desc, icon: Icon }) => (
+              <article key={n} className="relative border-t border-white/12 pt-5 lg:border-t-0 lg:pt-12">
+                <div className="relative z-10 grid h-10 w-10 place-items-center rounded-xl border border-brand-lime/32 bg-brand-dark text-brand-lime lg:absolute lg:left-0 lg:top-0"><Icon className="h-4 w-4" /></div>
+                <div className="mt-4 text-[10px] font-extrabold uppercase tracking-[0.18em] text-brand-lime lg:mt-0">Step {n}</div>
+                <h3 className="mt-3 text-xl">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-white/52">{desc}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </div>
     </section>

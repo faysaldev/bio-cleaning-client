@@ -500,3 +500,63 @@
     box-shadow: var(--shadow-card);
   }
 }
+
+/* Phase 2: public cinematic scroll system. */
+@layer components {
+  .cinematic-home {
+    isolation: isolate;
+  }
+
+  .cinematic-horizontal-viewport {
+    scrollbar-width: none;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x proximity;
+  }
+
+  .cinematic-horizontal-viewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cinematic-horizontal-track > * {
+    scroll-snap-align: start;
+  }
+
+  @media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+    [data-cinema-hero-image],
+    [data-depth],
+    [data-story-scene],
+    [data-horizontal-track] {
+      will-change: transform;
+    }
+
+    [data-story-step],
+    [data-story-scene] {
+      will-change: opacity, transform;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clean-story-motion {
+    display: none !important;
+  }
+
+  .clean-story-static {
+    display: grid !important;
+  }
+
+  [data-horizontal-pin] {
+    min-height: auto !important;
+  }
+
+  .cinematic-horizontal-viewport {
+    overflow-x: auto !important;
+  }
+
+  [data-horizontal-track],
+  [data-cinema-hero-image],
+  [data-cinema-hero-content],
+  [data-depth] {
+    transform: none !important;
+  }
+}

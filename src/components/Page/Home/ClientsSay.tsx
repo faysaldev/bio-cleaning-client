@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useInViewport } from "@/src/hooks/useInViewport";
 import fullService2 from "@/src/assets/full-services-2.jpeg";
 
 import { TESTIMONIALS } from "@/src/utils/data";
@@ -12,21 +13,23 @@ export default function ClientsSay() {
   const [modal, setModal] = useState(false);
   const [paused, setPaused] = useState(false);
   const t = TESTIMONIALS[idx];
+  const { ref: viewportRef, isInViewport } = useInViewport<HTMLElement>();
 
   useEffect(() => {
-    if (modal || paused) return;
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (modal || paused || !isInViewport) return;
     const id = setInterval(
       () => setIdx((i) => (i + 1) % TESTIMONIALS.length),
       6000,
     );
     return () => clearInterval(id);
-  }, [modal, paused]);
+  }, [modal, paused, isInViewport]);
 
   const go = (dir: number) =>
     setIdx((i) => (i + dir + TESTIMONIALS.length) % TESTIMONIALS.length);
 
   return (
-    <section className="py-24 bg-brand-dark text-white overflow-hidden">
+    <section ref={viewportRef} className="py-24 bg-brand-dark text-white overflow-hidden">
       <div className="container-page text-center">
         <span className="pill bg-brand-lime text-brand-dark" data-reveal>
           — Testimonials —

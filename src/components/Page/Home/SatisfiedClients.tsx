@@ -2,6 +2,7 @@
 
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useInViewport } from "@/src/hooks/useInViewport";
 
 export default function SatisfiedClients() {
   const reviews = [
@@ -24,21 +25,23 @@ export default function SatisfiedClients() {
   const [idx, setIdx] = useState(0);
   const [paused, setPaused] = useState(false);
   const r = reviews[idx];
+  const { ref: viewportRef, isInViewport } = useInViewport<HTMLElement>();
 
   useEffect(() => {
-    if (paused) return;
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (paused || !isInViewport) return;
     const id = setInterval(
       () => setIdx((current) => (current + 1) % reviews.length),
       5200,
     );
     return () => clearInterval(id);
-  }, [paused, reviews.length]);
+  }, [paused, reviews.length, isInViewport]);
 
   const go = (dir: number) =>
     setIdx((current) => (current + dir + reviews.length) % reviews.length);
 
   return (
-    <section className="py-24">
+    <section ref={viewportRef} className="py-24">
       <div className="container-page">
         <div
           className="rounded-2xl bg-brand-lime p-10 md:p-16 text-center text-brand-dark relative overflow-hidden"

@@ -7,102 +7,66 @@ import Image from "next/image";
 export default function FullService() {
   const points = [
     "Residential & commercial cleaning crews on call",
-    "Eco-certified, pet- and child-safe products only",
-    "Transparent flat pricing — no hidden fees",
-    "100% satisfaction guarantee or we re-clean free",
+    "Eco-certified, pet- and child-safe products",
+    "Transparent pricing before the team arrives",
+    "100% satisfaction guarantee or we re-clean",
   ];
+
   return (
-    <section className="py-24">
-      <div className="container-page grid lg:grid-cols-2 gap-12 items-center">
-        <div className="relative" data-reveal-group>
-          <div className="grid grid-cols-2 gap-4">
-            <Image
-              src={fullService}
-              alt="Cleaning team at work"
-              sizes="(min-width: 1024px) 25vw, 50vw"
-              className="rounded-2xl object-cover w-full h-72 md:h-96 shadow-xl"
-            />
-            <Image
-              src={fullService2}
-              alt="Professional cleaner"
-              sizes="(min-width: 1024px) 25vw, 50vw"
-              className="rounded-2xl object-cover w-full h-72 md:h-96 mt-10 shadow-2xl"
-            />
+    <section className="relative py-28 md:py-36">
+      <div className="pointer-events-none absolute left-0 top-1/4 h-72 w-72 rounded-full bg-brand-mint/20 blur-3xl" />
+      <div className="container-page grid items-center gap-14 lg:grid-cols-[1.04fr_.96fr] lg:gap-20">
+        <div className="relative min-h-[520px] md:min-h-[640px]" data-cinema-mask>
+          <div data-depth="12" className="absolute left-0 top-0 h-[72%] w-[70%] overflow-hidden rounded-2xl shadow-elevated">
+            <Image src={fullService} alt="BIO cleaner preparing a room" fill sizes="(min-width: 1024px) 42vw, 70vw" className="object-cover" />
           </div>
-          <div className="absolute left-6 right-6 bottom-6 rounded-2xl bg-brand-dark/90 text-white p-5 backdrop-blur-md shadow-2xl">
+          <div data-depth="-9" className="absolute bottom-0 right-0 h-[58%] w-[58%] overflow-hidden rounded-2xl border-[6px] border-background shadow-elevated">
+            <Image src={fullService2} alt="Professional cleaner detailing a surface" fill sizes="(min-width: 1024px) 34vw, 58vw" className="object-cover" />
+          </div>
+          <div className="absolute bottom-8 left-6 z-10 w-[min(78%,360px)] rounded-xl border border-white/12 bg-brand-dark/92 p-5 text-white shadow-elevated backdrop-blur-xl">
             <div className="grid grid-cols-3 gap-3 text-center">
-              {[
-                ["50+", "Team"],
-                ["24h", "Support"],
-                ["100%", "Eco"],
-              ].map(([n, l]) => (
+              {[["50+", "Team"], ["24h", "Support"], ["100%", "Eco-first"]].map(([n, l]) => (
                 <div key={l}>
-                  <div className="font-display text-2xl text-brand-lime">
-                    {n}
-                  </div>
-                  <div className="text-[10px] uppercase tracking-wider text-white/60">
-                    {l}
-                  </div>
+                  <div className="text-2xl font-extrabold tracking-[-0.04em] text-brand-lime">{n}</div>
+                  <div className="mt-1 text-[9px] font-bold uppercase tracking-[0.16em] text-white/50">{l}</div>
                 </div>
               ))}
             </div>
           </div>
         </div>
-        <div data-reveal>
-          <span className="pill">
-            <Sparkles className="w-3.5 h-3.5" /> Full Service
-          </span>
-          <h2 className="mt-4 text-4xl md:text-5xl text-brand-dark font-display">
-            Full-Service Cleaning Across New York, New Jersey & Boston
-          </h2>
-          <p className="mt-5 text-muted-foreground leading-relaxed">
-            From routine tidy-ups to full deep cleans and post-construction
-            restoration — our trained teams handle every space with the same
-            level of care and detail.
+
+        <div data-cinema-reveal>
+          <span className="editorial-kicker"><Sparkles className="h-3.5 w-3.5" /> Full service</span>
+          <h2 className="mt-5 text-4xl text-brand-dark md:text-6xl">Cleaning that feels considered from arrival to handoff.</h2>
+          <p className="mt-6 max-w-xl text-base leading-8 text-muted-foreground md:text-lg">
+            Routine service, deep cleaning, moving-day resets, and commercial care all run through the same operating standard: clear scope, the right tools, a deliberate sequence, and a final quality check.
           </p>
-          <ul className="mt-7 space-y-3">
-            {points.map((p) => (
-              <li key={p} className="flex items-start gap-3">
-                <span className="mt-1 w-5 h-5 rounded-full bg-brand-lime grid place-items-center shrink-0">
-                  <Check className="w-3 h-3 text-brand-dark" strokeWidth={3} />
-                </span>
-                <span className="text-foreground/85">{p}</span>
+
+          <ul className="mt-8 grid gap-3 sm:grid-cols-2" data-cinema-group>
+            {points.map((point) => (
+              <li key={point} className="flex items-start gap-3 border-t border-border pt-4 text-sm text-foreground/82">
+                <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-md bg-brand-lime"><Check className="h-3 w-3 text-brand-dark" strokeWidth={3} /></span>
+                <span>{point}</span>
               </li>
             ))}
           </ul>
-          <div className="mt-8 grid sm:grid-cols-2 gap-3" data-reveal-group>
+
+          <div className="mt-8 grid gap-3 sm:grid-cols-2" data-cinema-group>
             {[
-              {
-                icon: ClipboardCheck,
-                title: "50-point checklist",
-                copy: "Every job follows a room-by-room quality path.",
-              },
-              {
-                icon: ShieldCheck,
-                title: "Trusted arrival",
-                copy: "Vetted teams, clear timing, and careful handoff.",
-              },
+              { icon: ClipboardCheck, title: "50-point checklist", copy: "A repeatable room-by-room path keeps quality consistent." },
+              { icon: ShieldCheck, title: "Trusted arrival", copy: "Vetted teams, clear timing, and careful customer handoff." },
             ].map(({ icon: Icon, title, copy }) => (
-              <div
-                key={title}
-                className="rounded-2xl border border-border bg-brand-cream p-4"
-              >
-                <Icon className="w-6 h-6 text-brand-green mb-2" />
-                <div className="font-semibold text-brand-dark">{title}</div>
-                <p className="text-sm text-muted-foreground mt-1">{copy}</p>
+              <div key={title} className="surface-subtle p-5">
+                <Icon className="mb-3 h-6 w-6 text-brand-green" />
+                <div className="font-bold text-brand-dark">{title}</div>
+                <p className="mt-1 text-sm text-muted-foreground">{copy}</p>
               </div>
             ))}
           </div>
+
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              href="/book"
-              className="btn-primary inline-flex items-center gap-2"
-            >
-              Schedule a Cleaning <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link href="/services" className="btn-secondary">
-              All Services
-            </Link>
+            <Link href="/book" className="btn-primary">Schedule a cleaning <ArrowRight className="h-4 w-4" /></Link>
+            <Link href="/services" className="btn-secondary">Explore services</Link>
           </div>
         </div>
       </div>
