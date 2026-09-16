@@ -9,6 +9,8 @@ import {
   LogOut,
   Mail,
   Menu,
+  UsersRound,
+  UserRoundSearch,
   Search,
   Settings,
   Sparkles,
@@ -25,6 +27,8 @@ import { AdminCommandPalette } from "@/src/components/Admin/AdminCommandPalette"
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/leads", label: "Leads", icon: UserRoundSearch },
+  { href: "/admin/customers", label: "Customers", icon: UsersRound },
   { href: "/admin/bookings", label: "Bookings", icon: CalendarCheck },
   { href: "/admin/services", label: "Services", icon: Sparkles },
   { href: "/admin/settings/scheduling", label: "Scheduling", icon: CalendarClock },
@@ -33,6 +37,9 @@ const navItems = [
 ];
 
 function sectionTitle(pathname: string) {
+  if (pathname.startsWith("/admin/leads/follow-ups")) return "Lead follow-ups";
+  if (pathname.startsWith("/admin/leads")) return "Leads & pipeline";
+  if (pathname.startsWith("/admin/customers")) return "Customers";
   if (pathname.startsWith("/admin/bookings/manual")) return "Create booking";
   if (pathname.startsWith("/admin/bookings")) return "Bookings";
   if (pathname.startsWith("/admin/services")) return "Services";

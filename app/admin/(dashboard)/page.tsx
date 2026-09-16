@@ -224,18 +224,18 @@ export default function AdminDashboardPage() {
             <div className="mt-5 space-y-4">
               {stats?.clientList?.length ? (
                 stats.clientList.slice(0, 5).map((client: any) => (
-                  <div key={client.email} className="flex items-center gap-3">
+                  <div key={client._id || client.email || client.phone} className="flex items-center gap-3">
                     <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-border bg-brand-cream text-xs font-extrabold text-brand-green">
                       {client.name?.charAt(0) || "C"}
                     </div>
                     <div className="min-w-0">
                       <h4 className="truncate text-sm font-bold text-brand-dark">{client.name}</h4>
-                      <p className="mt-0.5 flex items-center gap-1 truncate text-[11px] text-muted-foreground"><Mail className="h-3 w-3" /> {client.email}</p>
+                      <p className="mt-0.5 flex items-center gap-1 truncate text-[11px] text-muted-foreground"><Mail className="h-3 w-3" /> {client.email || client.phone || "No contact detail"}</p>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-muted-foreground">Client profiles will appear after the first booking.</p>
+                <p className="text-sm text-muted-foreground">Customer profiles will appear after the first conversion or booking.</p>
               )}
             </div>
           </section>

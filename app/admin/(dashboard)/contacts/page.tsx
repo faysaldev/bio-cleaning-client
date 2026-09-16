@@ -12,6 +12,7 @@ import {
   Phone,
   Reply,
   Send,
+  ExternalLink,
   User,
   X,
 } from "lucide-react";
@@ -146,6 +147,12 @@ export default function AdminContactsPage() {
                   <div className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-brand-green">Requested service · {message.service}</div>
                   <p className="mt-2 text-sm leading-6 text-brand-dark/78">{message.message}</p>
                 </div>
+
+                {message.leadId ? (
+                  <a href={`/admin/leads/${message.leadId}`} className="btn-secondary mt-4 w-fit">
+                    <ExternalLink className="h-4 w-4" /> Open CRM lead
+                  </a>
+                ) : null}
 
                 {message.reply ? (
                   <div className="mt-3 rounded-xl border border-brand-green/14 bg-brand-green/5 p-4">

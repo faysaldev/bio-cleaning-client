@@ -9,6 +9,8 @@ import {
   Search,
   Settings,
   Sparkles,
+  UsersRound,
+  UserRoundSearch,
   X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -16,6 +18,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 const commands = [
   { href: "/admin", label: "Dashboard", detail: "Operations overview", icon: LayoutDashboard },
+  { href: "/admin/leads", label: "Leads", detail: "Pipeline, sources, owners and opportunity value", icon: UserRoundSearch },
+  { href: "/admin/leads/follow-ups", label: "Follow-ups", detail: "Today, overdue and upcoming lead tasks", icon: CalendarClock },
+  { href: "/admin/customers", label: "Customers", detail: "Customer 360 profiles and history", icon: UsersRound },
   { href: "/admin/bookings", label: "Bookings", detail: "Search and manage reservations", icon: CalendarCheck },
   { href: "/admin/bookings/manual", label: "Create booking", detail: "Add a reservation manually", icon: CalendarCheck },
   { href: "/admin/services", label: "Services", detail: "Pricing, duration, extras and publishing", icon: Sparkles },
@@ -106,7 +111,7 @@ export function AdminCommandPalette({ open, onClose }: { open: boolean; onClose:
           ) : (
             <div className="px-4 py-10 text-center">
               <p className="text-sm font-bold text-brand-dark">No matching actions</p>
-              <p className="mt-1 text-xs text-muted-foreground">Try a page name such as bookings, contacts or settings.</p>
+              <p className="mt-1 text-xs text-muted-foreground">Try a page name such as leads, customers, bookings or settings.</p>
             </div>
           )}
         </div>

@@ -6,6 +6,7 @@ export interface ContactMessage {
   service: string;
   message: string;
   reply?: string;
+  leadId?: string;
   createdAt: string;
 }
 

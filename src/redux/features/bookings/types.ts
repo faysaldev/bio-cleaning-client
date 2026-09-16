@@ -197,6 +197,7 @@ export interface AdminAbandonedBooking {
   state: "ACTIVE" | "ABANDONED" | "CONVERTED";
   stage: string;
   serviceId?: string | { _id: string; name: string };
+  leadId?: string;
   frequency?: BookingFrequency;
   requestedDate?: string;
   requestedTime?: string;

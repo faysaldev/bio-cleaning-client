@@ -12,6 +12,7 @@ const links = [
   { to: "/services", label: "Services" },
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
+  { to: "/quote", label: "Get Quote" },
 ];
 
 export function Navbar() {
