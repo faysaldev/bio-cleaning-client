@@ -16,13 +16,14 @@ export default function ReviewPage() {
   const [submitReview, { isLoading: submitting }] = useSubmitPublicReviewMutation();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
+  const [publishConsent, setPublishConsent] = useState(false);
   const [done, setDone] = useState<{ redirectUrl?: string }>();
   const [error, setError] = useState("");
 
   const submit = async () => {
     if (!rating) { setError("Choose a rating from 1 to 5 stars."); return; }
     setError("");
-    try { setDone(await submitReview({ token, rating, comment: comment.trim() || undefined }).unwrap()); }
+    try { setDone(await submitReview({ token, rating, comment: comment.trim() || undefined, publishConsent }).unwrap()); }
     catch (e: any) { setError(e?.data?.message || "We could not submit this review."); }
   };
 
@@ -31,6 +32,7 @@ export default function ReviewPage() {
       <p className="text-xs font-extrabold uppercase tracking-[.16em] text-brand-green">Post-service review</p><h1 className="mt-2 text-3xl font-extrabold tracking-[-.04em] text-brand-dark">How did we do, {data.customerName}?</h1><p className="mt-3 text-sm leading-6 text-muted-foreground">Your feedback is for booking <strong>{data.booking?.reference}</strong>{data.booking?.serviceType ? ` · ${data.booking.serviceType}` : ""}. Ratings are recorded internally first.</p>
       <div className="mt-7"><span className="field-label">Your rating</span><div className="mt-2 flex gap-2" role="radiogroup" aria-label="Rating out of five">{[1,2,3,4,5].map((value)=><button key={value} type="button" role="radio" aria-checked={rating===value} aria-label={`${value} star${value>1?"s":""}`} onClick={()=>setRating(value)} className="grid h-12 w-12 place-items-center rounded-xl border border-border bg-white transition hover:-translate-y-0.5 hover:border-brand-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green/40"><Star className={`h-6 w-6 ${value<=rating?"fill-brand-lime text-brand-green":"text-muted-foreground/45"}`}/></button>)}</div></div>
       <label className="field-group mt-6"><span className="field-label">Anything you’d like us to know?</span><textarea className="field-control min-h-36 py-3" maxLength={5000} value={comment} onChange={(e)=>setComment(e.target.value)} placeholder="Tell us what went well or what we could improve."/><span className="text-right text-xs text-muted-foreground">{comment.length}/5000</span></label>
+      <label className="mt-4 flex items-start gap-3 rounded-xl border border-border bg-brand-cream/45 p-4 text-sm text-foreground/75"><input type="checkbox" checked={publishConsent} onChange={(e)=>setPublishConsent(e.target.checked)} disabled={!comment.trim()} className="mt-0.5 h-4 w-4 accent-brand-green"/><span><strong className="text-brand-dark">Website testimonial permission.</strong> BIO Cleaning may feature this written feedback on its website using my first name only. This is optional and can be left unchecked.</span></label>
       {error ? <div className="feedback-panel mt-4 border-destructive/20 bg-destructive/5 text-destructive">{error}</div> : null}
       <button className="btn-primary mt-6 w-full justify-center" onClick={submit} disabled={submitting}>{submitting?<Loader2 className="h-4 w-4 animate-spin"/>:<Star className="h-4 w-4"/>}{submitting?"Submitting…":"Submit review"}</button>
       <p className="mt-4 text-center text-xs leading-5 text-muted-foreground">If your rating meets the business’s configured threshold, we may offer an optional link where you can also share your experience publicly.</p>

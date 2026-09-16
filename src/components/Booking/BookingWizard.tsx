@@ -99,8 +99,11 @@ export function BookingWizard({ mode = "public" }: { mode?: "public" | "admin" }
   }, [mode, rebookApplied]);
 
   useEffect(() => {
-    if (services.length && !data.serviceId) setData((current) => ({ ...current, serviceId: services[0]._id }));
-  }, [services, data.serviceId]);
+    if (!services.length || data.serviceId) return;
+    const requested = mode === "public" ? new URLSearchParams(window.location.search).get("serviceId") : null;
+    const validRequested = requested && services.some((service) => service._id === requested) ? requested : undefined;
+    setData((current) => ({ ...current, serviceId: validRequested || services[0]._id }));
+  }, [services, data.serviceId, mode]);
 
   useEffect(() => {
     if (!quoteInput) return;

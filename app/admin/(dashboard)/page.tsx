@@ -19,6 +19,7 @@ import {
   useGetRecentBookingsQuery,
 } from "@/src/redux/features/dashboard/dashboardApi";
 import { EmptyState, ErrorState, TableSkeleton } from "@/src/components/ui/feedback";
+import { useGetReportsQuery } from "@/src/redux/features/reporting/reportingApi";
 
 function statusClass(status: string) {
   if (status === "CONFIRMED") return "border-brand-green/25 bg-brand-green/8 text-brand-green";
@@ -41,7 +42,9 @@ export default function AdminDashboardPage() {
     refetch: refetchStats,
   } = useGetDashboardStatsQuery();
 
+  const reports = useGetReportsQuery();
   const stats = statsResponse?.data;
+  const reportSummary = reports.data?.summary;
   const recentBookings = recentBookingsResponse?.data || [];
 
   if (isStatsError || isBookingsError) {
@@ -138,6 +141,21 @@ export default function AdminDashboardPage() {
             ))}
       </section>
 
+
+      {reportSummary ? (
+        <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Operational analytics">
+          {[
+            ["Lead conversion", `${reportSummary.leadConversionRate.toFixed(1)}%`],
+            ["Quote acceptance", `${reportSummary.quoteAcceptanceRate.toFixed(1)}%`],
+            ["Cleaner utilization", `${reportSummary.cleanerUtilization.toFixed(1)}%`],
+            ["Customer retention", `${reportSummary.customerRetentionRate.toFixed(1)}%`],
+            ["Cancellation rate", `${reportSummary.cancellationRate.toFixed(1)}%`],
+            ["Recurring revenue", `$${Number(reportSummary.recurringRevenue || 0).toLocaleString()}`],
+            ["Unpaid invoices", `$${Number(reportSummary.unpaidInvoices || 0).toLocaleString()}`],
+            ["Review score", `${Number(reportSummary.reviewScore || 0).toFixed(2)} / 5`],
+          ].map(([label,value]) => <Link key={label} href="/admin/reports" className="surface p-4 transition hover:-translate-y-0.5 hover:border-brand-green/25"><p className="text-[10px] font-extrabold uppercase tracking-[.12em] text-muted-foreground">{label}</p><p className="mt-2 text-2xl font-extrabold tracking-[-.04em] text-brand-dark">{value}</p></Link>)}
+        </section>
+      ) : null}
 
       {stats?.finance ? (
         <section className="grid gap-3 md:grid-cols-3" aria-label="Finance summary">

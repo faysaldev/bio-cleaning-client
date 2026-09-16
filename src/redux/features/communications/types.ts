@@ -20,5 +20,5 @@ export interface CommunicationSummary {
   reviews: { pending: number; submitted: number };
 }
 export interface DeliveryRecord { _id: string; channel: "EMAIL"|"SMS"; recipient: string; subject?: string; status: string; attempts: number; lastError?: string; createdAt: string; sentAt?: string }
-export interface ReviewRecord { _id: string; status: string; rating?: number; comment?: string; createdAt: string; submittedAt?: string; customerId?: any; bookingId?: any }
+export interface ReviewRecord { _id: string; status: string; rating?: number; comment?: string; publishConsent?: boolean; createdAt: string; submittedAt?: string; customerId?: any; bookingId?: any }
 export interface PublicReview { status: string; rating?: number; comment?: string; booking?: { reference: string; serviceType: string; startAt?: string }; customerName: string }

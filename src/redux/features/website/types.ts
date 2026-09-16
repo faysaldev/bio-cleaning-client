@@ -3,7 +3,7 @@ import type { CleaningService } from "@/src/redux/features/services/types";
 export interface WebsiteLink { label: string; url: string }
 export interface WebsiteHomepageSection {
   id: string;
-  type: "full_service" | "how_we_clean" | "equipment" | "services" | "why_choose" | "process" | "testimonials" | "satisfaction" | "service_areas" | "faq" | "cta" | "custom";
+  type: "full_service" | "service_finder" | "how_we_clean" | "equipment" | "before_after" | "services" | "why_choose" | "team" | "process" | "testimonials" | "satisfaction" | "service_areas" | "booking_preview" | "faq" | "cta" | "custom";
   enabled: boolean;
   order: number;
   eyebrow?: string;

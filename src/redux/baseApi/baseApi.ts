@@ -13,8 +13,8 @@ import type { AuthSessionData, TApiResponse } from "@/src/redux/features/auth/ty
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
   credentials: "include",
-  prepareHeaders: (headers, { getState }) => {
-    const csrfToken = (getState() as RootState).auth.csrfToken;
+  prepareHeaders: (headers, api: { getState: () => unknown }) => {
+    const csrfToken = (api.getState() as RootState).auth.csrfToken;
     if (csrfToken) headers.set("x-csrf-token", csrfToken);
     if (typeof window !== "undefined") {
       const portalCsrf = window.sessionStorage.getItem("bio_portal_csrf");
@@ -84,6 +84,6 @@ export const baseApi = createApi({
   reducerPath: "baseApi",
   baseQuery: baseQueryWithReauth,
   keepUnusedDataFor: 300,
-  tagTypes: ["User", "Asset", "Booking", "Contact", "Service", "Dashboard", "Scheduling", "Lead", "LeadTask", "Customer", "Team", "FieldOps", "Quote", "Invoice", "Payment", "Portal", "Notification", "Review", "Retention", "Website", "WebsiteRevision", "WebsiteMedia"],
+  tagTypes: ["User", "Asset", "Booking", "Contact", "Service", "Dashboard", "Scheduling", "Lead", "LeadTask", "Customer", "Team", "FieldOps", "Quote", "Invoice", "Payment", "Portal", "Notification", "Review", "Retention", "Website", "WebsiteRevision", "WebsiteMedia", "Reporting", "AuditLog"],
   endpoints: () => ({}),
 });

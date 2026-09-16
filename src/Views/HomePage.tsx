@@ -13,6 +13,10 @@ import SatisfiedClients from "../components/Page/Home/SatisfiedClients";
 import ServiceNetwork from "../components/Page/Home/ServiceNetwork";
 import FAQ from "../components/Page/Home/FAQ";
 import FinalCTA from "../components/Page/Home/FinalCTA";
+import ServiceFinder from "../components/Page/Home/ServiceFinder";
+import BeforeAfterSection from "../components/Page/Home/BeforeAfterSection";
+import TeamPreview from "../components/Page/Home/TeamPreview";
+import BookingPreview from "../components/Page/Home/BookingPreview";
 import { SiteLayout } from "../Layouts/SiteLayout";
 import { useHomeCinematic } from "../hooks/useHomeCinematic";
 import { useGetPublicWebsiteQuery, useGetWebsitePreviewQuery } from "@/src/redux/features/website/websiteApi";
@@ -20,14 +24,18 @@ import type { WebsiteHomepageSection } from "@/src/redux/features/website/types"
 
 const fallbackSections: WebsiteHomepageSection[] = [
   { id: "full-service", type: "full_service", enabled: true, order: 10 },
+  { id: "service-finder", type: "service_finder", enabled: true, order: 15 },
   { id: "how-we-clean", type: "how_we_clean", enabled: true, order: 20 },
   { id: "equipment", type: "equipment", enabled: true, order: 30 },
+  { id: "before-after", type: "before_after", enabled: true, order: 35 },
   { id: "services", type: "services", enabled: true, order: 40 },
   { id: "why-choose", type: "why_choose", enabled: true, order: 50 },
+  { id: "team", type: "team", enabled: true, order: 55 },
   { id: "process", type: "process", enabled: true, order: 60 },
   { id: "testimonials", type: "testimonials", enabled: true, order: 70 },
   { id: "satisfaction", type: "satisfaction", enabled: true, order: 80 },
   { id: "service-areas", type: "service_areas", enabled: true, order: 90 },
+  { id: "booking-preview", type: "booking_preview", enabled: true, order: 95 },
   { id: "faq", type: "faq", enabled: true, order: 100 },
   { id: "cta", type: "cta", enabled: true, order: 110 },
 ];
@@ -50,14 +58,18 @@ export default function HomePage({ previewToken }: { previewToken?: string }) {
   const renderSection = (section: WebsiteHomepageSection) => {
     switch (section.type) {
       case "full_service": return <FullService key={section.id} section={section} />;
+      case "service_finder": return <ServiceFinder key={section.id} services={services} section={section} />;
       case "how_we_clean": return <HowWeCleanStory key={section.id} section={section} />;
       case "equipment": return <EquipmentShowcase key={section.id} section={section} />;
+      case "before_after": return <BeforeAfterSection key={section.id} section={section} />;
       case "services": return <ServicesGallery key={section.id} services={services} section={section} />;
       case "why_choose": return <WhyChooseUs key={section.id} section={section} />;
+      case "team": return <TeamPreview key={section.id} members={content?.team.members} section={section} />;
       case "process": return <HowItWorks key={section.id} section={section} />;
       case "testimonials": return <ClientsSay key={section.id} testimonials={content?.testimonials.items} section={section} />;
       case "satisfaction": return <SatisfiedClients key={section.id} section={section} />;
       case "service_areas": return <ServiceNetwork key={section.id} areas={content?.serviceAreas} contact={content?.contact} section={section} />;
+      case "booking_preview": return <BookingPreview key={section.id} section={section} />;
       case "faq": return <FAQ key={section.id} faqs={content?.faqs.items} section={section} />;
       case "cta": return <FinalCTA key={section.id} section={section} phone={content?.contact.phone} />;
       default: return <CustomSection key={section.id} section={section} />;

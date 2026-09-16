@@ -75,12 +75,15 @@ export function ServiceCard({ service, onPreview }: ServiceCardProps) {
           >
             Quick View
           </button>
-          <Link
-            href="/book"
-            className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-brand-dark px-4 text-sm font-bold text-white transition-colors hover:bg-brand-green"
-          >
-            Book Now <ArrowRight className="w-4 h-4" />
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href={`/services/${service.slug || service._id}`} className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-border bg-white px-3 text-xs font-bold text-brand-dark transition hover:border-brand-green/35 hover:text-brand-green">Details</Link>
+            <Link
+              href={`/book?serviceId=${encodeURIComponent(service._id)}`}
+              className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-brand-dark px-4 text-sm font-bold text-white transition-colors hover:bg-brand-green"
+            >
+              Book Now <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
       </div>
     </div>

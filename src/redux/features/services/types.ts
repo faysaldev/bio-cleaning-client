@@ -55,6 +55,7 @@ export interface ServiceScheduling {
 export interface CleaningService {
   _id: string;
   name: string;
+  slug?: string;
   description: string;
   basePrice: number;
   includes: string[];
@@ -65,6 +66,7 @@ export interface CleaningService {
   pricing?: ServicePricing;
   scheduling?: ServiceScheduling;
   createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ServicesResponse {

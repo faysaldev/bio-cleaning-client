@@ -5,6 +5,7 @@ export interface ContactMessage {
   phone: string;
   service: string;
   message: string;
+  leadSource?: "CONTACT" | "CAREERS";
   reply?: string;
   leadId?: string;
   createdAt: string;

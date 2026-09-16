@@ -36,10 +36,8 @@ const servicesApi = baseApi.injectEndpoints({
     }),
 
     getSingleService: builder.query<CleaningService, string>({
-      query: (id) => ({
-        url: `/services/${id}`,
-        method: "GET",
-      }),
+      query: (id) => ({ url: `/services/${id}`, method: "GET" }),
+      transformResponse: (response: { data: CleaningService }) => response.data,
       providesTags: ["Service"],
     }),
     createService: builder.mutation<CleaningService, Partial<CleaningService>>({
@@ -50,7 +48,7 @@ const servicesApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Service"],
     }),
-    updateService: builder.mutation({
+    updateService: builder.mutation<CleaningService, { id: string; data: Partial<CleaningService> }>({
       query: ({ id, data }) => ({
         url: `/services/${id}`,
         method: "PATCH",

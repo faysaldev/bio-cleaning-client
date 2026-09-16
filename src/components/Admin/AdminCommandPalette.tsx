@@ -4,6 +4,8 @@ import {
   CalendarCheck,
   CalendarClock,
   CalendarDays,
+  BarChart3,
+  BriefcaseBusiness,
   CreditCard,
   FileText,
   Globe2,
@@ -12,6 +14,9 @@ import {
   LayoutDashboard,
   Mail,
   MessagesSquare,
+  Star,
+  Workflow,
+  ShieldCheck,
   Search,
   Settings,
   Sparkles,
@@ -25,24 +30,30 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { UserRole } from "@/src/redux/features/auth/types";
 import { adminWorkspaceRoles } from "@/src/lib/roles";
 
-const commands: Array<{ href: string; label: string; detail: string; icon: any; roles: UserRole[] }> = [
-  { href: "/admin", label: "Dashboard", detail: "Operations overview", icon: LayoutDashboard, roles: adminWorkspaceRoles },
-  { href: "/admin/dispatch", label: "Dispatch", detail: "Day, week and month field calendar", icon: CalendarDays, roles: adminWorkspaceRoles },
-  { href: "/admin/team", label: "Team & crews", detail: "Roles, schedules, skills and crew membership", icon: UserCog, roles: adminWorkspaceRoles },
+type CommandItem = { href: string; label: string; detail: string; icon: any; roles: UserRole[] };
+
+const commands: CommandItem[] = [
+  { href: "/admin", label: "Overview", detail: "KPIs, revenue, pipeline and today", icon: LayoutDashboard, roles: adminWorkspaceRoles },
   { href: "/admin/leads", label: "Leads", detail: "Pipeline, sources, owners and opportunity value", icon: UserRoundSearch, roles: adminWorkspaceRoles },
   { href: "/admin/leads/follow-ups", label: "Follow-ups", detail: "Today, overdue and upcoming lead tasks", icon: CalendarClock, roles: adminWorkspaceRoles },
   { href: "/admin/customers", label: "Customers", detail: "Customer 360 profiles and history", icon: UsersRound, roles: adminWorkspaceRoles },
   { href: "/admin/bookings", label: "Bookings", detail: "Search and manage reservations", icon: CalendarCheck, roles: adminWorkspaceRoles },
   { href: "/admin/bookings/manual", label: "Create booking", detail: "Add a reservation manually", icon: CalendarCheck, roles: ["owner", "admin", "manager", "dispatcher"] },
+  { href: "/admin/dispatch", label: "Calendar / Dispatch", detail: "Day, week and month crew scheduling", icon: CalendarDays, roles: adminWorkspaceRoles },
+  { href: "/admin/jobs", label: "Jobs", detail: "Execution, checklists, evidence and issues", icon: BriefcaseBusiness, roles: adminWorkspaceRoles },
   { href: "/admin/quotes", label: "Quotes", detail: "Create, send and track customer estimates", icon: FileText, roles: adminWorkspaceRoles },
-  { href: "/admin/invoices", label: "Invoices", detail: "Collections, aging and payment links", icon: Receipt, roles: adminWorkspaceRoles },
-  { href: "/admin/payments", label: "Payments", detail: "Stripe ledger, recurring billing and refunds", icon: CreditCard, roles: adminWorkspaceRoles },
   { href: "/admin/services", label: "Services", detail: "Pricing, duration, extras and publishing", icon: Sparkles, roles: adminWorkspaceRoles },
+  { href: "/admin/team", label: "Team", detail: "Roles, schedules, skills and crews", icon: UserCog, roles: adminWorkspaceRoles },
+  { href: "/admin/invoices", label: "Invoices", detail: "Collections, aging and payment links", icon: Receipt, roles: adminWorkspaceRoles },
+  { href: "/admin/payments", label: "Payments", detail: "Ledger, subscriptions and refunds", icon: CreditCard, roles: adminWorkspaceRoles },
+  { href: "/admin/messages", label: "Messages", detail: "Persistent customer delivery queue", icon: MessagesSquare, roles: adminWorkspaceRoles },
+  { href: "/admin/reviews", label: "Reviews", detail: "Review requests and customer feedback", icon: Star, roles: adminWorkspaceRoles },
+  { href: "/admin/automations", label: "Automations", detail: "Reminders, reviews, rebook and win-back", icon: Workflow, roles: adminWorkspaceRoles },
   { href: "/admin/website", label: "Website", detail: "Content, sections, media, policies and SEO", icon: Globe2, roles: ["owner", "admin", "manager", "support", "read_only"] },
+  { href: "/admin/reports", label: "Reports", detail: "Sales, operations, revenue and retention analytics", icon: BarChart3, roles: adminWorkspaceRoles },
   { href: "/admin/settings/scheduling", label: "Scheduling & capacity", detail: "Hours, timezone, deposits and blocks", icon: CalendarClock, roles: ["owner", "admin", "manager", "dispatcher", "read_only"] },
-  { href: "/admin/contacts", label: "Contacts", detail: "Customer messages and replies", icon: Mail, roles: adminWorkspaceRoles },
-  { href: "/admin/communications", label: "Communications", detail: "Notifications, reviews and retention automations", icon: MessagesSquare, roles: adminWorkspaceRoles },
   { href: "/admin/settings", label: "Settings", detail: "Profile and security", icon: Settings, roles: adminWorkspaceRoles },
+  { href: "/admin/audit-logs", label: "Audit logs", detail: "Security and mutation trail", icon: ShieldCheck, roles: ["owner", "admin", "manager", "read_only"] },
   { href: "/", label: "View website", detail: "Open the public site", icon: ExternalLink, roles: adminWorkspaceRoles },
 ];
 
@@ -51,7 +62,7 @@ export function AdminCommandPalette({ open, onClose, role }: { open: boolean; on
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const filtered = useMemo(() => {
+  const filtered: CommandItem[] = useMemo(() => {
     const value = query.trim().toLowerCase();
     const allowed = commands.filter((item) => item.roles.includes(role));
     if (!value) return allowed;

@@ -4,16 +4,19 @@ import { clearSession, selectCurrentUser, setSession } from "@/src/redux/feature
 import { useGetSessionQuery, useLogoutSessionMutation } from "@/src/redux/features/auth/authApi";
 import {
   CalendarCheck,
-  CalendarClock,
   CalendarDays,
+  BarChart3,
+  BriefcaseBusiness,
   CreditCard,
   FileText,
   Globe2,
   Receipt,
   LayoutDashboard,
   LogOut,
-  Mail,
   MessagesSquare,
+  Star,
+  Workflow,
+  ShieldCheck,
   Menu,
   UsersRound,
   UserRoundSearch,
@@ -35,25 +38,29 @@ import { adminWorkspaceRoles } from "@/src/lib/roles";
 import type { UserRole } from "@/src/redux/features/auth/types";
 
 const navItems: Array<{ href: string; label: string; icon: any; roles: UserRole[] }> = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard, roles: adminWorkspaceRoles },
-  { href: "/admin/dispatch", label: "Dispatch", icon: CalendarDays, roles: ["owner", "admin", "manager", "dispatcher", "support", "read_only"] },
-  { href: "/admin/team", label: "Team & crews", icon: UserCog, roles: ["owner", "admin", "manager", "dispatcher", "support", "read_only"] },
+  { href: "/admin", label: "Overview", icon: LayoutDashboard, roles: adminWorkspaceRoles },
   { href: "/admin/leads", label: "Leads", icon: UserRoundSearch, roles: adminWorkspaceRoles },
   { href: "/admin/customers", label: "Customers", icon: UsersRound, roles: adminWorkspaceRoles },
   { href: "/admin/bookings", label: "Bookings", icon: CalendarCheck, roles: adminWorkspaceRoles },
+  { href: "/admin/dispatch", label: "Calendar / Dispatch", icon: CalendarDays, roles: ["owner", "admin", "manager", "dispatcher", "support", "read_only"] },
+  { href: "/admin/jobs", label: "Jobs", icon: BriefcaseBusiness, roles: ["owner", "admin", "manager", "dispatcher", "support", "read_only"] },
   { href: "/admin/quotes", label: "Quotes", icon: FileText, roles: adminWorkspaceRoles },
+  { href: "/admin/services", label: "Services", icon: Sparkles, roles: adminWorkspaceRoles },
+  { href: "/admin/team", label: "Team", icon: UserCog, roles: ["owner", "admin", "manager", "dispatcher", "support", "read_only"] },
   { href: "/admin/invoices", label: "Invoices", icon: Receipt, roles: adminWorkspaceRoles },
   { href: "/admin/payments", label: "Payments", icon: CreditCard, roles: adminWorkspaceRoles },
-  { href: "/admin/services", label: "Services", icon: Sparkles, roles: adminWorkspaceRoles },
+  { href: "/admin/messages", label: "Messages", icon: MessagesSquare, roles: adminWorkspaceRoles },
+  { href: "/admin/reviews", label: "Reviews", icon: Star, roles: adminWorkspaceRoles },
+  { href: "/admin/automations", label: "Automations", icon: Workflow, roles: adminWorkspaceRoles },
   { href: "/admin/website", label: "Website", icon: Globe2, roles: ["owner", "admin", "manager", "support", "read_only"] },
-  { href: "/admin/settings/scheduling", label: "Scheduling", icon: CalendarClock, roles: ["owner", "admin", "manager", "dispatcher", "read_only"] },
-  { href: "/admin/contacts", label: "Contacts", icon: Mail, roles: adminWorkspaceRoles },
-  { href: "/admin/communications", label: "Communications", icon: MessagesSquare, roles: adminWorkspaceRoles },
+  { href: "/admin/reports", label: "Reports", icon: BarChart3, roles: adminWorkspaceRoles },
   { href: "/admin/settings", label: "Settings", icon: Settings, roles: adminWorkspaceRoles },
+  { href: "/admin/audit-logs", label: "Audit logs", icon: ShieldCheck, roles: ["owner", "admin", "manager", "read_only"] },
 ];
 
 function sectionTitle(pathname: string) {
-  if (pathname.startsWith("/admin/dispatch")) return "Dispatch & field operations";
+  if (pathname.startsWith("/admin/dispatch")) return "Calendar & dispatch";
+  if (pathname.startsWith("/admin/jobs")) return "Jobs & field operations";
   if (pathname.startsWith("/admin/team")) return "Team & crews";
   if (pathname.startsWith("/admin/leads/follow-ups")) return "Lead follow-ups";
   if (pathname.startsWith("/admin/leads")) return "Leads & pipeline";
@@ -65,6 +72,11 @@ function sectionTitle(pathname: string) {
   if (pathname.startsWith("/admin/bookings")) return "Bookings";
   if (pathname.startsWith("/admin/services")) return "Services";
   if (pathname.startsWith("/admin/website")) return "Website & CMS";
+  if (pathname.startsWith("/admin/reports")) return "Reports & analytics";
+  if (pathname.startsWith("/admin/messages")) return "Messages";
+  if (pathname.startsWith("/admin/reviews")) return "Reviews";
+  if (pathname.startsWith("/admin/automations")) return "Automations";
+  if (pathname.startsWith("/admin/audit-logs")) return "Audit logs";
   if (pathname.startsWith("/admin/contacts")) return "Contacts";
   if (pathname.startsWith("/admin/communications")) return "Communications & retention";
   if (pathname.startsWith("/admin/settings/scheduling")) return "Scheduling & capacity";
