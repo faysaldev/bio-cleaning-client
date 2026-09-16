@@ -1,109 +1,118 @@
-# BIO Cleaning LLC - Professional Eco-Friendly Cleaning Platform
+# BIO Cleaning LLC — Frontend Web Client & Enterprise Portals
 
 ![BIO Cleaning LLC Banner](https://bio-cleaning-llc.vercel.app/og-image.jpg)
 
-BIO Cleaning LLC is a high-performance, full-stack cleaning service management platform. It solves the friction of traditional manual booking by providing a sophisticated, automated engine for both residential and commercial clients, paired with a robust administrative control center.
+This is the high-performance Next.js web application for **BIO Cleaning LLC**. It integrates a conversion-focused marketing website, an 8-step real-time booking engine, a customer self-service portal, a dedicated mobile field operations workspace for cleaning staff, and an administrative control center (ERP).
 
 ---
 
-## 🚀 Live Ecosystem
-- **Frontend (Live)**: [https://bio-cleaning-llc.vercel.app/](https://bio-cleaning-llc.vercel.app/)
-- **Backend (Source)**: [https://github.com/faysaldev/bio-cleaning-backends](https://github.com/faysaldev/bio-cleaning-backends)
+## 🚀 Live Ecosystem & Credentials
+
+- **Frontend Application**: [https://bio-cleaning-llc.vercel.app/](https://bio-cleaning-llc.vercel.app/)
+- **Backend API**: [https://bio-cleaning-backends.vercel.app/](https://bio-cleaning-backends.vercel.app/)
+- **Admin Access**: `/admin/login` (`faysaladmin@gmail.com` / `Password123@`)
+- **Staff Field Access**: `/staff/login`
+- **Customer Self-Service**: `/portal/login` (Passwordless Magic Link)
 
 ---
 
-## 🔐 Administrative Access
-To manage the operational side of the business, log in at `/admin/login`:
+## 🛠 Tech Stack & Architecture
 
-- **Admin Email**: `faysaladmin@gmail.com`
-- **Admin Password**: `Password123@`
-
----
-
-## 🛠 The Problem We Solve
-Traditional cleaning businesses often rely on phone calls, delayed email quotes, and manual scheduling, leading to:
-- **Inefficiency**: Long wait times for price estimates.
-- **Scheduling Errors**: Double-bookings and manual calendar management.
-- **Low Engagement**: Static websites that don't allow for immediate customer conversion.
-- **Opaque Tracking**: Customers and admins lack a real-time view of service status.
-
-**BIO Cleaning LLC** bridges this gap with an automated "Cleaning-as-a-Service" (CaaS) model, ensuring instant bookings and transparent operations.
+- **Framework**: Next.js 16.2.6 (React 19.2.4) App Router
+- **State Management**: Redux Toolkit 2.11 + RTK Query
+  - Automatic silent session refresh on `401 Unauthorized`
+  - Dual CSRF protection (`x-csrf-token` for admin/staff, `x-portal-csrf` for customer portal)
+  - 24 Tag Types for fine-grained cache invalidation
+- **Styling**: Tailwind CSS v4 with custom design tokens (`globals.css`, `local.css`)
+- **Animations**: GSAP 3.15 + Custom Scroll Hooks (`useGsapReveal`, `useHomeCinematic`)
+- **Icons & Primitives**: Lucide React, Radix UI headless primitives
+- **SEO & Web Vitals**: Dynamic Metadata API, auto-generated `sitemap.ts` and `robots.ts`, OpenGraph previews
 
 ---
 
-## 📖 User Guide: How to Use
+## 📱 Application Workspaces
 
-### For Customers (The Booking Engine)
-1. **Discover Services**: Browse through eco-friendly cleaning packages (Deep Clean, Residential, etc.) with live pricing.
-2. **Instant Booking**: Use the 4-step booking engine:
-   - **Step 1**: Select Service & Property Size (Studio to 4BR+).
-   - **Step 2**: Choose a Date & real-time available Time Slot.
-   - **Step 3**: Provide contact and address details.
-   - **Step 4**: Review the instant quote and confirm the reservation.
-3. **Automated Tracking**: Receive a unique reference number (e.g., `BIO-10005`) for order tracking.
+### 1. Public Marketing & Conversion Engine
+- **Homepage (`/`)**: Cinematic video hero, instant quote bar, interactive before-and-after slider, equipment showcase, verified reviews, and FAQ.
+- **Booking Engine (`/book`)**: 8-step wizard:
+  1. *Service Selection* (Standard, Deep Clean, Move-in/Move-out, Post-construction)
+  2. *Property Dimensions* (Square footage, bedrooms, bathrooms, condition)
+  3. *Addon Extras* (Inside fridge, inside oven, windows, eco sanitization)
+  4. *Frequency* (One-time, weekly, bi-weekly, monthly discounts)
+  5. *Schedule* (Real-time capacity slot availability calendar)
+  6. *Contact & Address*
+  7. *Payment Option* (Pay Later, Card Deposit, Full Prepay)
+  8. *Confirmation & Abandonment Recovery*
+- **Instant Quote Tool (`/quote`)**: Real-time pricing calculator for residential and commercial spaces.
+- **Public Management (`/booking/manage`)**: Self-service appointment cancellation, rescheduling, and payment without logging in.
+- **Public Token Views**:
+  - `/estimate/[token]`: Customer interactive estimate approval / decline
+  - `/invoice/[token]`: Secure customer invoice payment & PDF receipt
+  - `/review/[token]`: Verified review collection form
+  - `/preview/[token]`: CMS draft live preview
 
-### For Administrators (The Management Desk)
-1. **Operations Dashboard**: View real-time revenue stats, booking counts, and recent customer activity.
-2. **Booking Orchestration**:
-   - Navigate to **Bookings** to see all incoming requests.
-   - **PENDING**: Review and "Confirm" or "Cancel" requests.
-   - **CONFIRMED**: Mark as "Completed" once the cleaning is finished.
-3. **Manual Bookings**: Create reservations directly in the system for customers who call in or walk in.
-4. **Service Builder**: 
-   - Dynamically add new cleaning types or adjust prices.
-   - Toggle "Publish/Unpublish" to manage site visibility instantly.
-5. **Contact Moderation**: 
-   - View all customer inquiries in a centralized list.
-   - Use the **Bottom Drawer Reply** system to provide professional feedback.
+### 2. Customer Self-Service Portal (`/portal`)
+- **Passwordless Auth**: Instant one-time magic links sent directly to customer email.
+- **Appointments (`/portal/bookings`)**: Upcoming visit schedule, cleaner arrival status, 1-click rebooking.
+- **Invoices & Receipts (`/portal/invoices`, `/portal/payments`)**: Statement downloads and card payments.
+- **Profile & Notifications (`/portal/profile`, `/portal/notifications`)**: Address management, notifications inbox.
 
----
+### 3. Cleaner Field Operations Portal (`/staff`)
+- **Mobile-First Interface**: Designed for in-field smartphone use.
+- **Daily Jobs (`/staff`)**: Assigned jobs, property addresses, access notes, and lockbox codes.
+- **Digital Job Execution (`/staff/jobs/[id]`)**: Room-by-room digital checklist, before/after camera photo uploads, internal notes, and incident reporting.
 
-## 🛠 Tech Stack
-
-### Frontend Architecture
-- **Framework**: Next.js 14+ (App Router)
-- **State Management**: Redux Toolkit & RTK Query (Real-time data fetching)
-- **Animations**: GSAP (Smooth visual reveals and transitions)
-- **Styling**: Vanilla CSS with modern Design Tokens & HSL color palettes
-- **SEO**: Dynamic Metadata API, Sitemap.xml, and Robots.txt generation
-
-### Backend Infrastructure
-- **Language**: TypeScript / Node.js
-- **Database**: MongoDB (Scalable document storage)
-- **API**: Express.js with standardized RESTful patterns
-- **Validation**: Zod (End-to-end type safety)
-
----
-
-## 🛠 Local Setup & Installation
-
-1. **Clone & Enter**:
-   ```bash
-   git clone https://github.com/faysaldev/bio-cleaning-client.git
-   cd bio-cleaning-client
-   ```
-
-2. **Dependencies**:
-   ```bash
-   pnpm install
-   ```
-
-3. **Environment**:
-   Set `NEXT_PUBLIC_BASE_URL` in `.env.local` to point to your backend API.
-
-4. **Dev Server**:
-   ```bash
-   pnpm dev
-   ```
+### 4. Admin Enterprise Control Center (`/admin`)
+- **Command Palette (`⌘K` / `Ctrl+K`)**: Rapid global navigation and search.
+- **CRM Leads & Pipeline (`/admin/leads`)**: Kanban board, follow-up scheduler, CSV lead importer, 1-click customer/booking conversion.
+- **Dispatch Calendar (`/admin/dispatch`, `/admin/jobs`)**: Real-time dispatching and crew assignment.
+- **Invoicing & Payments (`/admin/invoices`, `/admin/payments`)**: Automated invoice generation (`INV-XXXXX`), Stripe payment links, manual cash/check logging, refund issuance.
+- **Website CMS (`/admin/website`)**: Visual editor for landing page copy, FAQs, service areas, SEO meta tags, revision restore, and draft previews.
+- **Security Audit Logs (`/admin/audit-logs`)**: Immutable log of administrative actions, actor IDs, IP hashes, and durations.
+- **Business Intelligence (`/admin/reports`, `/admin/dashboard`)**: 30-day comparative revenue, booking volume, cleaner utilization, and customer retention metrics.
 
 ---
 
-## 📈 SEO & Performance
-- **Dynamic Meta Tags**: Services page metadata is generated dynamically from live API data.
-- **Sitemap**: Automatically generated for all public routes.
-- **Core Web Vitals**: Optimized for LCP (Largest Contentful Paint) using Next.js Image and font optimization.
+## ⚙️ Environment Configuration
+
+Create a `.env` file in the project root:
+
+```env
+# Full backend API root with /api/v1 prefix
+NEXT_PUBLIC_BASE_URL=http://localhost:9500/api/v1
+
+# Public canonical website origin for sitemaps and preview links
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
+
+---
+
+## 🚀 Getting Started
+
+### 1. Installation
+```bash
+pnpm install
+```
+
+### 2. Type Checking & Verification
+```bash
+pnpm run typecheck
+```
+
+### 3. Running Locally
+```bash
+pnpm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### 4. Production Build
+```bash
+pnpm run build
+pnpm run start
+```
 
 ---
 
 ## 📄 License
-This project is licensed under the **MIT License**. See the [LICENSE](./LICENSE) file for details.
+
+This project is licensed under the **MIT License**. See [LICENSE](./LICENSE) for details.

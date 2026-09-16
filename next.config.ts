@@ -15,11 +15,11 @@ const directives = [
   "form-action 'self' https://checkout.stripe.com",
   `script-src ${scriptSources}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://res.cloudinary.com",
+  "img-src 'self' data: blob: https://res.cloudinary.com https://*.r2.dev https://*.cloudflarestorage.com",
   "font-src 'self' data:",
   `connect-src ${connectSources}`,
   "frame-src https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com https://www.google.com https://www.youtube.com https://www.youtube-nocookie.com",
-  "media-src 'self' https://res.cloudinary.com",
+  "media-src 'self' https://res.cloudinary.com https://*.r2.dev https://*.cloudflarestorage.com",
   "worker-src 'self' blob:",
 ];
 if (production) directives.push("upgrade-insecure-requests");
@@ -37,10 +37,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
   images: {
-    domains: ["res.cloudinary.com"],
     remotePatterns: [
-      { protocol: "https", hostname: "res.cloudinary.com", pathname: "/dr6linfry/image/upload/**" },
-      { protocol: "https", hostname: "res.cloudinary.com", pathname: "/dk3v0m35u/image/upload/**" },
+      { protocol: "https", hostname: "**.r2.dev" },
+      { protocol: "https", hostname: "**.cloudflarestorage.com" },
+      { protocol: "https", hostname: "res.cloudinary.com", pathname: "/**" },
     ],
   },
   async headers() { return [{ source: "/:path*", headers: securityHeaders }]; },
