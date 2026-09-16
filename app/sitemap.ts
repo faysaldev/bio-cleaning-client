@@ -1,44 +1,10 @@
 import { MetadataRoute } from "next";
+import { siteUrl } from "@/src/lib/websiteServer";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://bio-cleaning-llc.vercel.app";
-
-  return [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 1,
-    },
-    {
-      url: `${baseUrl}/about`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/services`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/contact`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/book`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/quote`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.85,
-    },
-  ];
+  const base = siteUrl();
+  const pages = [
+    ["", "weekly", 1], ["/about", "monthly", 0.8], ["/team", "monthly", 0.7], ["/services", "weekly", 0.9], ["/contact", "monthly", 0.7], ["/book", "monthly", 0.8], ["/quote", "weekly", 0.85], ["/privacy-policy", "yearly", 0.3], ["/terms", "yearly", 0.3], ["/cancellation-policy", "yearly", 0.3], ["/accessibility", "yearly", 0.3],
+  ] as const;
+  return pages.map(([path, changeFrequency, priority]) => ({ url: `${base}${path}`, lastModified: new Date(), changeFrequency, priority }));
 }

@@ -1,113 +1,24 @@
 "use client";
 
+import type { WebsiteFaq, WebsiteHomepageSection } from "@/src/redux/features/website/types";
 import { ArrowRight, MessageCircle, Minus, Plus } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-export default function FAQ() {
-  const faqs = [
-    {
-      q: "How do you price your cleaning services?",
-      a: "We use transparent flat pricing based on home size, service type, and frequency. You'll get a quote in under 60 seconds — no surprises later.",
-    },
-    {
-      q: "What products do you use? Are they pet-safe?",
-      a: "All BIO products are plant-based, biodegradable, and 100% safe for kids and pets. We never use ammonia or harsh bleach unless requested.",
-    },
-    {
-      q: "Are your cleaners insured and background-checked?",
-      a: "Yes. Every BIO team member is background-checked, professionally trained, and we're fully insured for your peace of mind.",
-    },
-    {
-      q: "What's included in a deep clean?",
-      a: "Baseboards, inside appliances, vents, behind furniture, scale removal in bathrooms, detail dusting, and more — see our 50-point checklist on the Services page.",
-    },
-    {
-      q: "Can I book recurring service?",
-      a: "Absolutely. Weekly, bi-weekly, and monthly plans get a discount. You can pause or skip anytime from your dashboard.",
-    },
-    {
-      q: "What if I'm not satisfied?",
-      a: "We offer a 100% satisfaction guarantee. Tell us within 24 hours and we'll re-clean the space free of charge.",
-    },
-  ];
+const fallback: WebsiteFaq[] = [
+  { id: "supplies", question: "Do you bring your own supplies?", answer: "Yes. Our teams arrive with the equipment and cleaning products needed for the selected service.", visible: true, order: 10 },
+  { id: "pets", question: "Are your products pet-safe?", answer: "We prioritize low-residue, surface-appropriate products and can note household sensitivities in your customer preferences.", visible: true, order: 20 },
+  { id: "recurring", question: "Can I set up recurring cleaning?", answer: "Yes. Weekly, bi-weekly, and monthly schedules can be booked when available.", visible: true, order: 30 },
+];
+
+export default function FAQ({ faqs, section }: { faqs?: WebsiteFaq[]; section?: WebsiteHomepageSection }) {
+  const items = useMemo(() => {
+    const selected = faqs?.filter((item) => item.visible).sort((a, b) => a.order - b.order) || [];
+    return selected.length ? selected : fallback;
+  }, [faqs]);
   const [open, setOpen] = useState(0);
-  return (
-    <section className="py-24">
-      <div className="container-page">
-        <div className="grid lg:grid-cols-[0.75fr_1.25fr] gap-10 items-start">
-          <div className="lg:sticky lg:top-28">
-            <span className="pill" data-reveal>
-              — FAQ —
-            </span>
-            <h2
-              className="mt-3 text-4xl md:text-5xl text-brand-dark font-display"
-              data-reveal
-            >
-              Helpful questions about our services
-            </h2>
-            <p className="text-muted-foreground mt-4" data-reveal>
-              Clear answers before you book, with human support whenever you
-              need it.
-            </p>
-            <div
-              className="mt-8 rounded-2xl bg-brand-dark text-white p-6"
-              data-reveal
-            >
-              <MessageCircle className="w-9 h-9 text-brand-lime" />
-              <h3 className="font-display text-2xl mt-4">Still deciding?</h3>
-              <p className="text-white/65 text-sm mt-2">
-                Send your ZIP code and room count. We&apos;ll recommend the best
-                package.
-              </p>
-            </div>
-          </div>
-          <div>
-            <div className="space-y-3" data-reveal-group>
-              {faqs.map((f, i) => {
-                const isOpen = open === i;
-                return (
-                  <div
-                    key={f.q}
-                    className={`rounded-2xl border transition ${isOpen ? "border-brand-green bg-brand-cream" : "border-border bg-white"}`}
-                  >
-                    <button
-                      onClick={() => setOpen(isOpen ? -1 : i)}
-                      className="w-full flex items-center justify-between gap-4 p-5 text-left"
-                    >
-                      <span className="font-semibold text-brand-dark">
-                        {f.q}
-                      </span>
-                      <span
-                        className={`shrink-0 w-8 h-8 rounded-full grid place-items-center transition ${isOpen ? "bg-brand-lime text-brand-dark" : "bg-brand-cream text-brand-green"}`}
-                      >
-                        {isOpen ? (
-                          <Minus className="w-4 h-4" />
-                        ) : (
-                          <Plus className="w-4 h-4" />
-                        )}
-                      </span>
-                    </button>
-                    {isOpen && (
-                      <div className="px-5 pb-5 text-sm text-muted-foreground leading-relaxed">
-                        {f.a}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-            <div className="text-center mt-10">
-              <Link
-                href="/contact"
-                className="btn-primary inline-flex items-center gap-2"
-              >
-                Ask a Question <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+  return <section className="py-24"><div className="container-page"><div className="grid items-start gap-10 lg:grid-cols-[0.75fr_1.25fr]">
+    <div className="lg:sticky lg:top-28"><span className="pill" data-reveal>— {section?.eyebrow || "FAQ"} —</span><h2 className="mt-3 text-4xl font-display text-brand-dark md:text-5xl" data-reveal>{section?.title || "Helpful questions about our services"}</h2><p className="mt-4 text-muted-foreground" data-reveal>{section?.subtitle || "Clear answers before you book, with human support whenever you need it."}</p><div className="mt-8 rounded-2xl bg-brand-dark p-6 text-white" data-reveal><MessageCircle className="h-9 w-9 text-brand-lime" /><h3 className="mt-4 text-2xl font-display">Still deciding?</h3><p className="mt-2 text-sm text-white/65">Send us your service needs and we&apos;ll point you in the right direction.</p></div></div>
+    <div><div className="space-y-3" data-reveal-group>{items.map((f, i) => { const isOpen = open === i; return <div key={f.id} className={`rounded-2xl border transition ${isOpen ? "border-brand-green bg-brand-cream" : "border-border bg-white"}`}><button onClick={() => setOpen(isOpen ? -1 : i)} className="flex w-full items-center justify-between gap-4 p-5 text-left" aria-expanded={isOpen}><span className="font-semibold text-brand-dark">{f.question}</span><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full transition ${isOpen ? "bg-brand-lime text-brand-dark" : "bg-brand-cream text-brand-green"}`}>{isOpen ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}</span></button>{isOpen ? <div className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground">{f.answer}</div> : null}</div>; })}</div><div className="mt-10 text-center"><Link href="/contact" className="btn-primary inline-flex items-center gap-2">Ask a Question <ArrowRight className="h-4 w-4" /></Link></div></div>
+  </div></div></section>;
 }

@@ -1,8 +1,9 @@
+import type { WebsiteHomepageSection } from "@/src/redux/features/website/types";
 import { BadgeCheck, Clock, Leaf, ShieldCheck } from "lucide-react";
 import whyChoose from "@/src/assets/why-choose.jpeg";
 import Image from "next/image";
 
-export default function WhyChooseUs() {
+export default function WhyChooseUs({ section }: { section?: WebsiteHomepageSection }) {
   const items = [
     {
       icon: ShieldCheck,
@@ -35,19 +36,17 @@ export default function WhyChooseUs() {
         <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-end mb-14">
           <div>
           <span className="pill" data-reveal>
-            — Why Us —
+            — {section?.eyebrow || "Why Us"} —
           </span>
           <h2
             className="mt-3 text-4xl md:text-5xl text-brand-dark font-display"
             data-reveal
           >
-            Why choose us as your cleaning partner?
+            {section?.title || "Why choose us as your cleaning partner?"}
           </h2>
           </div>
           <p className="text-muted-foreground lg:text-lg" data-reveal>
-            We pair a hospitality-level client experience with trained cleaners,
-            clear systems, and products that are tough on mess without being
-            harsh on your home.
+            {section?.subtitle || "We pair a hospitality-level client experience with trained cleaners, clear systems, and products that are tough on mess without being harsh on your home."}
           </p>
         </div>
 

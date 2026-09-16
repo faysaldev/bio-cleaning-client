@@ -1,3 +1,4 @@
+import type { WebsiteHomepageSection } from "@/src/redux/features/website/types";
 import fullService2 from "@/src/assets/full-services-2.jpeg";
 import serviceCommercial from "@/src/assets/service-commercial.jpeg";
 import serviceDeep from "@/src/assets/service-deep.jpeg";
@@ -12,16 +13,16 @@ const equipment: Array<{ index: string; title: string; copy: string; tag: string
   { index: "04", title: "Detail tools", copy: "Steam, brushes, crevice tools, and targeted applicators reach the areas a quick wipe simply misses.", tag: "Precision work", icon: Droplets, image: serviceDeep },
 ];
 
-export default function EquipmentShowcase() {
+export default function EquipmentShowcase({ section }: { section?: WebsiteHomepageSection }) {
   return (
     <section data-horizontal-scene className="relative bg-brand-cream py-24 lg:py-0">
       <div data-horizontal-pin className="lg:flex lg:min-h-[calc(100vh-84px)] lg:items-center lg:overflow-hidden">
         <div className="container-page w-full">
           <div className="grid gap-8 lg:grid-cols-[360px_minmax(0,1fr)] lg:items-end">
             <div data-cinema-reveal>
-              <span className="editorial-kicker">Equipment + products</span>
-              <h2 className="mt-5 text-4xl text-brand-dark md:text-5xl">Professional tools, selected for the job—not for show.</h2>
-              <p className="mt-4 text-muted-foreground">Scroll through the system our crews bring into the space. On mobile, the same story stays swipeable and lightweight.</p>
+              <span className="editorial-kicker">{section?.eyebrow || "Equipment + products"}</span>
+              <h2 className="mt-5 text-4xl text-brand-dark md:text-5xl">{section?.title || "Professional tools, selected for the job—not for show."}</h2>
+              <p className="mt-4 text-muted-foreground">{section?.subtitle || "Scroll through the system our crews bring into the space. On mobile, the same story stays swipeable and lightweight."}</p>
             </div>
             <div className="hidden items-center justify-end gap-2 text-xs font-extrabold uppercase tracking-[0.14em] text-brand-dark/45 lg:flex"><span>Scroll to explore</span><span className="h-px w-16 bg-brand-dark/20" /></div>
           </div>

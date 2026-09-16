@@ -3,8 +3,9 @@
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useInViewport } from "@/src/hooks/useInViewport";
+import type { WebsiteHomepageSection } from "@/src/redux/features/website/types";
 
-export default function SatisfiedClients() {
+export default function SatisfiedClients({ section }: { section?: WebsiteHomepageSection }) {
   const reviews = [
     {
       name: "Donald W.",
@@ -57,14 +58,13 @@ export default function SatisfiedClients() {
           <div className="absolute -left-20 -top-20 w-64 h-64 rounded-full bg-white/25 blur-3xl" />
           <div className="relative">
             <span className="pill bg-brand-dark text-brand-lime" data-reveal>
-              ★ Our Satisfied Clients
+              {section?.eyebrow || "★ Our Satisfied Clients"}
             </span>
             <h2
               className="mt-4 text-3xl md:text-4xl font-display max-w-3xl mx-auto"
               data-reveal
             >
-              Thousands of homes & businesses trust BIO Cleaning to bring order
-              back.
+              {section?.title || "Thousands of homes & businesses trust BIO Cleaning to bring order back."}
             </h2>
 
             <div

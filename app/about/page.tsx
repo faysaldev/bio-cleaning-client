@@ -1,16 +1,5 @@
 import AboutPage from "@/src/Views/AboutPage";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "About Us",
-  description: "Learn more about BIO Cleaning LLC, our mission, our eco-friendly values, and our commitment to providing a spotless environment.",
-  keywords: [
-    "cleaning mission", "eco-friendly values", "trusted cleaning team", 
-    "professional cleaning standards", "cleaning company history", "sustainable cleaning",
-    "green cleaning experts"
-  ],
-};
-
-export default function Home() {
-  return <AboutPage />;
-}
+import type { Metadata } from "next";
+import { getPublicWebsiteServer } from "@/src/lib/websiteServer";
+export async function generateMetadata(): Promise<Metadata>{ const website=await getPublicWebsiteServer(); return { title: "About", description: website?.content.about.intro || website?.content.seo.defaultDescription }; }
+export default function Page(){ return <AboutPage />; }

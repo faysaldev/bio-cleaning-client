@@ -1,3 +1,4 @@
+import type { WebsiteHomepageSection } from "@/src/redux/features/website/types";
 import fullService from "@/src/assets/full-services.jpeg";
 import fullService2 from "@/src/assets/full-services-2.jpeg";
 import serviceDeep from "@/src/assets/service-deep.jpeg";
@@ -68,15 +69,15 @@ function StaticStory() {
   );
 }
 
-export default function HowWeCleanStory() {
+export default function HowWeCleanStory({ section }: { section?: WebsiteHomepageSection }) {
   return (
     <section data-clean-story className="relative overflow-clip bg-brand-dark py-24 text-white lg:py-0">
       <div className="pointer-events-none absolute inset-0 opacity-30 [background:radial-gradient(circle_at_70%_20%,rgba(181,236,86,.18),transparent_34%),radial-gradient(circle_at_16%_76%,rgba(94,184,130,.18),transparent_30%)]" />
       <div className="container-page relative">
         <div className="mb-12 max-w-3xl lg:hidden" data-cinema-reveal>
-          <span className="editorial-kicker border-white/15 bg-white/7 text-brand-lime">How we clean</span>
-          <h2 className="mt-5 text-4xl md:text-5xl">A repeatable method behind every spotless handoff.</h2>
-          <p className="mt-4 text-white/62">The process is designed to be thorough without feeling chaotic inside your home or workplace.</p>
+          <span className="editorial-kicker border-white/15 bg-white/7 text-brand-lime">{section?.eyebrow || "How we clean"}</span>
+          <h2 className="mt-5 text-4xl md:text-5xl">{section?.title || "A repeatable method behind every spotless handoff."}</h2>
+          <p className="mt-4 text-white/62">{section?.subtitle || "The process is designed to be thorough without feeling chaotic inside your home or workplace."}</p>
         </div>
 
         <StaticStory />
@@ -86,8 +87,8 @@ export default function HowWeCleanStory() {
             <div className="absolute bottom-1 left-0 top-1 w-px bg-white/12">
               <div data-story-progress className="h-full w-px origin-top bg-brand-lime" />
             </div>
-            <span className="editorial-kicker border-white/15 bg-white/7 text-brand-lime">How we clean</span>
-            <h2 className="mt-5 max-w-xl text-5xl xl:text-6xl">A repeatable method behind every spotless handoff.</h2>
+            <span className="editorial-kicker border-white/15 bg-white/7 text-brand-lime">{section?.eyebrow || "How we clean"}</span>
+            <h2 className="mt-5 max-w-xl text-5xl xl:text-6xl">{section?.title || "A repeatable method behind every spotless handoff."}</h2>
             <div className="mt-10 space-y-8">
               {steps.map(({ eyebrow, title, copy, icon: Icon }) => (
                 <article data-story-step key={eyebrow} className="max-w-xl">

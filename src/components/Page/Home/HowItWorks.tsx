@@ -1,3 +1,4 @@
+import type { WebsiteHomepageSection } from "@/src/redux/features/website/types";
 import { CalendarCheck, ClipboardCheck, Home, Sparkles, UserCheck, WandSparkles } from "lucide-react";
 
 const steps = [
@@ -9,17 +10,17 @@ const steps = [
   { n: "06", title: "You get the space back", desc: "Walk in to a reset home or workplace, ready to use.", icon: Home },
 ];
 
-export default function HowItWorks() {
+export default function HowItWorks({ section }: { section?: WebsiteHomepageSection }) {
   return (
     <section className="relative overflow-hidden bg-brand-dark py-24 text-white md:py-32">
       <div className="container-page">
         <div className="grid gap-8 lg:grid-cols-[.7fr_1.3fr] lg:items-end">
           <div data-cinema-reveal>
-            <span className="editorial-kicker border-white/14 bg-white/7 text-brand-lime">From booking to handoff</span>
-            <h2 className="mt-5 text-4xl md:text-5xl">One clear path. No cleaning-day guesswork.</h2>
+            <span className="editorial-kicker border-white/14 bg-white/7 text-brand-lime">{section?.eyebrow || "From booking to handoff"}</span>
+            <h2 className="mt-5 text-4xl md:text-5xl">{section?.title || "One clear path. No cleaning-day guesswork."}</h2>
           </div>
           <p className="max-w-2xl text-white/58 lg:justify-self-end" data-cinema-reveal>
-            The website, scheduling flow, and cleaning team all follow the same job information so what you requested online is what the crew sees on arrival.
+            {section?.subtitle || "The website, scheduling flow, and cleaning team all follow the same job information so what you requested online is what the crew sees on arrival."}
           </p>
         </div>
 

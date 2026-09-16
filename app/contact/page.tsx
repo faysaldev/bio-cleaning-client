@@ -1,16 +1,5 @@
 import ContactPage from "@/src/Views/ContactPage";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Contact Us",
-  description: "Get in touch with BIO Cleaning LLC for inquiries, quotes, or support. We are here to help you keep your space clean and healthy.",
-  keywords: [
-    "cleaning quote", "cleaning consultation", "customer support", 
-    "contact cleaners", "cleaning inquiry", "hire professional cleaners",
-    "cleaning service estimate"
-  ],
-};
-
-export default function Home() {
-  return <ContactPage />;
-}
+import type { Metadata } from "next";
+import { getPublicWebsiteServer } from "@/src/lib/websiteServer";
+export async function generateMetadata(): Promise<Metadata>{ const website=await getPublicWebsiteServer(); return { title: "Contact", description: website?.content.contact.intro || website?.content.seo.defaultDescription }; }
+export default function Page(){ return <ContactPage />; }

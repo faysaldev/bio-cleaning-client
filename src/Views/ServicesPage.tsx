@@ -16,6 +16,7 @@ import { PlanComparison } from "../components/Services/PlanComparison";
 import { SignaturePackages } from "../components/Services/SignaturePackages";
 import { ServiceAddons } from "../components/Services/ServiceAddons";
 import { CleaningService } from "../redux/features/services/types";
+import { useGetPublicWebsiteQuery } from "@/src/redux/features/website/websiteApi";
 
 const serviceStats: [string, string][] = [
   ["24/7", "Online booking"],
@@ -36,6 +37,7 @@ const addons = [
 export default function ServicesPage() {
   const ref = useGsapReveal<HTMLDivElement>();
   const { data: servicesResponse, isLoading, isError, refetch } = useGetAllServicesQuery({});
+  const { data: websiteResponse } = useGetPublicWebsiteQuery();
   const [previewService, setPreviewService] = useState<CleaningService | null>(
     null,
   );
@@ -43,7 +45,7 @@ export default function ServicesPage() {
   const services = servicesResponse?.data || [];
 
   return (
-    <SiteLayout>
+    <SiteLayout website={websiteResponse?.data}>
       <div ref={ref}>
         <PageHero
           title="Our Cleaning Services"

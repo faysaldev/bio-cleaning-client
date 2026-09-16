@@ -1,10 +1,11 @@
+import type { WebsiteHomepageSection } from "@/src/redux/features/website/types";
 import fullService2 from "@/src/assets/full-services-2.jpeg";
 import fullService from "@/src/assets/full-services.jpeg";
 import { ArrowRight, Check, ClipboardCheck, ShieldCheck, Sparkles } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
-export default function FullService() {
+export default function FullService({ section }: { section?: WebsiteHomepageSection }) {
   const points = [
     "Residential & commercial cleaning crews on call",
     "Eco-certified, pet- and child-safe products",
@@ -36,10 +37,10 @@ export default function FullService() {
         </div>
 
         <div data-cinema-reveal>
-          <span className="editorial-kicker"><Sparkles className="h-3.5 w-3.5" /> Full service</span>
-          <h2 className="mt-5 text-4xl text-brand-dark md:text-6xl">Cleaning that feels considered from arrival to handoff.</h2>
+          <span className="editorial-kicker"><Sparkles className="h-3.5 w-3.5" /> {section?.eyebrow || "Full service"}</span>
+          <h2 className="mt-5 text-4xl text-brand-dark md:text-6xl">{section?.title || "Cleaning that feels considered from arrival to handoff."}</h2>
           <p className="mt-6 max-w-xl text-base leading-8 text-muted-foreground md:text-lg">
-            Routine service, deep cleaning, moving-day resets, and commercial care all run through the same operating standard: clear scope, the right tools, a deliberate sequence, and a final quality check.
+            {section?.subtitle || "Routine service, deep cleaning, moving-day resets, and commercial care all run through the same operating standard: clear scope, the right tools, a deliberate sequence, and a final quality check."}
           </p>
 
           <ul className="mt-8 grid gap-3 sm:grid-cols-2" data-cinema-group>
