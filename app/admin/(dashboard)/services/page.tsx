@@ -1,5 +1,7 @@
 "use client";
 
+import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { Clock3, Image as ImageIcon, Loader2, Pencil, Plus, Sparkles, Trash2, Upload, Users, X } from "lucide-react";
 import {
   useCreateServiceMutation,
   useDeleteServiceMutation,
@@ -7,496 +9,87 @@ import {
   useUpdateServiceMutation,
 } from "@/src/redux/features/services/servicesApi";
 import { useUploadFileMutation } from "@/src/redux/features/assets/assetsApi";
-import { CleaningService } from "@/src/redux/features/services/types";
-import {
-  Pencil,
-  Plus,
-  Sparkles,
-  Trash2,
-  X,
-  Loader2,
-  Image as ImageIcon,
-  Upload,
-} from "lucide-react";
-import { ChangeEvent, FormEvent, ReactNode, useState } from "react";
+import type { CleaningService, ServiceExtra, ServicePromotion } from "@/src/redux/features/services/types";
 import { EmptyState, ErrorState, LoadingState } from "@/src/components/ui/feedback";
 
-const emptyService: Partial<CleaningService> = {
-  name: "",
-  description: "",
-  includes: [],
-  tags: [],
-  basePrice: 0,
-  duration: "",
-  isActive: true,
-  image: "",
-};
+const frequencyDefaults = [
+  { frequency: "ONE_TIME" as const, percent: 0 },
+  { frequency: "WEEKLY" as const, percent: 15 },
+  { frequency: "BI_WEEKLY" as const, percent: 10 },
+  { frequency: "MONTHLY" as const, percent: 5 },
+];
 
-type DrawerMode = "add" | "edit";
-
-function serviceToForm(service: Partial<CleaningService>) {
+function blankService(): Partial<CleaningService> {
   return {
-    ...service,
-    includes: service.includes?.join("\n") || "",
-    tags: service.tags?.join(", ") || "",
-    basePrice: service.basePrice?.toString() || "",
-  };
-}
-
-type ServiceFormState = ReturnType<typeof serviceToForm>;
-
-function formToService(form: ServiceFormState): Partial<CleaningService> {
-  return {
-    ...form,
-    basePrice: Number(form.basePrice.replace(/[^0-9.]/g, "")) || 0,
-    includes: form.includes
-      .split("\n")
-      .map((item: string) => item.trim())
-      .filter(Boolean),
-    tags: form.tags
-      .split(",")
-      .map((item: string) => item.trim())
-      .filter(Boolean),
+    name: "", description: "", basePrice: 0, includes: [], image: "", duration: "180 min", tags: [], isActive: true,
+    pricing: { minimumPrice: 89, taxRate: 0, propertyPricingMode: "BED_BATH", includedBedrooms: 1, includedBathrooms: 1, additionalBedroomPrice: 40, additionalBathroomPrice: 25, additionalBedroomMinutes: 30, additionalBathroomMinutes: 20, squareFootageTiers: [], frequencyDiscounts: frequencyDefaults, extras: [], promotions: [] },
+    scheduling: { durationMinutes: 180, requiredStaff: 1, bufferBeforeMinutes: 0, bufferAfterMinutes: 15, preparationInstructions: [] },
   };
 }
 
 export default function AdminServicesPage() {
-  const { data: servicesData, isLoading: isFetching, isError, refetch } =
-    useGetAllServicesAdminQuery({});
-  const [createService, { isLoading: isCreating }] = useCreateServiceMutation();
-  const [updateService, { isLoading: isUpdating }] = useUpdateServiceMutation();
-  const [deleteServiceMutation, { isLoading: isDeleting }] =
-    useDeleteServiceMutation();
-  const [uploadFile, { isLoading: isUploading }] = useUploadFileMutation();
+  const { data, isLoading, isError, refetch } = useGetAllServicesAdminQuery({});
+  const services = ((data as any)?.data || []) as CleaningService[];
+  const [createService, { isLoading: creating }] = useCreateServiceMutation();
+  const [updateService, { isLoading: updating }] = useUpdateServiceMutation();
+  const [deleteService, { isLoading: deleting }] = useDeleteServiceMutation();
+  const [uploadFile, { isLoading: uploading }] = useUploadFileMutation();
+  const [editing, setEditing] = useState<string>();
+  const [form, setForm] = useState<Partial<CleaningService>>(blankService());
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState("");
 
-  const services = servicesData?.data || [];
+  const current = useMemo(() => services.find((service) => service._id === editing), [services, editing]);
+  const startAdd = () => { setEditing(undefined); setForm(blankService()); setError(""); setOpen(true); };
+  const startEdit = (service: CleaningService) => { setEditing(service._id); setForm({ ...blankService(), ...JSON.parse(JSON.stringify(service)), pricing: { ...blankService().pricing, ...JSON.parse(JSON.stringify(service.pricing || {})) }, scheduling: { ...blankService().scheduling, ...JSON.parse(JSON.stringify(service.scheduling || {})) } }); setError(""); setOpen(true); };
 
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerMode, setDrawerMode] = useState<DrawerMode>("add");
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState<ServiceFormState>(
-    serviceToForm(emptyService),
-  );
-
-  const openAddDrawer = () => {
-    setDrawerMode("add");
-    setEditingId(null);
-    setForm(serviceToForm(emptyService));
-    setDrawerOpen(true);
+  const upload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]; if (!file) return;
+    const body = new FormData(); body.append("file", file);
+    try { const result: any = await uploadFile(body).unwrap(); const url = result?.data?.url || result?.url; if (url) setForm((prev) => ({ ...prev, image: url })); }
+    catch { setError("Image upload failed."); }
   };
 
-  const openEditDrawer = (service: CleaningService) => {
-    setDrawerMode("edit");
-    setEditingId(service._id);
-    setForm(serviceToForm(service));
-    setDrawerOpen(true);
+  const save = async (event: FormEvent) => {
+    event.preventDefault(); setError("");
+    const durationMinutes = Math.max(15, Number(form.scheduling?.durationMinutes || 180));
+    const payload = { ...form, basePrice: Number(form.basePrice || 0), duration: `${durationMinutes} min`, includes: form.includes || [], tags: form.tags || [], image: form.image || "", pricing: form.pricing, scheduling: { ...form.scheduling, durationMinutes } };
+    try { if (editing) await updateService({ id: editing, data: payload }).unwrap(); else await createService(payload).unwrap(); setOpen(false); }
+    catch (err: any) { setError(err?.data?.message || "Service could not be saved. Check all pricing and scheduling fields."); }
   };
 
-  const closeDrawer = () => {
-    setDrawerOpen(false);
-    setEditingId(null);
-    setForm(serviceToForm(emptyService));
-  };
+  if (isLoading) return <LoadingState label="Loading cleaning services…" />;
+  if (isError) return <ErrorState title="Services are unavailable" description="We couldn’t load your service catalog." action={<button onClick={() => refetch()} className="btn-secondary">Try again</button>} />;
 
-  const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  return <div className="space-y-6"><section className="surface p-5 sm:p-6 lg:p-8"><div className="flex flex-col gap-5 border-b border-border pb-7 md:flex-row md:items-center md:justify-between"><div><span className="editorial-kicker">Bookable catalog</span><h2 className="admin-page-heading mt-3 text-brand-dark">Services, pricing & duration</h2><p className="mt-2 max-w-2xl text-sm text-muted-foreground">Configure the real entities used by server pricing and live scheduling: duration, required staff, property rules, add-ons, recurrence discounts, promo codes, and preparation instructions.</p></div><button onClick={startAdd} className="btn-primary"><Plus className="h-4 w-4" />Add service</button></div>
+    {services.length === 0 ? <EmptyState icon={Sparkles} title="No services yet" description="Create the first live service for public booking." action={<button onClick={startAdd} className="btn-primary">Add service</button>} /> : <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">{services.map((service) => <article key={service._id} className="surface p-4"><div className="flex gap-4">{service.image ? <img src={service.image} alt="" className="h-20 w-20 rounded-xl object-cover" /> : <div className="grid h-20 w-20 place-items-center rounded-xl bg-brand-cream"><ImageIcon className="h-6 w-6 text-brand-green/35" /></div>}<div className="min-w-0 flex-1"><span className={`status-badge ${service.isActive ? "border-brand-green/20 bg-brand-green/5 text-brand-green" : "border-border bg-muted text-muted-foreground"}`}>{service.isActive ? "Published" : "Draft"}</span><h3 className="mt-2 truncate text-lg font-extrabold text-brand-dark">{service.name}</h3><p className="mt-0.5 text-sm font-bold text-brand-green">From ${service.basePrice}</p></div></div><div className="mt-4 flex flex-wrap gap-2 text-[11px] font-bold text-muted-foreground"><span className="inline-flex items-center gap-1 rounded-lg border border-border px-2 py-1"><Clock3 className="h-3 w-3" />{service.scheduling?.durationMinutes || service.duration}</span><span className="inline-flex items-center gap-1 rounded-lg border border-border px-2 py-1"><Users className="h-3 w-3" />{service.scheduling?.requiredStaff || 1} staff</span><span className="rounded-lg border border-border px-2 py-1">{service.pricing?.extras?.length || 0} extras</span></div><div className="mt-4 flex items-center justify-between border-t border-border pt-4"><div className="flex gap-2"><button onClick={() => startEdit(service)} className="grid h-9 w-9 place-items-center rounded-lg border border-border"><Pencil className="h-3.5 w-3.5" /></button><button disabled={deleting} onClick={() => window.confirm("Delete this service?") && deleteService(service._id)} className="grid h-9 w-9 place-items-center rounded-lg text-destructive hover:bg-destructive/5"><Trash2 className="h-3.5 w-3.5" /></button></div><button onClick={() => updateService({ id: service._id, data: { isActive: !service.isActive } })} className="btn-secondary px-3 py-2 text-xs">{service.isActive ? "Unpublish" : "Publish"}</button></div></article>)}</div>}
+  </section>
 
-    const formData = new FormData();
-    formData.append("file", file);
+  {open ? <div className="fixed inset-0 z-[100]"><button aria-label="Close editor" onClick={() => setOpen(false)} className="absolute inset-0 bg-black/45" /><aside className="absolute right-0 top-0 h-full w-full max-w-3xl overflow-y-auto border-l border-border bg-white p-5 shadow-elevated sm:p-7" role="dialog" aria-modal="true"><div className="flex items-start justify-between gap-4"><div><span className="editorial-kicker">{editing ? "Edit service" : "New service"}</span><h2 className="mt-2 text-3xl font-extrabold text-brand-dark">{current?.name || form.name || "Service configuration"}</h2></div><button onClick={() => setOpen(false)} className="grid h-10 w-10 place-items-center rounded-lg border border-border"><X className="h-4 w-4" /></button></div>{error ? <div className="feedback-panel mt-5 border-destructive/20 bg-destructive/5 text-destructive">{error}</div> : null}<form onSubmit={save} className="mt-6 space-y-7">
+    <Section title="Core service"><div className="grid gap-4 sm:grid-cols-2"><Field label="Service name"><input required className="field-control" value={form.name || ""} onChange={(e) => setForm({ ...form, name: e.target.value })} /></Field><Field label="Base price"><input required type="number" min="0" step="0.01" className="field-control" value={form.basePrice || 0} onChange={(e) => setForm({ ...form, basePrice: Number(e.target.value) })} /></Field><div className="sm:col-span-2"><Field label="Description"><textarea required className="field-control min-h-24" value={form.description || ""} onChange={(e) => setForm({ ...form, description: e.target.value })} /></Field></div><Field label="Includes (one per line)"><textarea className="field-control min-h-24" value={(form.includes || []).join("\n")} onChange={(e) => setForm({ ...form, includes: e.target.value.split("\n").map((v) => v.trim()).filter(Boolean) })} /></Field><Field label="Tags (comma separated)"><textarea className="field-control min-h-24" value={(form.tags || []).join(", ")} onChange={(e) => setForm({ ...form, tags: e.target.value.split(",").map((v) => v.trim()).filter(Boolean) })} /></Field></div><Field label="Service image">{form.image ? <div className="mb-2 overflow-hidden rounded-xl border border-border"><img src={form.image} alt="" className="h-36 w-full object-cover" /></div> : null}<label className="btn-secondary cursor-pointer">{uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}Upload image<input type="file" accept="image/*" className="hidden" onChange={upload} /></label></Field></Section>
 
-    try {
-      const res = (await uploadFile(formData).unwrap()) as any;
-      const imageUrl = res?.data?.url || res?.url;
-      if (imageUrl) {
-        setForm((prev) => ({ ...prev, image: imageUrl }));
-      }
-    } catch (err) {
-      console.error("Image upload failed:", err);
-    }
-  };
+    <Section title="Duration & crew"><div className="grid gap-4 sm:grid-cols-4"><Number label="Duration (min)" value={form.scheduling?.durationMinutes || 180} onChange={(v) => setForm({ ...form, scheduling: { ...form.scheduling, durationMinutes: v } })} /><Number label="Required staff" value={form.scheduling?.requiredStaff || 1} onChange={(v) => setForm({ ...form, scheduling: { ...form.scheduling, requiredStaff: v } })} /><Number label="Buffer before" value={form.scheduling?.bufferBeforeMinutes || 0} onChange={(v) => setForm({ ...form, scheduling: { ...form.scheduling, bufferBeforeMinutes: v } })} /><Number label="Buffer after" value={form.scheduling?.bufferAfterMinutes || 0} onChange={(v) => setForm({ ...form, scheduling: { ...form.scheduling, bufferAfterMinutes: v } })} /></div><Field label="Preparation instructions (one per line)"><textarea className="field-control min-h-24" value={(form.scheduling?.preparationInstructions || []).join("\n")} onChange={(e) => setForm({ ...form, scheduling: { ...form.scheduling, preparationInstructions: e.target.value.split("\n").map((v) => v.trim()).filter(Boolean) } })} /></Field></Section>
 
-  const submitService = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!form.name || !form.basePrice) return;
+    <Section title="Property pricing"><div className="grid gap-4 sm:grid-cols-3"><Field label="Pricing mode"><select className="field-control" value={form.pricing?.propertyPricingMode || "BED_BATH"} onChange={(e) => setForm({ ...form, pricing: { ...form.pricing, propertyPricingMode: e.target.value as any } })}><option value="FIXED">Fixed</option><option value="BED_BATH">Bedroom / bathroom</option><option value="SQUARE_FOOTAGE">Square footage</option></select></Field><Number label="Minimum price" value={form.pricing?.minimumPrice || 0} onChange={(v) => setForm({ ...form, pricing: { ...form.pricing, minimumPrice: v } })} /><Number label="Tax %" value={form.pricing?.taxRate || 0} onChange={(v) => setForm({ ...form, pricing: { ...form.pricing, taxRate: v } })} /></div>{form.pricing?.propertyPricingMode === "BED_BATH" ? <div className="mt-4 grid gap-4 sm:grid-cols-3"><Number label="Bedrooms included" value={form.pricing?.includedBedrooms ?? 1} onChange={(v) => setForm({ ...form, pricing: { ...form.pricing, includedBedrooms: v } })} /><Number label="Extra bedroom $" value={form.pricing?.additionalBedroomPrice || 0} onChange={(v) => setForm({ ...form, pricing: { ...form.pricing, additionalBedroomPrice: v } })} /><Number label="Extra bedroom min" value={form.pricing?.additionalBedroomMinutes || 0} onChange={(v) => setForm({ ...form, pricing: { ...form.pricing, additionalBedroomMinutes: v } })} /><Number label="Bathrooms included" value={form.pricing?.includedBathrooms ?? 1} onChange={(v) => setForm({ ...form, pricing: { ...form.pricing, includedBathrooms: v } })} /><Number label="Extra bathroom $" value={form.pricing?.additionalBathroomPrice || 0} onChange={(v) => setForm({ ...form, pricing: { ...form.pricing, additionalBathroomPrice: v } })} /><Number label="Extra bathroom min" value={form.pricing?.additionalBathroomMinutes || 0} onChange={(v) => setForm({ ...form, pricing: { ...form.pricing, additionalBathroomMinutes: v } })} /></div> : null}{form.pricing?.propertyPricingMode === "SQUARE_FOOTAGE" ? <Repeater title="Square-footage tiers" onAdd={() => setForm({ ...form, pricing: { ...form.pricing, squareFootageTiers: [...(form.pricing?.squareFootageTiers || []), { minSqFt: 0, maxSqFt: undefined, priceAdjustment: 0, durationAdjustmentMinutes: 0 }] } })}>{(form.pricing?.squareFootageTiers || []).map((tier, i) => <div key={i} className="grid gap-2 rounded-xl border border-border p-3 sm:grid-cols-5"><TinyNumber label="Min sq ft" value={tier.minSqFt} onChange={(v) => patchTier(i, { minSqFt: v }, form, setForm)} /><TinyNumber label="Max sq ft" value={tier.maxSqFt || 0} onChange={(v) => patchTier(i, { maxSqFt: v || undefined }, form, setForm)} /><TinyNumber label="Price +/-" value={tier.priceAdjustment} onChange={(v) => patchTier(i, { priceAdjustment: v }, form, setForm)} /><TinyNumber label="Minutes +" value={tier.durationAdjustmentMinutes} onChange={(v) => patchTier(i, { durationAdjustmentMinutes: v }, form, setForm)} /><button type="button" onClick={() => setForm({ ...form, pricing: { ...form.pricing, squareFootageTiers: form.pricing?.squareFootageTiers?.filter((_, index) => index !== i) } })} className="self-end btn-secondary px-2"><Trash2 className="h-3.5 w-3.5" /></button></div>)}</Repeater> : null}</Section>
 
-    const nextService = formToService(form);
+    <Section title="Recurrence discounts"><div className="grid gap-3 sm:grid-cols-4">{(form.pricing?.frequencyDiscounts || frequencyDefaults).map((item, i) => <TinyNumber key={item.frequency} label={item.frequency.replaceAll("_", " ")} value={item.percent} onChange={(value) => { const list = [...(form.pricing?.frequencyDiscounts || frequencyDefaults)]; list[i] = { ...item, percent: value }; setForm({ ...form, pricing: { ...form.pricing, frequencyDiscounts: list } }); }} />)}</div></Section>
 
-    // Clean payload for backend (stripping _id, createdAt, etc)
-    const payload = {
-      name: nextService.name,
-      description: nextService.description,
-      basePrice: nextService.basePrice,
-      includes: nextService.includes,
-      image: nextService.image,
-      duration: nextService.duration,
-      tags: nextService.tags,
-      isActive: nextService.isActive,
-    };
+    <Section title="Add-ons"><Repeater title="Extras" onAdd={() => setForm({ ...form, pricing: { ...form.pricing, extras: [...(form.pricing?.extras || []), { code: `EXTRA${(form.pricing?.extras?.length || 0) + 1}`, name: "New extra", price: 0, durationMinutes: 0, additionalStaff: 0, isActive: true }] } })}>{(form.pricing?.extras || []).map((extra, i) => <ExtraRow key={`${extra.code}-${i}`} extra={extra} onChange={(patch) => patchExtra(i, patch, form, setForm)} onDelete={() => setForm({ ...form, pricing: { ...form.pricing, extras: form.pricing?.extras?.filter((_, index) => index !== i) } })} />)}</Repeater></Section>
 
-    try {
-      if (drawerMode === "edit") {
-        await updateService({ id: editingId, data: payload }).unwrap();
-      } else {
-        await createService(payload).unwrap();
-      }
-      closeDrawer();
-    } catch (err) {
-      console.error("Failed to save service:", err);
-    }
-  };
+    <Section title="Promo codes"><Repeater title="Promotions" onAdd={() => setForm({ ...form, pricing: { ...form.pricing, promotions: [...(form.pricing?.promotions || []), { code: `PROMO${(form.pricing?.promotions?.length || 0) + 1}`, type: "PERCENT", value: 10, isActive: true }] } })}>{(form.pricing?.promotions || []).map((promo, i) => <PromoRow key={`${promo.code}-${i}`} promo={promo} onChange={(patch) => patchPromo(i, patch, form, setForm)} onDelete={() => setForm({ ...form, pricing: { ...form.pricing, promotions: form.pricing?.promotions?.filter((_, index) => index !== i) } })} />)}</Repeater></Section>
 
-  const togglePublish = async (service: CleaningService) => {
-    try {
-      await updateService({
-        id: service._id,
-        data: { isActive: !service.isActive },
-      }).unwrap();
-    } catch (err) {
-      console.error("Failed to toggle publish status:", err);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this service?"))
-      return;
-    try {
-      await deleteServiceMutation(id).unwrap();
-    } catch (err) {
-      console.error("Failed to delete service:", err);
-    }
-  };
-
-  if (isFetching) {
-    return <LoadingState label="Loading cleaning services…" />;
-  }
-
-  if (isError) {
-    return (
-      <ErrorState
-        title="Services are unavailable"
-        description="We couldn’t load your service catalog. No service data was changed."
-        action={<button type="button" onClick={() => refetch()} className="btn-secondary">Try again</button>}
-      />
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      <section className="surface p-5 sm:p-6 lg:p-8">
-        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between border-b border-border pb-8 mb-8">
-          <div>
-            <div className="flex items-center gap-3">
-              <span className="pill bg-brand-green/10 text-brand-green">
-                Administration
-              </span>
-              <span className="text-xs font-bold text-muted-foreground">
-                • {services.length} Total Services
-              </span>
-            </div>
-            <h2 className="mt-4 text-4xl font-display font-bold text-brand-dark tracking-tight">
-              Cleaning Services
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground max-w-lg">
-              Configure and moderate the professional cleaning packages
-              displayed on your public booking platform.
-            </p>
-          </div>
-          <button
-            onClick={openAddDrawer}
-            className="btn-primary flex items-center gap-2"
-          >
-            <Plus className="w-5 h-5" /> Add New Service
-          </button>
-        </div>
-
-        {services.length === 0 ? (
-          <EmptyState
-            icon={Sparkles}
-            title="No cleaning services yet"
-            description="Create the first service to make it available to your website and booking flow."
-            action={<button type="button" onClick={openAddDrawer} className="btn-primary"><Plus className="h-4 w-4" /> Add service</button>}
-          />
-        ) : (
-        <div className="grid md:grid-cols-2 gap-4">
-          {services.map((service: CleaningService) => (
-            <article
-              key={service._id}
-              className="group surface p-5 transition-all duration-200 hover:border-brand-green/30"
-            >
-              <div className="flex flex-col gap-6">
-                <div className="flex gap-5">
-                  {service.image ? (
-                    <img
-                      src={service.image}
-                      alt={service.name}
-                      className="h-24 w-24 rounded-2xl object-cover shadow-md ring-1 ring-border shrink-0"
-                    />
-                  ) : (
-                    <div className="h-24 w-24 rounded-2xl bg-brand-cream flex items-center justify-center shrink-0 border border-border">
-                      <ImageIcon className="w-8 h-8 text-brand-green/30" />
-                    </div>
-                  )}
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span
-                        className={`status-badge ${
-                          service.isActive
-                            ? "border-brand-green/25 bg-brand-green/8 text-brand-green"
-                            : "border-border bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {service.isActive ? "Published" : "Draft"}
-                      </span>
-                    </div>
-                    <h3 className="text-xl font-bold text-brand-dark truncate">
-                      {service.name}
-                    </h3>
-                    <div className="mt-1 font-display text-2xl font-bold text-brand-green">
-                      ${service.basePrice}
-                    </div>
-                  </div>
-                </div>
-
-                <p className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]">
-                  {service.description}
-                </p>
-
-                <div className="flex flex-wrap gap-1.5">
-                  {service.tags?.slice(0, 3).map((tag: string) => (
-                    <span
-                      key={tag}
-                      className="rounded-lg bg-brand-cream px-2.5 py-1 text-[10px] font-black uppercase tracking-tighter text-brand-green"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                  {service.tags && service.tags.length > 3 && (
-                    <span className="text-[10px] font-bold text-muted-foreground">
-                      +{service.tags.length - 3} more
-                    </span>
-                  )}
-                </div>
-
-                <div className="pt-6 border-t border-border flex flex-wrap items-center justify-between gap-3 mt-auto">
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => openEditDrawer(service)}
-                      className="h-10 w-10 rounded-xl border border-border flex items-center justify-center text-brand-dark hover:bg-brand-cream transition-colors"
-                      title="Edit Service"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(service._id)}
-                      disabled={isDeleting}
-                      className="h-10 w-10 rounded-xl bg-destructive/5 text-destructive flex items-center justify-center hover:bg-destructive hover:text-white transition-all disabled:opacity-50"
-                      title="Delete Service"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => togglePublish(service)}
-                    className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                      service.isActive
-                        ? "bg-brand-dark text-white hover:bg-brand-green"
-                        : "bg-brand-green text-white hover:bg-brand-dark"
-                    }`}
-                  >
-                    {service.isActive ? "Unpublish" : "Publish Now"}
-                  </button>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-        )}
-      </section>
-
-      {drawerOpen && (
-        <div className="fixed inset-0 z-[100]">
-          <button
-            aria-label="Close drawer"
-            className="absolute inset-0 bg-black/45"
-            onClick={closeDrawer}
-          />
-          <div className="absolute right-0 top-0 h-full w-full max-w-xl overflow-y-auto border-l border-border bg-white p-5 shadow-elevated sm:p-6 animate-[fade-in_.2s_ease-out]" role="dialog" aria-modal="true" aria-label={drawerMode === "edit" ? "Edit service" : "Add service"}>
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <span className="pill">
-                  {drawerMode === "edit" ? "Edit service" : "New service"}
-                </span>
-                <h2 className="mt-3 text-3xl text-brand-dark">
-                  {drawerMode === "edit" ? "Update cleaning" : "Add cleaning"}
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={closeDrawer}
-                className="grid h-10 w-10 place-items-center rounded-lg border border-border bg-white text-muted-foreground hover:bg-brand-cream hover:text-brand-dark"
-                aria-label="Close service drawer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={submitService} className="mt-8 space-y-5">
-              <Field label="Service Image">
-                <div className="relative group overflow-hidden rounded-2xl border border-dashed border-border bg-brand-cream p-1 transition hover:border-brand-green">
-                  {form.image ? (
-                    <div className="relative aspect-video w-full overflow-hidden rounded-2xl">
-                      <img
-                        src={form.image}
-                        alt="Preview"
-                        className="h-full w-full object-cover transition group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition group-hover:opacity-100">
-                        <label className="cursor-pointer rounded-lg bg-white px-4 py-2 text-xs font-bold text-brand-dark shadow-card hover:bg-brand-lime transition">
-                          Change Image
-                          <input
-                            type="file"
-                            className="hidden"
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                          />
-                        </label>
-                      </div>
-                    </div>
-                  ) : (
-                    <label className="flex h-32 cursor-pointer flex-col items-center justify-center gap-2">
-                      {isUploading ? (
-                        <Loader2 className="h-6 w-6 animate-spin text-brand-green" />
-                      ) : (
-                        <Upload className="h-6 w-6 text-brand-green" />
-                      )}
-                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                        {isUploading ? "Uploading..." : "Click to upload image"}
-                      </span>
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                      />
-                    </label>
-                  )}
-                </div>
-              </Field>
-
-              <Field label="Name of the cleaning">
-                <input
-                  required
-                  value={form.name}
-                  onChange={(event) =>
-                    setForm({ ...form, name: event.target.value })
-                  }
-                  className="field-control"
-                  placeholder="Premium Kitchen Reset"
-                />
-              </Field>
-              <Field label="Description">
-                <textarea
-                  value={form.description}
-                  onChange={(event) =>
-                    setForm({ ...form, description: event.target.value })
-                  }
-                  className="field-control min-h-28 resize-y"
-                  placeholder="Short service description"
-                />
-              </Field>
-              <Field label="Includes list">
-                <textarea
-                  value={form.includes}
-                  onChange={(event) =>
-                    setForm({ ...form, includes: event.target.value })
-                  }
-                  className="field-control min-h-32 resize-y"
-                  placeholder={"Kitchen wipe-down\nBathroom sanitizing\nFloors"}
-                />
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Add one item per line.
-                </p>
-              </Field>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <Field label="Duration">
-                  <input
-                    value={form.duration}
-                    onChange={(event) =>
-                      setForm({ ...form, duration: event.target.value })
-                    }
-                    className="field-control"
-                    placeholder="2-3 hrs"
-                  />
-                </Field>
-                <Field label="Base Price">
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-                      $
-                    </span>
-                    <input
-                      required
-                      value={form.basePrice}
-                      onChange={(event) =>
-                        setForm({ ...form, basePrice: event.target.value })
-                      }
-                      className="field-control pl-8"
-                      placeholder="149"
-                    />
-                  </div>
-                </Field>
-              </div>
-              <Field label="Tags">
-                <input
-                  value={form.tags}
-                  onChange={(event) =>
-                    setForm({ ...form, tags: event.target.value })
-                  }
-                  className="field-control"
-                  placeholder="home, office, premium"
-                />
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Separate tags with commas.
-                </p>
-              </Field>
-              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-brand-cream/60 p-4 text-sm font-semibold text-brand-dark transition hover:bg-brand-lime/10">
-                <input
-                  type="checkbox"
-                  checked={form.isActive}
-                  onChange={(event) =>
-                    setForm({ ...form, isActive: event.target.checked })
-                  }
-                  className="h-4 w-4 rounded border-border accent-brand-green"
-                />
-                Publish this service
-              </label>
-              <button
-                type="submit"
-                disabled={isCreating || isUpdating}
-                className="btn-primary w-full disabled:opacity-70 flex items-center justify-center gap-2"
-              >
-                {(isCreating || isUpdating) && (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                )}
-                {drawerMode === "edit" ? "Save changes" : "Add service"}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+    <label className="flex items-center gap-3 rounded-xl border border-border bg-brand-cream/50 p-4 text-sm font-bold text-brand-dark"><input type="checkbox" checked={form.isActive ?? true} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />Publish this service for online booking</label><button type="submit" disabled={creating || updating || uploading} className="btn-primary w-full">{creating || updating ? <Loader2 className="h-4 w-4 animate-spin" /> : null}{editing ? "Save service" : "Create service"}</button>
+  </form></aside></div> : null}
+  </div>;
 }
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <label className="block">
-      <span className="field-label">{label}</span>
-      <div>{children}</div>
-    </label>
-  );
-}
+function Section({ title, children }: { title: string; children: React.ReactNode }) { return <section className="rounded-2xl border border-border bg-brand-cream/20 p-4 sm:p-5"><h3 className="mb-4 text-sm font-extrabold text-brand-dark">{title}</h3><div className="space-y-4">{children}</div></section>; }
+function Field({ label, children }: { label: string; children: React.ReactNode }) { return <label className="block"><span className="field-label">{label}</span>{children}</label>; }
+function Number({ label, value, onChange }: { label: string; value: number; onChange: (value: number) => void }) { return <Field label={label}><input type="number" min="0" step="0.01" className="field-control" value={value} onChange={(e) => onChange(Number(e.target.value))} /></Field>; }
+function TinyNumber({ label, value, onChange }: { label: string; value: number; onChange: (value: number) => void }) { return <label><span className="mb-1 block text-[10px] font-bold text-muted-foreground">{label}</span><input type="number" className="field-control" value={value} onChange={(e) => onChange(Number(e.target.value))} /></label>; }
+function Repeater({ title, onAdd, children }: { title: string; onAdd: () => void; children: React.ReactNode }) { return <div className="mt-4"><div className="mb-2 flex items-center justify-between"><span className="text-xs font-bold text-muted-foreground">{title}</span><button type="button" onClick={onAdd} className="btn-secondary px-2 py-1.5 text-xs"><Plus className="h-3.5 w-3.5" />Add</button></div><div className="space-y-2">{children}</div></div>; }
+function ExtraRow({ extra, onChange, onDelete }: { extra: ServiceExtra; onChange: (patch: Partial<ServiceExtra>) => void; onDelete: () => void }) { return <div className="grid gap-2 rounded-xl border border-border bg-white p-3 sm:grid-cols-8"><input aria-label="Extra code" className="field-control uppercase" value={extra.code} onChange={(e) => onChange({ code: e.target.value.toUpperCase() })} /><input aria-label="Extra name" className="field-control sm:col-span-2" value={extra.name} onChange={(e) => onChange({ name: e.target.value })} /><input aria-label="Extra price" type="number" min="0" step="0.01" className="field-control" value={extra.price} onChange={(e) => onChange({ price: Number(e.target.value) })} /><input aria-label="Added minutes" type="number" min="0" className="field-control" title="Added minutes" value={extra.durationMinutes} onChange={(e) => onChange({ durationMinutes: Number(e.target.value) })} /><input aria-label="Additional staff" type="number" min="0" max="20" className="field-control" title="Additional staff" value={extra.additionalStaff} onChange={(e) => onChange({ additionalStaff: Number(e.target.value) })} /><label className="flex items-center gap-2 px-2 text-xs font-bold"><input type="checkbox" checked={extra.isActive} onChange={(e) => onChange({ isActive: e.target.checked })} />Active</label><button type="button" onClick={onDelete} className="btn-secondary px-2" aria-label={`Delete ${extra.name}`}><Trash2 className="h-3.5 w-3.5" /></button></div>; }
+function PromoRow({ promo, onChange, onDelete }: { promo: ServicePromotion; onChange: (patch: Partial<ServicePromotion>) => void; onDelete: () => void }) { return <div className="rounded-xl border border-border bg-white p-3"><div className="grid gap-2 sm:grid-cols-6"><input aria-label="Promo code" className="field-control uppercase" value={promo.code} onChange={(e) => onChange({ code: e.target.value.toUpperCase() })} /><select aria-label="Promo type" className="field-control" value={promo.type} onChange={(e) => onChange({ type: e.target.value as ServicePromotion["type"] })}><option value="PERCENT">Percent</option><option value="FIXED">Fixed</option></select><input aria-label="Promo value" type="number" min="0" className="field-control" value={promo.value} onChange={(e) => onChange({ value: Number(e.target.value) })} /><input aria-label="Maximum redemptions" type="number" min="1" className="field-control" placeholder="Max uses" value={promo.maxRedemptions || ""} onChange={(e) => onChange({ maxRedemptions: e.target.value ? Number(e.target.value) : undefined })} /><label className="flex items-center gap-2 px-2 text-xs font-bold"><input type="checkbox" checked={promo.isActive} onChange={(e) => onChange({ isActive: e.target.checked })} />Active</label><button type="button" onClick={onDelete} className="btn-secondary px-2" aria-label={`Delete ${promo.code}`}><Trash2 className="h-3.5 w-3.5" /></button></div><div className="mt-2 grid gap-2 sm:grid-cols-2"><label><span className="mb-1 block text-[10px] font-bold text-muted-foreground">Starts (optional)</span><input type="datetime-local" className="field-control" value={promo.startsAt ? promo.startsAt.slice(0, 16) : ""} onChange={(e) => onChange({ startsAt: e.target.value ? new Date(e.target.value).toISOString() : undefined })} /></label><label><span className="mb-1 block text-[10px] font-bold text-muted-foreground">Ends (optional)</span><input type="datetime-local" className="field-control" value={promo.endsAt ? promo.endsAt.slice(0, 16) : ""} onChange={(e) => onChange({ endsAt: e.target.value ? new Date(e.target.value).toISOString() : undefined })} /></label></div>{promo.redemptionCount ? <p className="mt-2 text-[11px] font-semibold text-muted-foreground">Used {promo.redemptionCount} time{promo.redemptionCount === 1 ? "" : "s"}.</p> : null}</div>; }
+function patchExtra(index: number, patch: Partial<ServiceExtra>, form: Partial<CleaningService>, setForm: (value: Partial<CleaningService>) => void) { const list = [...(form.pricing?.extras || [])]; list[index] = { ...list[index], ...patch }; setForm({ ...form, pricing: { ...form.pricing, extras: list } }); }
+function patchPromo(index: number, patch: Partial<ServicePromotion>, form: Partial<CleaningService>, setForm: (value: Partial<CleaningService>) => void) { const list = [...(form.pricing?.promotions || [])]; list[index] = { ...list[index], ...patch }; setForm({ ...form, pricing: { ...form.pricing, promotions: list } }); }
+function patchTier(index: number, patch: Record<string, any>, form: Partial<CleaningService>, setForm: (value: Partial<CleaningService>) => void) { const list = [...(form.pricing?.squareFootageTiers || [])]; list[index] = { ...list[index], ...patch }; setForm({ ...form, pricing: { ...form.pricing, squareFootageTiers: list } }); }

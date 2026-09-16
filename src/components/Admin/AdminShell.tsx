@@ -4,6 +4,7 @@ import { clearSession, selectCurrentUser, setSession } from "@/src/redux/feature
 import { useGetSessionQuery, useLogoutSessionMutation } from "@/src/redux/features/auth/authApi";
 import {
   CalendarCheck,
+  CalendarClock,
   LayoutDashboard,
   LogOut,
   Mail,
@@ -26,6 +27,7 @@ const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/bookings", label: "Bookings", icon: CalendarCheck },
   { href: "/admin/services", label: "Services", icon: Sparkles },
+  { href: "/admin/settings/scheduling", label: "Scheduling", icon: CalendarClock },
   { href: "/admin/contacts", label: "Contacts", icon: Mail },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
@@ -35,6 +37,7 @@ function sectionTitle(pathname: string) {
   if (pathname.startsWith("/admin/bookings")) return "Bookings";
   if (pathname.startsWith("/admin/services")) return "Services";
   if (pathname.startsWith("/admin/contacts")) return "Contacts";
+  if (pathname.startsWith("/admin/settings/scheduling")) return "Scheduling & capacity";
   if (pathname.startsWith("/admin/settings")) return "Settings";
   return "Operations overview";
 }

@@ -4,8 +4,10 @@ import { useChangePasswordMutation } from "@/src/redux/features/auth/authApi";
 import { clearSession, selectCurrentUser } from "@/src/redux/features/auth/authSlice";
 import { useAppDispatch } from "@/src/redux/hooks";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   BadgeCheck,
+  CalendarClock,
   Eye,
   EyeOff,
   KeyRound,
@@ -61,6 +63,14 @@ export default function AdminSettingsPage() {
         <h2 className="admin-page-heading mt-3 text-brand-dark">Profile & security</h2>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">Keep account information clear and security controls easy to understand.</p>
       </section>
+
+      <Link href="/admin/settings/scheduling" className="surface flex items-center justify-between gap-5 p-5 transition hover:border-brand-green/35 sm:p-6">
+        <div className="flex items-center gap-4">
+          <span className="grid h-11 w-11 place-items-center rounded-xl bg-brand-green/8 text-brand-green"><CalendarClock className="h-5 w-5" /></span>
+          <div><h3 className="text-base font-extrabold text-brand-dark">Scheduling & capacity</h3><p className="mt-1 text-xs text-muted-foreground">Business timezone, opening hours, crew availability, deposits, cancellation rules and blocked time.</p></div>
+        </div>
+        <span className="text-xs font-extrabold text-brand-green">Open →</span>
+      </Link>
 
       <div className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
         <section className="overflow-hidden rounded-2xl bg-brand-dark p-5 text-white shadow-card sm:p-6">

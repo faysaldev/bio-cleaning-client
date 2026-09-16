@@ -1,0 +1,17 @@
+import { CreditCard, ShieldCheck, Tag } from "lucide-react";
+import { FormEvent, useState } from "react";
+import type { BookingQuote, PaymentOption } from "@/src/redux/features/bookings/types";
+import { StepHeading } from "./ServiceStep";
+
+export function PaymentStep({ quote, paymentOption, promoCode, occurrenceCount = 1, onPaymentOption, onApplyPromo }: { quote?: BookingQuote; paymentOption: PaymentOption; promoCode?: string; occurrenceCount?: number; onPaymentOption: (option: PaymentOption) => void; onApplyPromo: (code?: string) => void }) {
+  const [promoDraft, setPromoDraft] = useState(promoCode || "");
+  const policy = quote?.payment.depositPolicy || "NONE";
+  const deposit = quote?.payment.depositAmount || 0;
+  const seriesDeposit = deposit * Math.max(1, occurrenceCount);
+  const apply = (event: FormEvent) => { event.preventDefault(); onApplyPromo(promoDraft.trim() ? promoDraft.trim().toUpperCase() : undefined); };
+  return <div><StepHeading eyebrow="Step 7" title="Payment preference" description="Your quote is recalculated by the server. If a deposit is selected or required, checkout is handled securely by Stripe." />
+    <form onSubmit={apply} className="rounded-xl border border-border bg-brand-cream/45 p-4"><label className="field-label" htmlFor="promo">Promo code</label><div className="flex gap-2"><div className="relative flex-1"><Tag className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><input id="promo" className="field-control pl-9 uppercase" value={promoDraft} onChange={(event) => setPromoDraft(event.target.value)} placeholder="WELCOME10" /></div><button className="btn-secondary" type="submit">Apply</button></div>{quote?.promoCode ? <p className="mt-2 text-xs font-bold text-brand-green">{quote.promoCode} applied successfully.</p> : null}</form>
+    <div className="mt-5 grid gap-3 sm:grid-cols-2">{policy !== "REQUIRED" ? <button type="button" onClick={() => onPaymentOption("PAY_LATER")} className={`rounded-xl border p-4 text-left ${paymentOption === "PAY_LATER" ? "border-brand-green bg-brand-green/[0.055]" : "border-border bg-white"}`}><ShieldCheck className="h-5 w-5 text-brand-green" /><h3 className="mt-3 text-sm font-extrabold text-brand-dark">Pay after service</h3><p className="mt-1 text-xs leading-5 text-muted-foreground">No card details are collected now.</p></button> : null}{policy !== "NONE" ? <button type="button" onClick={() => onPaymentOption("DEPOSIT")} className={`rounded-xl border p-4 text-left ${paymentOption === "DEPOSIT" ? "border-brand-green bg-brand-green/[0.055]" : "border-border bg-white"}`}><CreditCard className="h-5 w-5 text-brand-green" /><h3 className="mt-3 text-sm font-extrabold text-brand-dark">{policy === "REQUIRED" ? "Required deposit" : "Pay a deposit"}</h3><p className="mt-1 text-xs leading-5 text-muted-foreground">${seriesDeposit.toFixed(2)} {quote?.payment.currency || "USD"} through secure checkout{occurrenceCount > 1 ? ` for ${occurrenceCount} visits` : ""}.</p></button> : null}</div>
+    {quote ? <div className="mt-5 rounded-xl border border-brand-green/15 bg-brand-green/5 p-4 text-sm"><div className="flex justify-between"><span className="text-muted-foreground">Visit total</span><strong className="text-brand-dark">${quote.totalAmount.toFixed(2)}</strong></div>{quote.priceBreakdown.promotionDiscount ? <div className="mt-2 flex justify-between text-brand-green"><span>Promotion</span><strong>-${quote.priceBreakdown.promotionDiscount.toFixed(2)}</strong></div> : null}</div> : null}
+  </div>;
+}

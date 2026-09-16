@@ -2,6 +2,7 @@
 
 import {
   CalendarCheck,
+  CalendarClock,
   ExternalLink,
   LayoutDashboard,
   Mail,
@@ -17,7 +18,8 @@ const commands = [
   { href: "/admin", label: "Dashboard", detail: "Operations overview", icon: LayoutDashboard },
   { href: "/admin/bookings", label: "Bookings", detail: "Search and manage reservations", icon: CalendarCheck },
   { href: "/admin/bookings/manual", label: "Create booking", detail: "Add a reservation manually", icon: CalendarCheck },
-  { href: "/admin/services", label: "Services", detail: "Pricing, availability and publishing", icon: Sparkles },
+  { href: "/admin/services", label: "Services", detail: "Pricing, duration, extras and publishing", icon: Sparkles },
+  { href: "/admin/settings/scheduling", label: "Scheduling & capacity", detail: "Hours, timezone, staff, deposits and blocks", icon: CalendarClock },
   { href: "/admin/contacts", label: "Contacts", detail: "Customer messages and replies", icon: Mail },
   { href: "/admin/settings", label: "Settings", detail: "Profile and security", icon: Settings },
   { href: "/", label: "View website", detail: "Open the public site", icon: ExternalLink },

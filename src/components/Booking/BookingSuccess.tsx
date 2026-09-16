@@ -1,31 +1,7 @@
-import { ArrowRight, BadgeCheck } from "lucide-react";
+import { ArrowRight, BadgeCheck, CalendarCog, CreditCard } from "lucide-react";
 import Link from "next/link";
 
-interface BookingSuccessProps {
-  reference: string;
-}
-
-export function BookingSuccess({ reference }: BookingSuccessProps) {
-  return (
-    <div className="flex min-h-[78vh] items-center justify-center bg-brand-cream/45 px-4 py-20">
-      <div className="surface w-full max-w-lg p-6 text-center sm:p-9">
-        <div className="mx-auto grid h-14 w-14 place-items-center rounded-xl bg-brand-green/9 text-brand-green">
-          <BadgeCheck className="h-7 w-7" />
-        </div>
-        <h1 className="mt-5 text-3xl font-extrabold tracking-[-0.045em] text-brand-dark sm:text-4xl">Booking received</h1>
-        <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-muted-foreground">We&apos;ve received your request and will confirm the appointment as soon as the team reviews availability.</p>
-
-        <div className="mt-6 rounded-xl border border-brand-green/18 bg-brand-cream/65 p-5">
-          <div className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">Booking reference</div>
-          <div className="mt-2 font-mono text-2xl font-bold tracking-[-0.03em] text-brand-dark">{reference}</div>
-          <p className="mt-3 text-xs text-muted-foreground">Keep this reference for support or booking questions.</p>
-        </div>
-
-        <div className="mt-6 grid gap-2 sm:grid-cols-2">
-          <Link href="/" className="btn-primary">Back home</Link>
-          <Link href="/services" className="btn-secondary">View services <ArrowRight className="h-4 w-4" /></Link>
-        </div>
-      </div>
-    </div>
-  );
+export function BookingSuccess({ reference, manageToken, occurrenceCount = 1, paymentMessage }: { reference: string; manageToken?: string; occurrenceCount?: number; paymentMessage?: string }) {
+  const manageHref = manageToken ? `/booking/manage?reference=${encodeURIComponent(reference)}#token=${manageToken}` : "/booking/manage";
+  return <div className="flex min-h-[78vh] items-center justify-center bg-brand-cream/45 px-4 py-20"><div className="surface w-full max-w-lg p-6 text-center sm:p-9"><div className="mx-auto grid h-14 w-14 place-items-center rounded-xl bg-brand-green/9 text-brand-green"><BadgeCheck className="h-7 w-7" /></div><h1 className="mt-5 text-3xl font-extrabold tracking-[-0.045em] text-brand-dark sm:text-4xl">Booking received</h1><p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-muted-foreground">{occurrenceCount > 1 ? `Your ${occurrenceCount}-visit recurring series has been reserved successfully.` : "Your appointment has been reserved successfully."}</p><div className="mt-6 rounded-xl border border-brand-green/18 bg-brand-cream/65 p-5"><div className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">Booking reference</div><div className="mt-2 font-mono text-2xl font-bold tracking-[-0.03em] text-brand-dark">{reference}</div>{paymentMessage ? <p className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-brand-green"><CreditCard className="h-3.5 w-3.5" />{paymentMessage}</p> : <p className="mt-3 text-xs text-muted-foreground">A confirmation and private management link are being sent by email.</p>}</div><div className="mt-6 grid gap-2 sm:grid-cols-2"><Link href={manageHref} className="btn-primary"><CalendarCog className="h-4 w-4" /> Manage booking</Link><Link href="/services" className="btn-secondary">View services <ArrowRight className="h-4 w-4" /></Link></div></div></div>;
 }

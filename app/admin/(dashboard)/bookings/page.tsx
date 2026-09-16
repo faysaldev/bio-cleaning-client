@@ -13,6 +13,7 @@ import {
   ChevronRight,
   MapPin,
   Plus,
+  RotateCcw,
   Search,
   Sparkles,
   User,
@@ -103,9 +104,12 @@ export default function AdminBookingsPage() {
             Search customers, track each job, and move bookings through confirmation and completion from one responsive workspace.
           </p>
         </div>
-        <Link href="/admin/bookings/manual" className="btn-primary shrink-0">
-          <Plus className="h-4 w-4" /> Manual booking
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/admin/bookings/recovery" className="btn-secondary shrink-0"><RotateCcw className="h-4 w-4" />Recovery queue</Link>
+          <Link href="/admin/bookings/manual" className="btn-primary shrink-0">
+            <Plus className="h-4 w-4" /> Manual booking
+          </Link>
+        </div>
       </section>
 
       <section className="surface p-4 sm:p-5" aria-label="Booking filters">
