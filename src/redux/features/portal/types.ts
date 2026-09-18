@@ -23,7 +23,7 @@ export interface PortalCustomer {
   accessInstructions?: string;
   pets?: Array<{ _id?: string; name?: string; type: string; notes?: string }>;
 }
-export interface PortalSession { csrfToken: string; customer: PortalCustomer }
+export interface PortalSession { csrfToken: string; customer: PortalCustomer; portalSession?: string }
 export interface PortalOverview {
   customer: PortalCustomer;
   upcoming: Booking[];

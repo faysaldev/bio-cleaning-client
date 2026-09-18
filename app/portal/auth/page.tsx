@@ -15,6 +15,9 @@ export default function PortalAuthPage() {
     if (!token) { setError("The secure sign-in token is missing."); return; }
     exchange({ token }).unwrap().then((result) => {
       sessionStorage.setItem("bio_portal_csrf", result.csrfToken);
+      if (result.portalSession) {
+        sessionStorage.setItem("bio_portal_session", result.portalSession);
+      }
       window.history.replaceState({}, "", "/portal/auth");
       router.replace("/portal");
     }).catch((e:any)=>setError(e?.data?.message || "This portal link is invalid or expired."));
