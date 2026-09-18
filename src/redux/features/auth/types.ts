@@ -20,6 +20,8 @@ export interface TApiResponse<T> {
 export interface AuthSessionData {
   user: User;
   csrfToken: string;
+  accessToken?: string;
+  refreshToken?: string;
 }
 
 export type LoginResponse = TApiResponse<AuthSessionData>;

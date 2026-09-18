@@ -14,7 +14,14 @@ const rawBaseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
   credentials: "include",
   prepareHeaders: (headers, api: { getState: () => unknown }) => {
-    const csrfToken = (api.getState() as RootState).auth.csrfToken;
+    const authState = (api.getState() as RootState).auth;
+    const token =
+      authState.accessToken ||
+      (typeof window !== "undefined"
+        ? localStorage.getItem("bio_access_token")
+        : null);
+    if (token) headers.set("authorization", `Bearer ${token}`);
+    const csrfToken = authState.csrfToken;
     if (csrfToken) headers.set("x-csrf-token", csrfToken);
     if (typeof window !== "undefined") {
       const portalCsrf = window.sessionStorage.getItem("bio_portal_csrf");
@@ -33,15 +40,26 @@ const refreshSession = async (
 ): Promise<AuthSessionData | null> => {
   if (!refreshPromise) {
     refreshPromise = (async () => {
+      const authState = (api.getState() as RootState).auth;
+      const storedRefreshToken =
+        authState.refreshToken ||
+        (typeof window !== "undefined"
+          ? localStorage.getItem("bio_refresh_token")
+          : null);
+
       const refreshResult = await rawBaseQuery(
-        { url: "/auth/refresh", method: "POST" },
+        {
+          url: "/auth/refresh",
+          method: "POST",
+          body: storedRefreshToken ? { refreshToken: storedRefreshToken } : undefined,
+        },
         api,
         extraOptions,
       );
 
       if (!refreshResult.data) return null;
       const payload = refreshResult.data as TApiResponse<AuthSessionData>;
-      return payload.data?.user && payload.data?.csrfToken ? payload.data : null;
+      return payload.data?.user ? payload.data : null;
     })().finally(() => {
       refreshPromise = null;
     });
