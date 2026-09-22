@@ -150,22 +150,22 @@ export function AdminShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,var(--brand-cream)_0%,var(--background)_24rem)] text-foreground">
+    <div className="min-h-screen bg-[#F4FAF5] text-foreground">
       {mobileOpen ? (
         <button
           type="button"
           aria-label="Close admin navigation"
-          className="fixed inset-0 z-40 bg-brand-dark/35 backdrop-blur-[2px] lg:hidden"
+          className="fixed inset-0 z-40 bg-brand-dark/40 backdrop-blur-sm lg:hidden"
           onClick={() => setMobileOpen(false)}
         />
       ) : null}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-[280px] border-r border-white/8 bg-sidebar text-sidebar-foreground shadow-[16px_0_50px_-38px_rgba(5,35,20,.65)] transition-transform duration-200 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-[280px] border-r border-white/10 bg-[#0C3629] text-white shadow-2xl transition-transform duration-200 lg:translate-x-0 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex h-full flex-col px-4 py-5">
+        <div className="flex h-full flex-col px-4 py-5 overflow-y-auto">
           <div className="flex items-center justify-between px-2">
             <Link href="/" className="inline-flex items-center gap-3 rounded-lg focus-visible:outline-offset-4">
               <Image
@@ -177,7 +177,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
               />
               <span>
                 <span className="block text-sm font-extrabold tracking-[-0.025em] text-white">BIO Cleaning</span>
-                <span className="block text-[10px] font-bold uppercase tracking-[0.16em] text-white/45">Operations</span>
+                <span className="block text-[10px] font-bold uppercase tracking-[0.16em] text-brand-lime">Control Center</span>
               </span>
             </Link>
             <button
@@ -193,52 +193,52 @@ export function AdminShell({ children }: { children: ReactNode }) {
           <button
             type="button"
             onClick={() => setCommandOpen(true)}
-            className="mt-7 flex w-full items-center gap-2.5 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-left text-xs font-semibold text-white/58 transition hover:border-white/18 hover:bg-white/8 hover:text-white"
+            className="mt-6 flex w-full items-center gap-2.5 rounded-full border border-white/15 bg-white/6 px-4 py-2.5 text-left text-xs font-semibold text-white/70 transition hover:border-brand-lime/40 hover:bg-white/10 hover:text-white"
           >
-            <Search className="h-4 w-4" aria-hidden="true" />
-            <span className="flex-1">Search workspace</span>
-            <kbd className="rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5 font-mono text-[9px] text-white/42">⌘K</kbd>
+            <Search className="h-3.5 w-3.5 text-brand-lime" aria-hidden="true" />
+            <span className="flex-1">Search workspace…</span>
+            <kbd className="rounded-full border border-white/15 bg-white/10 px-2 py-0.5 font-mono text-[9px] text-white/60">⌘K</kbd>
           </button>
 
           <nav className="mt-6 space-y-1" aria-label="Admin navigation">
-            <p className="px-3 pb-2 text-[10px] font-extrabold uppercase tracking-[0.18em] text-white/32">Workspace</p>
+            <p className="px-4 pb-2 text-[10px] font-extrabold uppercase tracking-[0.18em] text-white/40">Workspace Menu</p>
             {navItems.filter((item) => item.roles.includes(user.role)).map(({ href, label, icon: Icon }) => {
               const active = pathname === href || (href !== "/admin" && pathname.startsWith(href));
               return (
                 <Link
                   key={href}
                   href={href}
-                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors ${
+                  className={`flex items-center gap-3 rounded-full px-4 py-2 text-xs font-bold transition-all ${
                     active
-                      ? "bg-brand-lime text-brand-dark shadow-[0_8px_18px_-14px_rgba(210,239,75,.8)]"
-                      : "text-white/62 hover:bg-white/7 hover:text-white"
+                      ? "bg-brand-lime text-brand-dark font-extrabold shadow-md shadow-brand-lime/20 scale-[1.02]"
+                      : "text-white/75 hover:bg-white/8 hover:text-white"
                   }`}
                 >
-                  <Icon className="h-4 w-4" aria-hidden="true" />
-                  {label}
+                  <Icon className={`h-4 w-4 ${active ? "text-brand-dark" : "text-white/60"}`} aria-hidden="true" />
+                  <span>{label}</span>
                 </Link>
               );
             })}
           </nav>
 
-          <div className="mt-auto border-t border-white/8 pt-4">
-            <div className="flex items-center gap-3 px-2 py-2">
+          <div className="mt-auto border-t border-white/10 pt-4">
+            <div className="flex items-center gap-3 rounded-2xl bg-white/5 p-2.5 border border-white/10">
               {user.image ? (
-                <img src={user.image} alt="" className="h-10 w-10 rounded-lg object-cover" />
+                <img src={user.image} alt="" className="h-9 w-9 rounded-xl object-cover ring-1 ring-white/20" />
               ) : (
-                <div className="grid h-10 w-10 place-items-center rounded-lg bg-brand-lime text-sm font-extrabold text-brand-dark">
+                <div className="grid h-9 w-9 place-items-center rounded-xl bg-brand-lime text-xs font-black text-brand-dark">
                   {user.name?.charAt(0) || "A"}
                 </div>
               )}
               <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-bold text-white">{user.name || "Admin"}</div>
-                <div className="truncate text-[11px] text-white/42">{user.email}</div>
+                <div className="truncate text-xs font-extrabold text-white">{user.name || "Admin"}</div>
+                <div className="truncate text-[10px] text-white/50">{user.email}</div>
               </div>
             </div>
             <button
               type="button"
               onClick={handleSignOut}
-              className="mt-2 flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold text-white/55 transition hover:bg-white/7 hover:text-white"
+              className="mt-2 flex w-full items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 py-2 text-xs font-bold text-white/70 transition hover:bg-white/15 hover:text-white"
             >
               <LogOut className="h-3.5 w-3.5" aria-hidden="true" /> Sign out
             </button>
@@ -247,11 +247,11 @@ export function AdminShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="lg:pl-[280px]">
-        <header className="sticky top-0 z-30 border-b border-border/80 bg-background/88 backdrop-blur-xl supports-[backdrop-filter]:bg-background/78">
-          <div className="flex h-[72px] items-center gap-4 px-4 sm:px-6 lg:px-8">
+        <header className="sticky top-0 z-30 border-b border-brand-green/10 bg-white/95 backdrop-blur-xl shadow-xs">
+          <div className="flex h-[70px] items-center gap-4 px-4 sm:px-6 lg:px-8">
             <button
               type="button"
-              className="grid h-10 w-10 place-items-center rounded-lg border border-border bg-white text-brand-dark shadow-sm lg:hidden"
+              className="grid h-10 w-10 place-items-center rounded-xl border border-border bg-white text-brand-dark shadow-sm lg:hidden"
               onClick={() => setMobileOpen(true)}
               aria-label="Open admin menu"
             >
@@ -259,22 +259,22 @@ export function AdminShell({ children }: { children: ReactNode }) {
             </button>
 
             <div className="min-w-0 flex-1">
-              <div className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-brand-green">Admin workspace</div>
-              <h1 className="truncate text-lg font-bold tracking-[-0.03em] text-brand-dark sm:text-xl">{sectionTitle(pathname)}</h1>
+              <div className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-brand-green">Control Center</div>
+              <h1 className="truncate text-lg font-extrabold tracking-tight text-brand-dark sm:text-xl">{sectionTitle(pathname)}</h1>
             </div>
 
             <button
               type="button"
               onClick={() => setCommandOpen(true)}
-              className="hidden min-w-52 items-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-xs font-semibold text-muted-foreground shadow-sm transition hover:border-brand-green/40 hover:text-brand-dark md:flex"
+              className="hidden min-w-56 items-center gap-2 rounded-full border border-border bg-[#F4FAF5] px-4 py-2 text-xs font-semibold text-muted-foreground shadow-sm transition hover:border-brand-green/40 hover:bg-white hover:text-brand-dark md:flex"
             >
-              <Search className="h-3.5 w-3.5" aria-hidden="true" />
+              <Search className="h-3.5 w-3.5 text-brand-green" aria-hidden="true" />
               <span className="flex-1 text-left">Search or jump to…</span>
-              <kbd className="rounded border border-border bg-brand-cream px-1.5 py-0.5 font-mono text-[9px]">⌘K</kbd>
+              <kbd className="rounded-full border border-border bg-white px-2 py-0.5 font-mono text-[9px]">⌘K</kbd>
             </button>
 
-            <Link href="/" className="btn-secondary hidden sm:inline-flex">
-              View site
+            <Link href="/" className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-4 py-2 text-xs font-extrabold text-brand-dark shadow-sm transition hover:border-brand-green/40 hover:bg-[#F4FAF5] hidden sm:inline-flex">
+              View Site
             </Link>
           </div>
         </header>

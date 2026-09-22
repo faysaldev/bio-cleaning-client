@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, CheckCircle2, Loader2, MailCheck } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Loader2, MailCheck, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState, type FormEvent } from "react";
 import { useForgotPasswordMutation } from "@/src/redux/features/auth/authApi";
@@ -18,7 +18,7 @@ export default function AdminForgotPasswordPage() {
     const email = emailRef.current?.value;
 
     if (!email) {
-      setError("Please enter your email.");
+      setError("Please enter your admin email address.");
       return;
     }
 
@@ -31,30 +31,93 @@ export default function AdminForgotPasswordPage() {
   };
 
   return (
-    <main className="grid min-h-screen place-items-center bg-brand-cream p-5">
-      <section className="w-full max-w-md rounded-2xl border border-border bg-white p-6 shadow-elevated sm:p-8">
-        <div className="grid h-11 w-11 place-items-center rounded-xl bg-brand-lime text-brand-dark"><MailCheck className="h-5 w-5" /></div>
-        <h1 className="mt-6 text-3xl font-extrabold tracking-[-0.045em] text-brand-dark">Reset password</h1>
-        <p className="mt-2 text-sm leading-6 text-muted-foreground">Enter the admin email and we&apos;ll send reset instructions if the account exists.</p>
+    <main className="relative grid min-h-screen place-items-center overflow-hidden bg-[#0C3629] p-4 sm:p-6 text-foreground">
+      {/* Soft atmospheric gradient accents */}
+      <div className="pointer-events-none absolute left-1/2 top-0 h-[480px] w-[800px] -translate-x-1/2 rounded-full bg-brand-green/20 blur-[130px]" />
+      <div className="pointer-events-none absolute right-10 bottom-10 h-72 w-72 rounded-full bg-brand-lime/10 blur-[90px]" />
 
-        <form className="mt-7 space-y-4" onSubmit={handleForgot}>
-          {error ? <div className="feedback-panel border-destructive/20 bg-destructive/5 text-destructive" role="alert">{error}</div> : null}
+      <section className="relative z-10 w-full max-w-md rounded-3xl border border-white/15 bg-white p-7 sm:p-10 shadow-2xl backdrop-blur-xl">
+        <div className="flex items-center justify-between">
+          <div className="grid h-12 w-12 place-items-center rounded-2xl bg-brand-lime text-brand-dark shadow-md">
+            <MailCheck className="h-6 w-6 stroke-[2.2]" />
+          </div>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-green/20 bg-[#F4FAF5] px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-brand-green">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            Security
+          </span>
+        </div>
+
+        <div className="mt-6">
+          <span className="text-xs font-extrabold uppercase tracking-widest text-brand-green">
+            Password Recovery
+          </span>
+          <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-brand-dark">
+            Reset Password
+          </h1>
+          <p className="mt-2 text-xs sm:text-sm leading-relaxed text-muted-foreground">
+            Enter your admin email and we&apos;ll send recovery instructions if your account is registered.
+          </p>
+        </div>
+
+        <form className="mt-6 space-y-4" onSubmit={handleForgot}>
+          {error ? (
+            <div
+              className="rounded-2xl border border-destructive/20 bg-destructive/10 p-3.5 text-xs font-bold text-destructive"
+              role="alert"
+            >
+              {error}
+            </div>
+          ) : null}
+
           {success ? (
-            <div className="feedback-panel border-brand-green/20 bg-brand-green/5 text-brand-green" role="status">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>If the account exists, reset instructions have been sent.</span>
+            <div
+              className="flex items-start gap-2.5 rounded-2xl border border-brand-green/20 bg-brand-green/10 p-3.5 text-xs font-bold text-brand-green"
+              role="status"
+            >
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand-green" />
+              <span>If the account exists, secure reset instructions have been dispatched to your inbox.</span>
             </div>
           ) : null}
 
           <div>
-            <label htmlFor="reset-email" className="field-label">Admin email</label>
-            <input id="reset-email" required type="email" ref={emailRef} autoComplete="email" className="field-control" placeholder="admin@biocleaningllc.com" />
+            <label htmlFor="reset-email" className="block text-xs font-bold uppercase tracking-wider text-brand-dark mb-1.5">
+              Admin Email
+            </label>
+            <input
+              id="reset-email"
+              required
+              type="email"
+              ref={emailRef}
+              autoComplete="email"
+              className="w-full rounded-2xl border border-border bg-[#F4FAF5]/50 px-4 py-3 text-sm font-medium text-brand-dark transition placeholder:text-muted-foreground/60 focus:border-brand-green focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-green/20"
+              placeholder="admin@biocleaningllc.com"
+            />
           </div>
 
-          <button type="submit" disabled={isLoading || success} className="btn-primary w-full disabled:opacity-60">
-            {isLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Sending…</> : "Send reset link"}
+          <button
+            type="submit"
+            disabled={isLoading || success}
+            className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-brand-lime py-3.5 px-6 text-sm font-extrabold text-brand-dark shadow-lg transition hover:bg-brand-lime/90 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Sending Instructions…</span>
+              </>
+            ) : (
+              "Send Reset Link"
+            )}
           </button>
-          <Link href="/admin/login" className="inline-flex items-center gap-2 text-sm font-extrabold text-brand-green hover:text-brand-dark"><ArrowLeft className="h-4 w-4" /> Back to login</Link>
+
+          <div className="pt-2 text-center">
+            <Link
+              href="/admin/login"
+              className="inline-flex items-center gap-1.5 text-xs font-extrabold text-brand-green hover:text-brand-dark transition-colors"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              <span>Back to Admin Login</span>
+            </Link>
+          </div>
         </form>
       </section>
     </main>
