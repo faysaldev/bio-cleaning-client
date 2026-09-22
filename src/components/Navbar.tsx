@@ -37,7 +37,7 @@ export function Navbar({ website }: { website?: WebsitePublicPayload }) {
   useEffect(() => setOpen(false), [pathname]);
 
   return <>
-    <PageExplorerModal isOpen={explorerOpen} onClose={() => setExplorerOpen(false)} />
+    {/* <PageExplorerModal isOpen={explorerOpen} onClose={() => setExplorerOpen(false)} /> */}
     {content?.announcement.enabled ? <div className="relative z-[60] bg-brand-lime px-4 py-2 text-center text-xs font-bold text-brand-dark">{content.announcement.text}{content.announcement.linkUrl && content.announcement.linkLabel ? <Link href={content.announcement.linkUrl} className="ml-2 underline underline-offset-2">{content.announcement.linkLabel}</Link> : null}</div> : null}
     <header className="sticky top-0 z-50 px-3 pt-3 sm:px-4">
       <div className={`container-page flex min-h-16 items-center justify-between rounded-full border px-4 py-2 transition-all duration-200 ${scrolled ? "border-white/10 bg-brand-dark/96 shadow-[0_18px_45px_-30px_rgba(7,38,22,.72)] backdrop-blur-xl" : "border-white/10 bg-brand-dark/92 backdrop-blur-lg"}`}>
