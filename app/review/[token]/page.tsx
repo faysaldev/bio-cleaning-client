@@ -27,15 +27,154 @@ export default function ReviewPage() {
     catch (e: any) { setError(e?.data?.message || "We could not submit this review."); }
   };
 
-  return <div className="min-h-screen bg-brand-cream"><Navbar/><main className="container-page flex min-h-[70vh] items-center justify-center py-16 sm:py-24"><section className="w-full max-w-2xl rounded-2xl border border-border bg-white p-6 shadow-elevated sm:p-9">
-    {isLoading ? <LoadingState label="Opening your review…" /> : isError || !data ? <ErrorState title="This review link is unavailable" description="It may have expired or already been replaced. Contact BIO Cleaning if you still want to share feedback." action={<Link href="/contact" className="btn-secondary">Contact us</Link>} /> : done || data.status === "SUBMITTED" ? <div className="py-8 text-center"><CheckCircle2 className="mx-auto h-12 w-12 text-brand-green"/><p className="mt-5 text-xs font-extrabold uppercase tracking-[.16em] text-brand-green">Thank you</p><h1 className="mt-2 text-3xl font-extrabold tracking-[-.04em] text-brand-dark">Your feedback is recorded.</h1><p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-muted-foreground">We use your feedback to coach our team and improve future visits.</p>{done?.redirectUrl ? <a href={done.redirectUrl} target="_blank" rel="noopener noreferrer" className="btn-primary mt-6">Share your experience publicly <ExternalLink className="h-4 w-4"/></a> : null}<div className="mt-4"><Link href="/portal" className="text-sm font-bold text-brand-green hover:underline">Open customer portal</Link></div></div> : <>
-      <p className="text-xs font-extrabold uppercase tracking-[.16em] text-brand-green">Post-service review</p><h1 className="mt-2 text-3xl font-extrabold tracking-[-.04em] text-brand-dark">How did we do, {data.customerName}?</h1><p className="mt-3 text-sm leading-6 text-muted-foreground">Your feedback is for booking <strong>{data.booking?.reference}</strong>{data.booking?.serviceType ? ` · ${data.booking.serviceType}` : ""}. Ratings are recorded internally first.</p>
-      <div className="mt-7"><span className="field-label">Your rating</span><div className="mt-2 flex gap-2" role="radiogroup" aria-label="Rating out of five">{[1,2,3,4,5].map((value)=><button key={value} type="button" role="radio" aria-checked={rating===value} aria-label={`${value} star${value>1?"s":""}`} onClick={()=>setRating(value)} className="grid h-12 w-12 place-items-center rounded-xl border border-border bg-white transition hover:-translate-y-0.5 hover:border-brand-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green/40"><Star className={`h-6 w-6 ${value<=rating?"fill-brand-lime text-brand-green":"text-muted-foreground/45"}`}/></button>)}</div></div>
-      <label className="field-group mt-6"><span className="field-label">Anything you’d like us to know?</span><textarea className="field-control min-h-36 py-3" maxLength={5000} value={comment} onChange={(e)=>setComment(e.target.value)} placeholder="Tell us what went well or what we could improve."/><span className="text-right text-xs text-muted-foreground">{comment.length}/5000</span></label>
-      <label className="mt-4 flex items-start gap-3 rounded-xl border border-border bg-brand-cream/45 p-4 text-sm text-foreground/75"><input type="checkbox" checked={publishConsent} onChange={(e)=>setPublishConsent(e.target.checked)} disabled={!comment.trim()} className="mt-0.5 h-4 w-4 accent-brand-green"/><span><strong className="text-brand-dark">Website testimonial permission.</strong> BIO Cleaning may feature this written feedback on its website using my first name only. This is optional and can be left unchecked.</span></label>
-      {error ? <div className="feedback-panel mt-4 border-destructive/20 bg-destructive/5 text-destructive">{error}</div> : null}
-      <button className="btn-primary mt-6 w-full justify-center" onClick={submit} disabled={submitting}>{submitting?<Loader2 className="h-4 w-4 animate-spin"/>:<Star className="h-4 w-4"/>}{submitting?"Submitting…":"Submit review"}</button>
-      <p className="mt-4 text-center text-xs leading-5 text-muted-foreground">If your rating meets the business’s configured threshold, we may offer an optional link where you can also share your experience publicly.</p>
-    </>}
-  </section></main><Footer/></div>;
+  return (
+    <div className="min-h-screen bg-[#F7FAF8] flex flex-col justify-between">
+      <Navbar />
+      <main className="container-page flex min-h-[70vh] items-center justify-center py-16 sm:py-24">
+        <section className="w-full max-w-xl rounded-3xl border border-brand-green/15 bg-white p-7 sm:p-10 shadow-xl">
+          {isLoading ? (
+            <LoadingState label="Opening your review…" />
+          ) : isError || !data ? (
+            <ErrorState
+              title="This review link is unavailable"
+              description="It may have expired or already been submitted. Contact BIO Cleaning if you still want to share feedback."
+              action={
+                <Link href="/contact" className="btn-secondary rounded-full">
+                  Contact us
+                </Link>
+              }
+            />
+          ) : done || data.status === "SUBMITTED" ? (
+            <div className="py-8 text-center">
+              <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-[#0C3629] text-brand-lime shadow-md">
+                <CheckCircle2 className="h-8 w-8" />
+              </div>
+              <div className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-brand-green/20 bg-[#F4FAF5] px-3.5 py-1 text-[11px] font-extrabold uppercase tracking-wider text-brand-green">
+                Feedback Recorded
+              </div>
+              <h1 className="mt-3 text-2xl sm:text-3xl font-extrabold tracking-tight text-brand-dark">
+                Thank you for your review!
+              </h1>
+              <p className="mx-auto mt-2 max-w-md text-xs sm:text-sm leading-relaxed text-muted-foreground">
+                We use your input to coach our cleaning technicians, refine our equipment checklists, and continually improve every visit.
+              </p>
+              {done?.redirectUrl ? (
+                <div className="mt-6">
+                  <a
+                    href={done.redirectUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-primary inline-flex items-center gap-2 rounded-full px-7 py-3 text-xs font-extrabold shadow-md"
+                  >
+                    Share your experience on Google <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                </div>
+              ) : null}
+              <div className="mt-5">
+                <Link href="/portal" className="text-xs font-extrabold text-brand-green hover:underline">
+                  Go to Customer Portal →
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-brand-green/20 bg-[#F4FAF5] px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-brand-green">
+                Post-Service Review
+              </div>
+              <h1 className="mt-3 text-2xl sm:text-3xl font-extrabold tracking-tight text-brand-dark">
+                How did we do, {data.customerName}?
+              </h1>
+              <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-muted-foreground">
+                Your feedback is for booking <strong className="text-brand-dark">{data.booking?.reference}</strong>
+                {data.booking?.serviceType ? ` (${data.booking.serviceType})` : ""}.
+              </p>
+
+              {/* Star Rating Selector */}
+              <div className="mt-7">
+                <span className="field-label text-xs font-bold text-brand-dark">Your Overall Rating</span>
+                <div className="mt-2.5 flex gap-2.5" role="radiogroup" aria-label="Rating out of five">
+                  {[1, 2, 3, 4, 5].map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      role="radio"
+                      aria-checked={rating === value}
+                      aria-label={`${value} star${value > 1 ? "s" : ""}`}
+                      onClick={() => setRating(value)}
+                      className={`grid h-12 w-12 place-items-center rounded-2xl border transition-all ${
+                        value <= rating
+                          ? "border-brand-lime bg-[#0C3629] shadow-md ring-2 ring-brand-lime/40"
+                          : "border-brand-green/15 bg-[#F7FAF8] hover:border-brand-green hover:bg-white"
+                      }`}
+                    >
+                      <Star
+                        className={`h-6 w-6 transition-colors ${
+                          value <= rating ? "fill-brand-lime text-brand-lime" : "text-muted-foreground/40"
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Comments Textarea */}
+              <label className="field-group mt-6">
+                <span className="field-label text-xs font-bold text-brand-dark">
+                  Anything specific you’d like us to know?
+                </span>
+                <textarea
+                  className="field-control rounded-2xl min-h-32 py-3"
+                  maxLength={5000}
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="Tell us what went well, which room was your favorite, or anything we can polish next time…"
+                />
+                <span className="text-right text-[11px] text-muted-foreground mt-1">
+                  {comment.length} / 5000 characters
+                </span>
+              </label>
+
+              {/* Permission Checkbox */}
+              <label className="mt-4 flex items-start gap-3 rounded-2xl border border-brand-green/15 bg-[#F4FAF5] p-4 text-xs text-foreground/80 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={publishConsent}
+                  onChange={(e) => setPublishConsent(e.target.checked)}
+                  disabled={!comment.trim()}
+                  className="mt-0.5 h-4 w-4 accent-brand-green rounded"
+                />
+                <span>
+                  <strong className="text-brand-dark">Public testimonial permission.</strong> BIO Cleaning may feature this written review on its website using my first name and city only. (Optional).
+                </span>
+              </label>
+
+              {error ? (
+                <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-3.5 text-xs font-semibold text-destructive mt-4">
+                  {error}
+                </div>
+              ) : null}
+
+              <button
+                className="btn-primary mt-6 w-full rounded-full py-3.5 text-xs font-extrabold shadow-md justify-center"
+                onClick={submit}
+                disabled={submitting}
+              >
+                {submitting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Star className="h-4 w-4" />
+                )}
+                {submitting ? "Submitting Review…" : "Submit Review"}
+              </button>
+
+              <p className="mt-4 text-center text-[11px] leading-relaxed text-muted-foreground">
+                All submissions are encrypted and reviewed by our quality management team.
+              </p>
+            </>
+          )}
+        </section>
+      </main>
+      <Footer />
+    </div>
+  );
 }

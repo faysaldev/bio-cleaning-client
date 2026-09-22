@@ -64,42 +64,182 @@ export default function PortalProfilePage() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs font-extrabold uppercase tracking-[.16em] text-brand-green">Profile & preferences</p>
-        <h1 className="mt-1 text-3xl font-extrabold tracking-[-.04em] text-brand-dark">Help us prepare for every visit</h1>
-        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">Keep addresses, access notes, pets, and communication preferences current. Your sign-in email is <strong>{data.customer.email}</strong>.</p>
+        <div className="inline-flex items-center gap-1.5 rounded-full border border-brand-green/20 bg-[#F4FAF5] px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-brand-green">
+          Profile & Preferences
+        </div>
+        <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-brand-dark">
+          Help Us Prepare for Every Visit
+        </h1>
+        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+          Keep addresses, access notes, pets, and contact preferences current. Your login email is <strong className="text-brand-dark">{data.customer.email}</strong>.
+        </p>
       </div>
-      {message ? <div className="feedback-panel border-brand-green/20 bg-brand-green/5 text-brand-dark">{message}</div> : null}
-      {error ? <div className="feedback-panel border-destructive/20 bg-destructive/5 text-destructive">{error}</div> : null}
 
-      <section className="surface p-5 sm:p-6">
-        <h2 className="text-lg font-extrabold text-brand-dark">Contact preferences</h2>
+      {message ? (
+        <div className="rounded-2xl border border-brand-green/20 bg-[#F4FAF5] p-4 text-xs font-semibold text-brand-dark">
+          {message}
+        </div>
+      ) : null}
+      {error ? (
+        <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-4 text-xs font-semibold text-destructive">
+          {error}
+        </div>
+      ) : null}
+
+      {/* Contact Preferences */}
+      <section className="rounded-3xl border border-brand-green/12 bg-white p-6 sm:p-8 shadow-sm">
+        <h2 className="text-lg font-extrabold text-brand-dark">Contact Information</h2>
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <label className="field-group"><span className="field-label">Name</span><input className="field-control" value={form.name} onChange={(e) => setForm((c) => ({ ...c, name: e.target.value }))} /></label>
-          <label className="field-group"><span className="field-label">Phone</span><input className="field-control" value={form.phone || ""} onChange={(e) => setForm((c) => ({ ...c, phone: e.target.value }))} inputMode="tel" /></label>
-          <label className="field-group"><span className="field-label">Preferred contact method</span><select className="field-control" value={form.preferences?.contactMethod || "EMAIL"} onChange={(e) => setForm((c) => ({ ...c, preferences: { ...c.preferences, contactMethod: e.target.value as "EMAIL"|"PHONE"|"SMS" } }))}><option value="EMAIL">Email</option><option value="PHONE">Phone</option><option value="SMS">SMS (when enabled)</option></select></label>
-          <label className="field-group"><span className="field-label">Best time to contact</span><input className="field-control" placeholder="e.g. Weekdays after 4 PM" value={form.preferences?.preferredContactWindow || ""} onChange={(e) => setForm((c) => ({ ...c, preferences: { ...c.preferences, preferredContactWindow: e.target.value } }))} /></label>
+          <label className="field-group">
+            <span className="field-label text-xs font-bold text-brand-dark">Full Name</span>
+            <input className="field-control rounded-xl" value={form.name} onChange={(e) => setForm((c) => ({ ...c, name: e.target.value }))} />
+          </label>
+          <label className="field-group">
+            <span className="field-label text-xs font-bold text-brand-dark">Phone Number</span>
+            <input className="field-control rounded-xl" value={form.phone || ""} onChange={(e) => setForm((c) => ({ ...c, phone: e.target.value }))} inputMode="tel" />
+          </label>
+          <label className="field-group">
+            <span className="field-label text-xs font-bold text-brand-dark">Preferred Contact Method</span>
+            <select className="field-control rounded-xl" value={form.preferences?.contactMethod || "EMAIL"} onChange={(e) => setForm((c) => ({ ...c, preferences: { ...c.preferences, contactMethod: e.target.value as "EMAIL"|"PHONE"|"SMS" } }))}>
+              <option value="EMAIL">Email</option>
+              <option value="PHONE">Phone Call</option>
+              <option value="SMS">SMS Text Message</option>
+            </select>
+          </label>
+          <label className="field-group">
+            <span className="field-label text-xs font-bold text-brand-dark">Best Time to Contact</span>
+            <input className="field-control rounded-xl" placeholder="e.g. Weekdays after 3 PM" value={form.preferences?.preferredContactWindow || ""} onChange={(e) => setForm((c) => ({ ...c, preferences: { ...c.preferences, preferredContactWindow: e.target.value } }))} />
+          </label>
         </div>
-        <label className="field-group mt-4"><span className="field-label">Cleaning preferences</span><textarea className="field-control min-h-28 py-3" value={form.preferences?.serviceNotes || ""} onChange={(e) => setForm((c) => ({ ...c, preferences: { ...c.preferences, serviceNotes: e.target.value } }))} placeholder="Products to avoid, rooms to prioritize, special surfaces…" /></label>
-        <label className="field-group mt-4"><span className="field-label">Access instructions</span><textarea className="field-control min-h-28 py-3" value={form.accessInstructions || ""} onChange={(e) => setForm((c) => ({ ...c, accessInstructions: e.target.value }))} placeholder="Gate, parking, concierge, key or arrival instructions. Avoid storing sensitive alarm codes here." /></label>
+        <label className="field-group mt-4">
+          <span className="field-label text-xs font-bold text-brand-dark">Cleaning & Surface Preferences</span>
+          <textarea className="field-control rounded-xl min-h-28 py-3" value={form.preferences?.serviceNotes || ""} onChange={(e) => setForm((c) => ({ ...c, preferences: { ...c.preferences, serviceNotes: e.target.value } }))} placeholder="Delicate surfaces, high-priority rooms, fragrance sensitivities, or special instructions…" />
+        </label>
+        <label className="field-group mt-4">
+          <span className="field-label text-xs font-bold text-brand-dark">Entry & Access Instructions</span>
+          <textarea className="field-control rounded-xl min-h-28 py-3" value={form.accessInstructions || ""} onChange={(e) => setForm((c) => ({ ...c, accessInstructions: e.target.value }))} placeholder="Key lockbox, front desk / concierge, gate code or parking instructions. (Avoid writing alarm master codes here)." />
+        </label>
       </section>
 
-      <section className="surface p-5 sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-extrabold text-brand-dark">Service addresses</h2><p className="mt-1 text-sm text-muted-foreground">Save up to 20 locations and choose your primary address.</p></div><button className="btn-secondary" type="button" onClick={() => setForm((c) => ({ ...c, addresses: [...c.addresses, { ...emptyAddress(), isPrimary: c.addresses.length === 0 }] }))}><Plus className="h-4 w-4" />Add address</button></div>
+      {/* Service Addresses */}
+      <section className="rounded-3xl border border-brand-green/12 bg-white p-6 sm:p-8 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-brand-green/8">
+          <div>
+            <h2 className="text-lg font-extrabold text-brand-dark">Service Locations</h2>
+            <p className="mt-0.5 text-xs text-muted-foreground">Save multiple addresses and designate your default cleaning location.</p>
+          </div>
+          <button
+            className="btn-secondary rounded-full px-4 text-xs font-bold"
+            type="button"
+            onClick={() => setForm((c) => ({ ...c, addresses: [...c.addresses, { ...emptyAddress(), isPrimary: c.addresses.length === 0 }] }))}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Add Address
+          </button>
+        </div>
+
         <div className="mt-5 space-y-4">
-          {form.addresses.map((address, index) => <div key={address._id || index} className="rounded-2xl border border-border bg-brand-cream/35 p-4 sm:p-5">
-            <div className="flex items-center justify-between gap-3"><label className="flex items-center gap-2 text-sm font-bold text-brand-dark"><input type="radio" name="primary-address" checked={Boolean(address.isPrimary)} onChange={() => setPrimary(index)} />Primary</label><button type="button" className="grid h-9 w-9 place-items-center rounded-lg text-muted-foreground hover:bg-white hover:text-destructive" aria-label="Remove address" onClick={() => removeAddress(index)}><Trash2 className="h-4 w-4" /></button></div>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2"><input className="field-control" placeholder="Label (Home, Office)" value={address.label || ""} onChange={(e) => setAddress(index,{label:e.target.value})}/><select className="field-control" value={address.propertyType || "HOME"} onChange={(e)=>setAddress(index,{propertyType:e.target.value as any})}><option value="HOME">Home</option><option value="OFFICE">Office</option><option value="OTHER">Other</option></select><input className="field-control sm:col-span-2" placeholder="Street address" value={address.line1} onChange={(e)=>setAddress(index,{line1:e.target.value})}/><input className="field-control sm:col-span-2" placeholder="Apt / suite / unit" value={address.line2 || ""} onChange={(e)=>setAddress(index,{line2:e.target.value})}/><input className="field-control" placeholder="City" value={address.city} onChange={(e)=>setAddress(index,{city:e.target.value})}/><input className="field-control" placeholder="State / region" value={address.state || ""} onChange={(e)=>setAddress(index,{state:e.target.value})}/><input className="field-control" placeholder="ZIP / postal code" value={address.zip} onChange={(e)=>setAddress(index,{zip:e.target.value})}/><input className="field-control" placeholder="Country" value={address.country || ""} onChange={(e)=>setAddress(index,{country:e.target.value})}/></div>
-          </div>)}
-          {!form.addresses.length ? <div className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">No saved addresses yet.</div> : null}
+          {form.addresses.map((address, index) => (
+            <div key={address._id || index} className="rounded-2xl border border-brand-green/15 bg-[#F7FAF8] p-5">
+              <div className="flex items-center justify-between gap-3">
+                <label className="flex items-center gap-2 text-xs font-extrabold text-brand-dark cursor-pointer">
+                  <input
+                    type="radio"
+                    name="primary-address"
+                    checked={Boolean(address.isPrimary)}
+                    onChange={() => setPrimary(index)}
+                    className="accent-brand-green h-4 w-4"
+                  />
+                  <span>Primary Location</span>
+                </label>
+                <button
+                  type="button"
+                  className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground hover:bg-white hover:text-destructive transition"
+                  aria-label="Remove address"
+                  onClick={() => removeAddress(index)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <input className="field-control rounded-xl" placeholder="Label (Home, Townhouse, Office)" value={address.label || ""} onChange={(e) => setAddress(index, { label: e.target.value })} />
+                <select className="field-control rounded-xl" value={address.propertyType || "HOME"} onChange={(e) => setAddress(index, { propertyType: e.target.value as any })}>
+                  <option value="HOME">Single Family Home</option>
+                  <option value="OFFICE">Office / Commercial</option>
+                  <option value="OTHER">Other / Apartment</option>
+                </select>
+                <input className="field-control rounded-xl sm:col-span-2" placeholder="Street address" value={address.line1} onChange={(e) => setAddress(index, { line1: e.target.value })} />
+                <input className="field-control rounded-xl sm:col-span-2" placeholder="Apt / suite / unit (optional)" value={address.line2 || ""} onChange={(e) => setAddress(index, { line2: e.target.value })} />
+                <input className="field-control rounded-xl" placeholder="City" value={address.city} onChange={(e) => setAddress(index, { city: e.target.value })} />
+                <input className="field-control rounded-xl" placeholder="State (e.g. CO)" value={address.state || ""} onChange={(e) => setAddress(index, { state: e.target.value })} />
+                <input className="field-control rounded-xl" placeholder="ZIP code" value={address.zip} onChange={(e) => setAddress(index, { zip: e.target.value })} />
+                <input className="field-control rounded-xl" placeholder="Country" value={address.country || "USA"} onChange={(e) => setAddress(index, { country: e.target.value })} />
+              </div>
+            </div>
+          ))}
+
+          {!form.addresses.length ? (
+            <div className="rounded-2xl border border-dashed border-brand-green/20 p-8 text-center text-xs text-muted-foreground">
+              No service locations saved yet.
+            </div>
+          ) : null}
         </div>
       </section>
 
-      <section className="surface p-5 sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-extrabold text-brand-dark">Pets</h2><p className="mt-1 text-sm text-muted-foreground">This helps the cleaning team arrive prepared and keep doors/gates secure.</p></div><button className="btn-secondary" type="button" onClick={() => setForm((c) => ({ ...c, pets: [...(c.pets || []), emptyPet()] }))}><Plus className="h-4 w-4" />Add pet</button></div>
-        <div className="mt-5 space-y-3">{(form.pets || []).map((pet,index)=><div key={pet._id || index} className="grid gap-3 rounded-2xl border border-border bg-brand-cream/35 p-4 sm:grid-cols-[1fr_1fr_2fr_auto]"><input className="field-control" placeholder="Name" value={pet.name || ""} onChange={(e)=>setPet(index,{name:e.target.value})}/><input className="field-control" placeholder="Type (dog, cat…)" value={pet.type} onChange={(e)=>setPet(index,{type:e.target.value})}/><input className="field-control" placeholder="Notes" value={pet.notes || ""} onChange={(e)=>setPet(index,{notes:e.target.value})}/><button type="button" className="grid h-11 w-11 place-items-center rounded-lg text-muted-foreground hover:bg-white hover:text-destructive" aria-label="Remove pet" onClick={()=>setForm((c)=>({...c,pets:(c.pets||[]).filter((_,i)=>i!==index)}))}><Trash2 className="h-4 w-4"/></button></div>)}</div>
+      {/* Pets */}
+      <section className="rounded-3xl border border-brand-green/12 bg-white p-6 sm:p-8 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-brand-green/8">
+          <div>
+            <h2 className="text-lg font-extrabold text-brand-dark">Pets on Premises</h2>
+            <p className="mt-0.5 text-xs text-muted-foreground">Helps our technicians use pet-safe protocol and secure gates upon arrival.</p>
+          </div>
+          <button
+            className="btn-secondary rounded-full px-4 text-xs font-bold"
+            type="button"
+            onClick={() => setForm((c) => ({ ...c, pets: [...(c.pets || []), emptyPet()] }))}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Add Pet
+          </button>
+        </div>
+
+        <div className="mt-5 space-y-3">
+          {(form.pets || []).map((pet, index) => (
+            <div key={pet._id || index} className="grid gap-3 rounded-2xl border border-brand-green/15 bg-[#F7FAF8] p-4 sm:grid-cols-[1fr_1fr_2fr_auto] items-center">
+              <input className="field-control rounded-xl" placeholder="Pet Name (e.g. Luna)" value={pet.name || ""} onChange={(e) => setPet(index, { name: e.target.value })} />
+              <input className="field-control rounded-xl" placeholder="Type (Dog, Cat, Bird…)" value={pet.type} onChange={(e) => setPet(index, { type: e.target.value })} />
+              <input className="field-control rounded-xl" placeholder="Notes (Friendly, gated in room…)" value={pet.notes || ""} onChange={(e) => setPet(index, { notes: e.target.value })} />
+              <button
+                type="button"
+                className="grid h-10 w-10 place-items-center rounded-lg text-muted-foreground hover:bg-white hover:text-destructive transition"
+                aria-label="Remove pet"
+                onClick={() => setForm((c) => ({ ...c, pets: (c.pets || []).filter((_, i) => i !== index) }))}
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
+          ))}
+
+          {!form.pets?.length ? (
+            <div className="rounded-2xl border border-dashed border-brand-green/20 p-6 text-center text-xs text-muted-foreground">
+              No pets registered.
+            </div>
+          ) : null}
+        </div>
       </section>
 
-      <div className="flex justify-end"><button type="button" className="btn-primary" onClick={save} disabled={saving}><Save className="h-4 w-4" />{saving ? "Saving…" : "Save profile"}</button></div>
+      <div className="flex justify-end pt-2">
+        <button
+          type="button"
+          className="btn-primary rounded-full px-8 py-3 text-xs font-extrabold shadow-md"
+          onClick={save}
+          disabled={saving}
+        >
+          <Save className="h-4 w-4" />
+          {saving ? "Saving changes…" : "Save Profile"}
+        </button>
+      </div>
     </div>
   );
 }
