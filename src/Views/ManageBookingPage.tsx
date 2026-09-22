@@ -1,7 +1,21 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { CalendarClock, CheckCircle2, CreditCard, Loader2, RefreshCcw, XCircle } from "lucide-react";
+import {
+  CalendarClock,
+  CheckCircle2,
+  Clock,
+  CreditCard,
+  DollarSign,
+  Home,
+  Loader2,
+  Lock,
+  RefreshCcw,
+  Search,
+  ShieldAlert,
+  Sparkles,
+  XCircle,
+} from "lucide-react";
 import { SiteLayout } from "@/src/Layouts/SiteLayout";
 import {
   useCancelManagedBookingMutation,
@@ -36,49 +50,374 @@ export default function ManageBookingPage() {
     setReference(ref);
     setToken(manageToken);
     if (ref && manageToken) {
-      lookup({ reference: ref, manageToken }).unwrap().then(setBooking).catch((err: any) => setError(err?.data?.message || "This booking management link is invalid."));
+      lookup({ reference: ref, manageToken })
+        .unwrap()
+        .then(setBooking)
+        .catch((err: any) => setError(err?.data?.message || "This booking management link is invalid or expired."));
     }
   }, [lookup]);
 
   const handleLookup = async (event: FormEvent) => {
-    event.preventDefault(); setError(""); setMessage("");
-    try { setBooking(await lookup({ reference, manageToken: token }).unwrap()); }
-    catch (err: any) { setError(err?.data?.message || "Booking not found."); }
+    event.preventDefault();
+    setError("");
+    setMessage("");
+    try {
+      setBooking(await lookup({ reference, manageToken: token }).unwrap());
+    } catch (err: any) {
+      setError(err?.data?.message || "Booking not found with the provided reference and token.");
+    }
   };
 
   useEffect(() => {
-    if (!booking?.serviceId || !rescheduleDate) { setAvailability(undefined); return; }
-    getAvailability({ serviceId: booking.serviceId, property: booking.property || { propertyType: "HOME" }, propertySize: booking.propertySize, frequency: booking.frequency, extraCodes: booking.extras?.map((extra) => extra.code) || [], promoCode: booking.promoCode, date: rescheduleDate })
-      .unwrap().then(setAvailability).catch(() => setAvailability({ date: rescheduleDate, timezone: booking.businessTimezone || "", durationMinutes: booking.durationMinutes || 0, requiredStaff: booking.requiredStaffSnapshot || 1, slots: [], closed: false }));
+    if (!booking?.serviceId || !rescheduleDate) {
+      setAvailability(undefined);
+      return;
+    }
+    getAvailability({
+      serviceId: booking.serviceId,
+      property: booking.property || { propertyType: "HOME" },
+      propertySize: booking.propertySize,
+      frequency: booking.frequency,
+      extraCodes: booking.extras?.map((extra) => extra.code) || [],
+      promoCode: booking.promoCode,
+      date: rescheduleDate,
+    })
+      .unwrap()
+      .then(setAvailability)
+      .catch(() =>
+        setAvailability({
+          date: rescheduleDate,
+          timezone: booking.businessTimezone || "",
+          durationMinutes: booking.durationMinutes || 0,
+          requiredStaff: booking.requiredStaffSnapshot || 1,
+          slots: [],
+          closed: false,
+        })
+      );
   }, [booking, rescheduleDate, getAvailability]);
 
   const cancel = async () => {
-    if (!booking || !window.confirm("Cancel this booking? This action releases its crew capacity.")) return;
+    if (!booking || !window.confirm("Cancel this booking? This will release the crew capacity.")) return;
     setError("");
-    try { const next = await cancelBooking({ reference, manageToken: token }).unwrap(); setBooking(next); setMessage("Booking cancelled. Any matching waitlist customers can now be notified of the opening."); }
-    catch (err: any) { setError(err?.data?.message || "This booking could not be cancelled online."); }
+    try {
+      const next = await cancelBooking({ reference, manageToken: token }).unwrap();
+      setBooking(next);
+      setMessage("Your booking has been cancelled successfully. Confirmation has been emailed.");
+    } catch (err: any) {
+      setError(err?.data?.message || "This booking could not be cancelled online. Please call support.");
+    }
   };
 
   const reschedule = async () => {
     if (!booking || !rescheduleDate || !rescheduleTime) return;
     setError("");
-    try { const next = await rescheduleBooking({ reference, manageToken: token, date: rescheduleDate, timeSlot: rescheduleTime }).unwrap(); setBooking(next); setMessage("Booking rescheduled successfully."); setRescheduleDate(""); setRescheduleTime(""); setAvailability(undefined); }
-    catch (err: any) { setError(err?.data?.message || "That time is no longer available."); }
+    try {
+      const next = await rescheduleBooking({
+        reference,
+        manageToken: token,
+        date: rescheduleDate,
+        timeSlot: rescheduleTime,
+      }).unwrap();
+      setBooking(next);
+      setMessage("Your cleaning appointment has been rescheduled successfully!");
+      setRescheduleDate("");
+      setRescheduleTime("");
+      setAvailability(undefined);
+    } catch (err: any) {
+      setError(err?.data?.message || "That time slot is no longer available. Please select another slot.");
+    }
   };
 
   const payment = async () => {
     setError("");
-    try { const result = await startPayment({ reference, manageToken: token }).unwrap(); if (result.alreadyPaid) { setMessage("This deposit is already paid."); return; } if (result.checkoutUrl) window.location.assign(result.checkoutUrl); }
-    catch (err: any) { setError(err?.data?.message || "Secure checkout could not be started."); }
+    try {
+      const result = await startPayment({ reference, manageToken: token }).unwrap();
+      if (result.alreadyPaid) {
+        setMessage("This deposit has already been paid.");
+        return;
+      }
+      if (result.checkoutUrl) window.location.assign(result.checkoutUrl);
+    } catch (err: any) {
+      setError(err?.data?.message || "Secure checkout could not be initiated.");
+    }
   };
 
-  return <SiteLayout><main className="min-h-[80vh] bg-brand-cream/55 py-14"><div className="container-page max-w-4xl"><div className="mb-8"><span className="editorial-kicker">Customer booking portal</span><h1 className="mt-3 text-4xl font-extrabold tracking-[-0.05em] text-brand-dark sm:text-5xl">Manage your booking</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">Use the private token from your confirmation email to view policy-aware cancellation, rescheduling, and deposit options.</p></div>
-    {!booking ? <form onSubmit={handleLookup} className="surface grid gap-4 p-5 sm:grid-cols-[1fr_1.4fr_auto] sm:items-end sm:p-6"><label><span className="field-label">Booking reference</span><input className="field-control font-mono" value={reference} onChange={(event) => setReference(event.target.value)} placeholder="BIO-2026-000001" required /></label><label><span className="field-label">Private management token</span><input className="field-control font-mono" value={token} onChange={(event) => setToken(event.target.value)} placeholder="From your booking email" required /></label><button className="btn-primary h-12" disabled={lookingUp}>{lookingUp ? <Loader2 className="h-4 w-4 animate-spin" /> : "Open booking"}</button></form> : <div className="grid gap-6 lg:grid-cols-[1fr_300px]"><section className="surface p-5 sm:p-6"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="font-mono text-xs font-bold text-brand-green">{booking.reference}</p><h2 className="mt-1 text-2xl font-extrabold text-brand-dark">{booking.serviceType}</h2><p className="mt-1 text-sm text-muted-foreground">{booking.propertySize}</p></div><span className="status-badge border-brand-green/20 bg-brand-green/5 text-brand-green">{booking.status}</span></div><dl className="mt-6 grid gap-4 border-y border-border py-5 sm:grid-cols-2"><Info label="Scheduled" value={`${new Date(booking.date).toLocaleDateString()} · ${booking.timeSlot}`} /><Info label="Duration" value={`${booking.durationMinutes || "—"} minutes`} /><Info label="Total" value={`$${Number(booking.totalAmount).toFixed(2)}`} /><Info label="Payment" value={booking.payment?.status || "NOT_REQUIRED"} /></dl>
-      {booking.status !== "CANCELLED" && booking.status !== "COMPLETED" ? <div className="mt-6"><h3 className="text-sm font-extrabold text-brand-dark">Reschedule</h3><div className="mt-3 grid gap-3 sm:grid-cols-2"><input type="date" min={new Date().toISOString().slice(0,10)} className="field-control" value={rescheduleDate} onChange={(event) => { setRescheduleDate(event.target.value); setRescheduleTime(""); }} /><select className="field-control" value={rescheduleTime} onChange={(event) => setRescheduleTime(event.target.value)} disabled={!rescheduleDate || loadingAvailability}><option value="">{loadingAvailability ? "Loading live times…" : "Choose a new time"}</option>{availability?.slots.map((slot) => <option key={slot.time} value={slot.time}>{slot.label} · {slot.remainingCapacity} capacity left</option>)}</select></div><button type="button" onClick={reschedule} disabled={!rescheduleTime || rescheduling} className="btn-secondary mt-3"><RefreshCcw className="h-4 w-4" />{rescheduling ? "Rescheduling…" : "Reschedule booking"}</button></div> : null}
-      {message ? <div className="feedback-panel mt-5 border-brand-green/20 bg-brand-green/5 text-brand-green">{message}</div> : null}{error ? <div className="feedback-panel mt-5 border-destructive/20 bg-destructive/5 text-destructive">{error}</div> : null}
-    </section><aside className="space-y-4"><div className="rounded-2xl bg-brand-dark p-5 text-white"><CalendarClock className="h-5 w-5 text-brand-lime" /><h3 className="mt-3 text-lg font-extrabold">Policy controls</h3><p className="mt-2 text-xs leading-5 text-white/60">Cancel notice: {booking.cancellationPolicy?.noticeHours ?? "—"}h<br />Reschedule notice: {booking.cancellationPolicy?.rescheduleNoticeHours ?? "—"}h</p>{booking.status !== "CANCELLED" && booking.status !== "COMPLETED" ? <button type="button" onClick={cancel} disabled={cancelling} className="mt-4 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-white/15 px-3 text-xs font-extrabold text-white hover:bg-white/8"><XCircle className="h-4 w-4" />{cancelling ? "Cancelling…" : "Cancel booking"}</button> : <div className="mt-4 flex items-center gap-2 text-xs font-bold text-brand-lime"><CheckCircle2 className="h-4 w-4" /> No active changes available</div>}</div>{booking.payment?.depositAmount && booking.payment.status !== "PAID" ? <div className="surface p-5"><CreditCard className="h-5 w-5 text-brand-green" /><h3 className="mt-3 text-sm font-extrabold text-brand-dark">Deposit outstanding</h3><p className="mt-1 text-xs text-muted-foreground">${booking.payment.depositAmount.toFixed(2)} {booking.payment.currency}</p><button type="button" onClick={payment} disabled={startingPayment} className="btn-primary mt-4 w-full">{startingPayment ? "Opening…" : "Pay securely"}</button></div> : null}</aside></div>}
-    {error && !booking ? <div className="feedback-panel mt-4 border-destructive/20 bg-destructive/5 text-destructive">{error}</div> : null}
-  </div></main></SiteLayout>;
-}
+  return (
+    <SiteLayout>
+      <div className="min-h-[85vh] bg-[#f7faf8]">
+        {/* Spruce Header */}
+        <section className="relative overflow-hidden bg-[#0C3629] py-16 text-white md:py-20">
+          <div className="container-page max-w-4xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-brand-lime/30 bg-white/8 px-4 py-1.5 text-xs font-extrabold uppercase tracking-wider text-brand-lime backdrop-blur-md">
+              <CalendarClock className="h-3.5 w-3.5" />
+              <span>Self-Service Portal</span>
+            </div>
 
-function Info({ label, value }: { label: string; value: string }) { return <div><dt className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-muted-foreground">{label}</dt><dd className="mt-1 text-sm font-bold capitalize text-brand-dark">{value}</dd></div>; }
+            <h1 className="mt-4 text-3xl font-extrabold tracking-tight sm:text-5xl text-white">
+              Manage Your Booking
+            </h1>
+
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/75">
+              Lookup your appointment using your booking reference and private access token to reschedule, review visit scope, or update payment.
+            </p>
+          </div>
+        </section>
+
+        {/* Content Section */}
+        <div className="container-page max-w-4xl py-12">
+          {!booking ? (
+            /* Lookup Form Card */
+            <div className="rounded-3xl border border-brand-green/15 bg-white p-6 sm:p-10 shadow-lg">
+              <div className="flex items-center gap-3 pb-6 border-b border-brand-green/10">
+                <div className="grid h-10 w-10 place-items-center rounded-xl bg-brand-lime/40 text-brand-dark">
+                  <Lock className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-extrabold text-brand-dark">Enter Booking Credentials</h2>
+                  <p className="text-xs text-muted-foreground">Find these in your confirmation email</p>
+                </div>
+              </div>
+
+              <form onSubmit={handleLookup} className="mt-6 grid gap-5 sm:grid-cols-2">
+                <div>
+                  <label className="field-label">Booking Reference</label>
+                  <div className="relative">
+                    <input
+                      className="field-control font-mono pl-9"
+                      value={reference}
+                      onChange={(e) => setReference(e.target.value)}
+                      placeholder="BIO-2026-000001"
+                      required
+                    />
+                    <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="field-label">Private Management Token</label>
+                  <input
+                    className="field-control font-mono"
+                    value={token}
+                    onChange={(e) => setToken(e.target.value)}
+                    placeholder="From confirmation email"
+                    required
+                  />
+                </div>
+
+                <div className="sm:col-span-2 pt-2">
+                  <button
+                    type="submit"
+                    disabled={lookingUp}
+                    className="btn-primary w-full rounded-full min-h-[48px] text-sm font-extrabold"
+                  >
+                    {lookingUp ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Finding Booking…
+                      </>
+                    ) : (
+                      "Open & Manage Booking"
+                    )}
+                  </button>
+                </div>
+              </form>
+
+              {error ? (
+                <div className="feedback-panel mt-6 border-destructive/20 bg-destructive/5 text-destructive rounded-2xl">
+                  <XCircle className="h-5 w-5 shrink-0" />
+                  <span>{error}</span>
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            /* Active Booking Dashboard */
+            <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
+              <div className="space-y-6">
+                {/* Main Details Card */}
+                <div className="rounded-3xl border border-brand-green/15 bg-white p-6 sm:p-8 shadow-sm">
+                  <div className="flex flex-wrap items-start justify-between gap-4 border-b border-brand-green/10 pb-6">
+                    <div>
+                      <span className="font-mono text-xs font-bold text-brand-green">
+                        {booking.reference}
+                      </span>
+                      <h2 className="mt-1 text-2xl font-extrabold text-brand-dark">
+                        {booking.serviceType}
+                      </h2>
+                      <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                        <Home className="h-3.5 w-3.5" />
+                        <span>{booking.propertySize} • {booking.frequency.replace("_", " ")}</span>
+                      </div>
+                    </div>
+
+                    <span className="rounded-full bg-brand-lime/25 px-3 py-1 text-xs font-extrabold uppercase tracking-wider text-brand-dark">
+                      {booking.status}
+                    </span>
+                  </div>
+
+                  {/* 4 Stats Grid */}
+                  <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+                    <div className="rounded-2xl bg-[#f7faf8] p-4 border border-brand-green/10">
+                      <div className="text-[10px] font-extrabold uppercase text-muted-foreground">Date & Slot</div>
+                      <div className="mt-1 text-sm font-bold text-brand-dark">
+                        {new Date(booking.date).toLocaleDateString()}
+                      </div>
+                      <div className="text-xs text-brand-green font-semibold">{booking.timeSlot}</div>
+                    </div>
+
+                    <div className="rounded-2xl bg-[#f7faf8] p-4 border border-brand-green/10">
+                      <div className="text-[10px] font-extrabold uppercase text-muted-foreground">Est. Duration</div>
+                      <div className="mt-1 text-sm font-bold text-brand-dark">
+                        {booking.durationMinutes || "—"} mins
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl bg-[#f7faf8] p-4 border border-brand-green/10">
+                      <div className="text-[10px] font-extrabold uppercase text-muted-foreground">Total Price</div>
+                      <div className="mt-1 text-sm font-black text-brand-dark">
+                        ${Number(booking.totalAmount).toFixed(2)}
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl bg-[#f7faf8] p-4 border border-brand-green/10">
+                      <div className="text-[10px] font-extrabold uppercase text-muted-foreground">Payment</div>
+                      <div className="mt-1 text-xs font-bold capitalize text-brand-dark">
+                        {booking.payment?.status || "NOT_REQUIRED"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Reschedule Section */}
+                  {booking.status !== "CANCELLED" && booking.status !== "COMPLETED" ? (
+                    <div className="mt-8 border-t border-brand-green/10 pt-6">
+                      <h3 className="text-base font-extrabold text-brand-dark flex items-center gap-2">
+                        <RefreshCcw className="h-4 w-4 text-brand-green" /> Reschedule Appointment
+                      </h3>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Select a new date to inspect live available crew arrival windows.
+                      </p>
+
+                      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                        <div>
+                          <label className="field-label">New Preferred Date</label>
+                          <input
+                            type="date"
+                            min={new Date().toISOString().slice(0, 10)}
+                            className="field-control"
+                            value={rescheduleDate}
+                            onChange={(e) => {
+                              setRescheduleDate(e.target.value);
+                              setRescheduleTime("");
+                            }}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="field-label">Live Crew Capacity Slot</label>
+                          <select
+                            className="field-control"
+                            value={rescheduleTime}
+                            onChange={(e) => setRescheduleTime(e.target.value)}
+                            disabled={!rescheduleDate || loadingAvailability}
+                          >
+                            <option value="">
+                              {loadingAvailability ? "Loading live slots…" : "Select available arrival window"}
+                            </option>
+                            {availability?.slots.map((slot) => (
+                              <option key={slot.time} value={slot.time}>
+                                {slot.label} ({slot.remainingCapacity} crews open)
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="mt-5">
+                        <button
+                          type="button"
+                          onClick={reschedule}
+                          disabled={!rescheduleTime || rescheduling}
+                          className="btn-primary rounded-full px-6 text-xs font-extrabold"
+                        >
+                          <RefreshCcw className="h-4 w-4" />
+                          {rescheduling ? "Rescheduling…" : "Confirm Reschedule"}
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* Feedback Messages */}
+                  {message ? (
+                    <div className="feedback-panel mt-6 border-brand-green/20 bg-brand-green/5 text-brand-green rounded-2xl">
+                      <CheckCircle2 className="h-5 w-5 shrink-0" />
+                      <span>{message}</span>
+                    </div>
+                  ) : null}
+
+                  {error ? (
+                    <div className="feedback-panel mt-6 border-destructive/20 bg-destructive/5 text-destructive rounded-2xl">
+                      <XCircle className="h-5 w-5 shrink-0" />
+                      <span>{error}</span>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+
+              {/* Policy & Actions Sidebar */}
+              <aside className="space-y-6">
+                <div className="rounded-3xl bg-[#0C3629] p-6 text-white shadow-xl">
+                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-brand-lime text-brand-dark font-black mb-3">
+                    <CalendarClock className="h-5 w-5" />
+                  </div>
+                  <h3 className="text-base font-extrabold">Notice Policies</h3>
+                  <div className="mt-3 space-y-2 text-xs text-white/75 leading-relaxed">
+                    <div>
+                      Cancellation Notice: <strong>{booking.cancellationPolicy?.noticeHours ?? 48} hours</strong>
+                    </div>
+                    <div>
+                      Reschedule Notice: <strong>{booking.cancellationPolicy?.rescheduleNoticeHours ?? 24} hours</strong>
+                    </div>
+                  </div>
+
+                  {booking.status !== "CANCELLED" && booking.status !== "COMPLETED" ? (
+                    <button
+                      type="button"
+                      onClick={cancel}
+                      disabled={cancelling}
+                      className="mt-6 inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 text-xs font-extrabold text-white transition hover:bg-destructive hover:border-destructive"
+                    >
+                      <XCircle className="h-4 w-4" />
+                      {cancelling ? "Cancelling…" : "Cancel Appointment"}
+                    </button>
+                  ) : (
+                    <div className="mt-5 rounded-xl bg-white/10 p-3 text-center text-xs font-bold text-brand-lime">
+                      No active changes available
+                    </div>
+                  )}
+                </div>
+
+                {/* Deposit action if required */}
+                {booking.payment?.depositAmount && booking.payment.status !== "PAID" ? (
+                  <div className="rounded-3xl border border-brand-green/15 bg-white p-6 shadow-sm">
+                    <CreditCard className="h-6 w-6 text-brand-green mb-2" />
+                    <h3 className="text-sm font-extrabold text-brand-dark">Deposit Outstanding</h3>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      ${booking.payment.depositAmount.toFixed(2)} {booking.payment.currency}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={payment}
+                      disabled={startingPayment}
+                      className="btn-primary mt-4 w-full rounded-full text-xs font-extrabold"
+                    >
+                      {startingPayment ? "Starting Stripe…" : "Pay Deposit Securely"}
+                    </button>
+                  </div>
+                ) : null}
+              </aside>
+            </div>
+          )}
+        </div>
+      </div>
+    </SiteLayout>
+  );
+}
