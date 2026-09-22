@@ -1,112 +1,138 @@
+"use client";
+
+import Link from "next/link";
+import { ArrowRight, BadgeCheck, Clock, DollarSign, HeartHandshake, Leaf, ShieldCheck, Sparkles, UserCheck } from "lucide-react";
 import type { WebsiteHomepageSection } from "@/src/redux/features/website/types";
-import { BadgeCheck, Clock, Leaf, ShieldCheck } from "lucide-react";
-import whyChoose from "@/src/assets/why-choose.jpeg";
-import Image from "next/image";
 
 export default function WhyChooseUs({ section }: { section?: WebsiteHomepageSection }) {
-  const items = [
+  const cards = [
     {
-      icon: ShieldCheck,
-      title: "Trusted Pros",
-      desc: "Background-checked, insured, and trained to BIO standards.",
-      lime: false,
+      icon: UserCheck,
+      title: "Experienced Cleaners",
+      desc: "Every cleaner passes rigorous background checks, reference verifications, and BIO practical training.",
+      dark: false,
     },
     {
       icon: Leaf,
-      title: "Eco Products",
-      desc: "Plant-based supplies safe for kids, pets, and the planet.",
-      lime: true,
+      title: "Eco-Friendly Products",
+      desc: "Plant-derived detergents, EPA-registered disinfectants, and zero volatile organic compounds (VOCs).",
+      dark: false,
     },
     {
       icon: Clock,
-      title: "Always on Time",
-      desc: "We arrive in your scheduled window — guaranteed.",
-      lime: false,
+      title: "Flexible Scheduling",
+      desc: "Book online in 60 seconds. Choose morning or afternoon arrival windows that fit your life.",
+      dark: false,
     },
     {
-      icon: BadgeCheck,
-      title: "Satisfaction First",
-      desc: "Not happy? We re-clean for free, no questions asked.",
-      lime: true,
+      icon: DollarSign,
+      title: "Transparent Pricing",
+      desc: "Flat-rate quotes based on your home size with no hidden add-ons or unexpected post-service surprises.",
+      dark: false,
+    },
+    {
+      icon: ShieldCheck,
+      title: "Bonded & Insured",
+      desc: "Full comprehensive liability and bonding protection on every team member who enters your home.",
+      dark: false,
+    },
+    {
+      icon: HeartHandshake,
+      title: "100% Satisfaction Guarantee",
+      desc: "Not 100% thrilled with any spot? Contact us within 24 hours and we will dispatch a crew to re-clean for free.",
+      dark: true, // The standout dark forest green card from the design image!
     },
   ];
+
   return (
-    <section className="py-24">
+    <section className="bg-[#f7faf8] py-20 lg:py-28">
       <div className="container-page">
-        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-end mb-14">
-          <div>
-          <span className="pill" data-reveal>
-            — {section?.eyebrow || "Why Us"} —
-          </span>
-          <h2
-            className="mt-3 text-4xl md:text-5xl text-brand-dark font-display"
-            data-reveal
-          >
-            {section?.title || "Why choose us as your cleaning partner?"}
-          </h2>
+        {/* Section Header */}
+        <div className="mx-auto max-w-3xl text-center mb-14">
+          <div className="editorial-kicker mx-auto mb-3">
+            <Sparkles className="h-3.5 w-3.5" />
+            <span>{section?.eyebrow || "Why Us"}</span>
           </div>
-          <p className="text-muted-foreground lg:text-lg" data-reveal>
-            {section?.subtitle || "We pair a hospitality-level client experience with trained cleaners, clear systems, and products that are tough on mess without being harsh on your home."}
+          <h2 className="text-3xl font-extrabold tracking-tight text-brand-dark sm:text-4xl md:text-5xl">
+            {section?.title || "Why Choose Our House Cleaning Services?"}
+          </h2>
+          <p className="mt-4 text-base text-muted-foreground sm:text-lg">
+            {section?.subtitle ||
+              "We combine hospital-level sanitation standards with a friendly, five-star hospitality touch you can rely on every visit."}
           </p>
         </div>
 
-        <div
-          className="grid lg:grid-cols-5 gap-6 items-stretch"
-          data-reveal-group
-        >
-          <div className="lg:col-span-2 rounded-2xl overflow-hidden relative min-h-[420px]">
-            <Image
-              src={whyChoose}
-              alt="Bright clean living room"
-              sizes="(min-width: 1024px) 40vw, 100vw"
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/80 to-transparent" />
-            <div className="absolute bottom-6 left-6 right-6 rounded-2xl bg-white/12 border border-white/10 p-5 text-white backdrop-blur-md">
-              <div className="text-brand-lime text-sm font-semibold">
-                BIO Promise
-              </div>
-              <div className="font-display text-2xl mt-1">
-                Clean, calm, and completely handled.
-              </div>
-            </div>
-          </div>
-          <div className="lg:col-span-3 grid sm:grid-cols-2 gap-4">
-            {items.map(({ icon: Icon, title, desc, lime }) => (
-              <div
-                key={title}
-                className={`rounded-2xl p-7 transition hover:-translate-y-1 ${lime ? "bg-brand-lime text-brand-dark" : "bg-brand-cream text-brand-dark"}`}
-              >
+        {/* 6-Card Grid (3 columns x 2 rows) */}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {cards.map((card) => {
+            const Icon = card.icon;
+
+            if (card.dark) {
+              // Standout Dark Spruce Green Card
+              return (
                 <div
-                  className={`w-12 h-12 rounded-2xl grid place-items-center mb-5 ${lime ? "bg-brand-dark text-brand-lime" : "bg-brand-dark text-brand-lime"}`}
+                  key={card.title}
+                  className="group relative flex flex-col justify-between overflow-hidden rounded-3xl bg-[#0C3629] p-8 text-white shadow-2xl transition hover:-translate-y-1.5 hover:shadow-[0_20px_50px_rgba(12,54,41,0.4)]"
                 >
-                  <Icon className="w-5 h-5" />
+                  <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-brand-lime/15 blur-2xl" />
+
+                  <div>
+                    <div className="mb-6 grid h-14 w-14 place-items-center rounded-2xl bg-brand-lime text-brand-dark font-black shadow-lg">
+                      <Icon className="h-7 w-7" />
+                    </div>
+
+                    <div className="inline-block rounded-full bg-brand-lime/20 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-brand-lime mb-3">
+                      BIO Promise
+                    </div>
+
+                    <h3 className="text-xl font-extrabold text-white sm:text-2xl">
+                      {card.title}
+                    </h3>
+
+                    <p className="mt-3 text-sm leading-relaxed text-white/80">
+                      {card.desc}
+                    </p>
+                  </div>
+
+                  <div className="mt-8 border-t border-white/15 pt-5">
+                    <Link
+                      href="/book"
+                      className="inline-flex items-center gap-2 text-sm font-extrabold text-brand-lime transition hover:text-white"
+                    >
+                      Book With Full Confidence <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </div>
                 </div>
-                <h3 className="text-xl font-display">{title}</h3>
-                <p className="text-sm mt-2 opacity-80">{desc}</p>
+              );
+            }
+
+            // Standard Light Feature Card
+            return (
+              <div
+                key={card.title}
+                className="group relative flex flex-col justify-between rounded-3xl border border-brand-green/12 bg-white p-8 shadow-sm transition hover:-translate-y-1.5 hover:border-brand-lime hover:shadow-xl"
+              >
+                <div>
+                  <div className="mb-6 grid h-14 w-14 place-items-center rounded-2xl bg-[#eaf6ed] text-[#22794A] transition group-hover:bg-brand-lime group-hover:text-brand-dark">
+                    <Icon className="h-7 w-7" />
+                  </div>
+
+                  <h3 className="text-xl font-extrabold text-brand-dark">
+                    {card.title}
+                  </h3>
+
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                    {card.desc}
+                  </p>
+                </div>
+
+                <div className="mt-6 flex items-center gap-1.5 text-xs font-bold text-brand-green">
+                  <BadgeCheck className="h-4 w-4 text-brand-lime" />
+                  <span>Guaranteed BIO Standard</span>
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
-        <div
-          className="mt-6 grid md:grid-cols-3 gap-4"
-          data-reveal-group
-        >
-          {[
-            ["01", "Transparent pricing before arrival"],
-            ["02", "Eco-first products and equipment"],
-            ["03", "Re-clean support within 24 hours"],
-          ].map(([n, label]) => (
-            <div
-              key={label}
-              className="rounded-2xl bg-brand-dark text-white p-5 flex items-center gap-4"
-            >
-              <span className="font-display text-3xl text-brand-lime">
-                {n}
-              </span>
-              <span className="text-sm text-white/80">{label}</span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

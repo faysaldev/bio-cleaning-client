@@ -72,15 +72,15 @@
   --font-display: var(--font-body);
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 
-  --brand-dark: oklch(0.285 0.055 153);
-  --brand-green: oklch(0.515 0.125 151);
-  --brand-mint: oklch(0.87 0.075 151);
-  --brand-yellow: oklch(0.91 0.175 112);
-  --brand-lime: oklch(0.905 0.17 118);
-  --brand-cream: oklch(0.977 0.011 126);
+  --brand-dark: oklch(0.24 0.055 158); /* #0C3629 deep spruce forest */
+  --brand-green: oklch(0.48 0.13 148); /* #22794A fresh rich foliage green */
+  --brand-mint: oklch(0.91 0.07 146); /* #C3EED2 light clean mint */
+  --brand-yellow: oklch(0.85 0.22 130); /* vibrant lime */
+  --brand-lime: oklch(0.85 0.22 130); /* #7CE337 vibrant spring lime */
+  --brand-cream: oklch(0.985 0.015 142); /* #F4FAF5 soft crisp surface */
 
-  --background: oklch(0.992 0.004 120);
-  --foreground: oklch(0.205 0.018 150);
+  --background: oklch(0.995 0.005 130);
+  --foreground: oklch(0.18 0.025 155);
   --card: oklch(1 0 0);
   --card-foreground: var(--foreground);
   --popover: oklch(1 0 0);
@@ -248,15 +248,15 @@
     align-items: center;
     gap: 0.45rem;
     width: fit-content;
-    border: 1px solid color-mix(in oklab, var(--brand-green) 20%, transparent);
-    border-radius: var(--radius-sm);
-    background: color-mix(in oklab, var(--brand-mint) 24%, white);
+    border: 1px solid color-mix(in oklab, var(--brand-green) 24%, transparent);
+    border-radius: 9999px;
+    background: color-mix(in oklab, var(--brand-mint) 32%, white);
     color: var(--brand-dark);
-    padding: 0.42rem 0.66rem;
-    font-size: 0.69rem;
+    padding: 0.42rem 0.88rem;
+    font-size: 0.72rem;
     font-weight: 800;
     line-height: 1;
-    letter-spacing: 0.13em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
   }
 
@@ -277,12 +277,12 @@
   .btn-secondary,
   .btn-ghost-light {
     display: inline-flex;
-    min-height: 44px;
+    min-height: 46px;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    border-radius: var(--radius-md);
-    padding: 0.72rem 1.15rem;
+    border-radius: 9999px;
+    padding: 0.72rem 1.4rem;
     font-size: 0.875rem;
     font-weight: 700;
     line-height: 1;
@@ -296,20 +296,20 @@
   }
 
   .btn-primary {
-    border: 1px solid color-mix(in oklab, var(--brand-yellow) 84%, var(--brand-dark));
-    background: var(--brand-yellow);
-    color: oklch(0.18 0.02 120);
-    box-shadow: 0 8px 18px -12px color-mix(in oklab, var(--brand-yellow) 80%, var(--brand-dark));
+    border: 1px solid var(--brand-lime);
+    background: var(--brand-lime);
+    color: var(--brand-dark);
+    box-shadow: 0 8px 24px -10px color-mix(in oklab, var(--brand-lime) 75%, var(--brand-dark));
   }
 
   .btn-primary:hover:not(:disabled) {
     transform: translateY(-1px);
-    background: color-mix(in oklab, var(--brand-yellow) 86%, white);
-    box-shadow: 0 12px 24px -14px color-mix(in oklab, var(--brand-yellow) 90%, var(--brand-dark));
+    background: color-mix(in oklab, var(--brand-lime) 90%, white);
+    box-shadow: 0 12px 28px -10px color-mix(in oklab, var(--brand-lime) 90%, var(--brand-dark));
   }
 
   .btn-secondary {
-    border: 1px solid color-mix(in oklab, var(--brand-green) 50%, var(--border));
+    border: 1px solid color-mix(in oklab, var(--brand-dark) 20%, var(--border));
     background: white;
     color: var(--brand-dark);
     box-shadow: var(--shadow-xs);
@@ -322,14 +322,16 @@
   }
 
   .btn-ghost-light {
-    border: 1px solid rgb(255 255 255 / 0.24);
-    background: rgb(255 255 255 / 0.04);
+    border: 1.5px solid rgb(255 255 255 / 0.38);
+    background: rgb(255 255 255 / 0.06);
     color: white;
+    backdrop-filter: blur(8px);
   }
 
   .btn-ghost-light:hover:not(:disabled) {
-    border-color: rgb(255 255 255 / 0.42);
-    background: rgb(255 255 255 / 0.1);
+    border-color: white;
+    background: rgb(255 255 255 / 0.16);
+    color: white;
   }
 
   .field-label {
