@@ -58,7 +58,7 @@ export function Navbar({ website }: { website?: WebsitePublicPayload }) {
         </nav>
         <div className="flex items-center gap-2">
           {/* Quick Page Explorer Toggle Button */}
-          <button
+          {/* <button
             type="button"
             onClick={() => setExplorerOpen(true)}
             className="inline-flex items-center gap-1.5 rounded-full border border-brand-lime/30 bg-brand-lime/10 px-3 py-1.5 text-xs font-bold text-brand-lime transition hover:bg-brand-lime hover:text-brand-dark"
@@ -67,7 +67,7 @@ export function Navbar({ website }: { website?: WebsitePublicPayload }) {
             <Compass className="h-3.5 w-3.5" />
             <span className="hidden md:inline">Pages</span>
             <span className="rounded-full bg-brand-lime/20 px-1.5 py-0.2 text-[10px] font-black">68</span>
-          </button>
+          </button> */}
 
           <a href={phoneHref} className="btn-ghost-light hidden min-h-9 px-3.5 text-xs 2xl:inline-flex">
             <Phone className="h-3.5 w-3.5 text-brand-lime" /> Call us
